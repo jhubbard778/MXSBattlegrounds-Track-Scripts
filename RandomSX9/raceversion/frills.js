@@ -7,15 +7,16 @@ var slot_position_holder = [];
 var g_running_order = mx.get_running_order();
 // checks to make sure rider switched gates
 var current_timing_gates = [];
+var started_flame_sound = false;
 var soundedStartFlames = false;
 var set_start_flame_loop = false;
 var startFlameSoundAdded = false;
 var startedStartFlameSoundLoop = false;
-var holeshotFlameSoundAdded = false;
+var holeshotFlameSoundsAdded = false;
 var finishFlameSoundAdded = false;
 var finishFlameSound;
 var finishWhistleSound;
-var holeshotFlameSound;
+var holeshotFlameSounds = [];
 var startFlameSound = [];
 var finishFireworkSound;
 var gateDropTime;
@@ -33,8 +34,7 @@ CHANGE EVERY TRACK
 */
 var g_firstlap = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]; 
 var g_normallap = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]; 
-var g_flaggers = [
-];
+var g_flaggers = [];
 var g_flagger_count = g_flaggers.length;
 var g_starter_index = 0;
 var g_finisher_index = 1;
@@ -57,48 +57,55 @@ CHANGE COORDS EVERY TRACK
 #########################
 */
 var startFlameCoords = [
-  [139,6,508],
-  [157.5,6,526.5],
-  [174.5,6,543],
-  [193,6,561]
+  [128.438416, 9.000000, 497.612274],
+  [137.961914, 9.000000, 506.996399],
+  [153.301193, 9.000000, 522.226196],
+  [162.861298, 9.000000, 531.605957],
+  [168.705368, 9.000000, 537.329834],
+  [178.207001, 9.000000, 546.702881],
+  [203.094864, 9.000000, 571.254089],
+  [193.566559, 9.000000, 561.846985]
 ];
-var holeshotCoords = [316, 8, 284];
+var holeshotCoords = [
+  [315.363922, 8.000000, 283.171173],
+  [323.246948, 8.000000, 291.764801]
+];
 var finishFlameCoords = [
-  [460,12,362],
-  [460,12,396]
+  [459.547089, 20.500000, 361.974976],
+  [459.601410, 20.500000, 395.998230]
 ];
 var baleCoordsUp = [
-[266.018646, -5.000000, 438.696808, -0.684825],
-[284.193237, -5.000000, 420.691467, -0.947597],
-[274.541595, -5.000000, 429.045013, -0.758380],
-[251.907822, -5.000000, 460.145142, -0.402116],
-[258.229523, -5.000000, 448.969452, -0.614020],
-[247.455322, -5.000000, 475.834930, -0.112428],
-[309.863434, -5.000000, 407.824677, -1.251727],
-[324.396606, -5.000000, 405.088043, -1.480141],
-[249.374390, -5.000000, 499.992462, 0.270154],
-[319.340118, -5.000000, 345.775848, -0.415814],
-[247.342438, -5.000000, 488.139465, 0.099668],
-[337.289398, -5.000000, 390.421936, 1.176001],
-[328.540283, -5.000000, 385.229401, 0.910669],
-[321.428436, -5.000000, 377.609650, 0.588003],
-[317.138855, -5.000000, 367.675690, 0.276909],
-[316.517975, -5.000000, 356.387115, -0.083836],
-[296.786530, -5.000000, 412.985748, -1.083203]
+  [266.018646, -5.000000, 438.696808, -0.684825],
+  [284.193237, -5.000000, 420.691467, -0.947597],
+  [274.541595, -5.000000, 429.045013, -0.758380],
+  [251.907822, -5.000000, 460.145142, -0.402116],
+  [258.229523, -5.000000, 448.969452, -0.614020],
+  [247.455322, -5.000000, 475.834930, -0.112428],
+  [309.863434, -5.000000, 407.824677, -1.251727],
+  [324.396606, -5.000000, 405.088043, -1.480141],
+  [249.374390, -5.000000, 499.992462, 0.270154],
+  [319.340118, -5.000000, 345.775848, -0.415814],
+  [247.342438, -5.000000, 488.139465, 0.099668],
+  [337.289398, -5.000000, 390.421936, 1.176001],
+  [328.540283, -5.000000, 385.229401, 0.910669],
+  [321.428436, -5.000000, 377.609650, 0.588003],
+  [317.138855, -5.000000, 367.675690, 0.276909],
+  [316.517975, -5.000000, 356.387115, -0.083836],
+  [296.786530, -5.000000, 412.985748, -1.083203]
 ];
 var balesToPushUp = [];
 var numOfBalesToPushUp = baleCoordsUp.length;
 var baleCoordsDown = [
-[361.818756, 0.000000, 368.099213, -0.692641],
-[346.484894, 0.000000, 387.481903, -0.692641],
-[255.023163, 0.000000, 501.121552, -0.700494],
-[269.041138, 0.000000, 484.039978, -0.700494],
-[276.136200, 0.000000, 475.378845, -0.700494],
-[312.056152, 0.000000, 430.399048, -0.692641],
-[319.359924, 0.000000, 421.059967, -0.692641],
-[327.525818, 0.000000, 410.849426, -0.692641],
-[354.567291, 0.000000, 377.358459, -0.692641],
-[262.296143, 0.000000, 492.341492, -0.700494]
+  [361.818756, 0.000000, 368.099213, -0.692641],
+  [346.484894, 0.000000, 387.481903, -0.692641],
+  [255.023163, 0.000000, 501.121552, -0.700494],
+  [269.041138, 0.000000, 484.039978, -0.700494],
+  [276.136200, 0.000000, 475.378845, -0.700494],
+  [312.056152, 0.000000, 430.399048, -0.692641],
+  [319.359924, 0.000000, 421.059967, -0.692641],
+  [327.525818, 0.000000, 410.849426, -0.692641],
+  [354.567291, 0.000000, 377.358459, -0.692641],
+  [262.296143, 0.000000, 492.341492, -0.700494]
 ];
 var balesToPushDown = [];
 // have at least 1 object in between the two bale sets as a separator
@@ -138,9 +145,9 @@ var gatesAndPosCheerOrBoo = [
 var crashSounds = [];
 // choose random directories to assign to crashsounds so it's not all the same sound when someone crashes
 var crashSoundDirectories = [
-"@sx2022battlegroundsobjectpack/sounds/crashes/crash1.raw",
-"@sx2022battlegroundsobjectpack/sounds/crashes/crash2.raw",
-"@sx2022battlegroundsobjectpack/sounds/cheers/roar1.raw"
+  "@sx2022battlegroundsobjectpack/sounds/crashes/crash1.raw",
+  "@sx2022battlegroundsobjectpack/sounds/crashes/crash2.raw",
+  "@sx2022battlegroundsobjectpack/sounds/cheers/roar1.raw"
 ];
 var numOfCrashVariants = crashSoundDirectories.length;
 
@@ -150,7 +157,6 @@ var crowdRoarDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/cheers/cheer1.raw",
   "@sx2022battlegroundsobjectpack/sounds/cheers/roar1.raw",
   "@sx2022battlegroundsobjectpack/sounds/pretzel1.raw",
-  "@sx2022battlegroundsobjectpack/sounds/boom.raw"
 ];
 var numOfRoarVariants = crowdRoarDirectories.length;
 
@@ -158,7 +164,7 @@ var allCheerSounds = [];
 var allBooSounds = [];
 
 var cheerVariantDirectories = [
-  "@sx2022battlegroundsobjectpack/sounds/cheer.raw",
+  "@sx2022battlegroundsobjectpack/sounds/cheers/cheer.raw",
   "@sx2022battlegroundsobjectpack/sounds/cheers/cheer1.raw",
   "@sx2022battlegroundsobjectpack/sounds/cheers/roar1.raw"
 
@@ -167,8 +173,7 @@ var numOfCheerVariants = cheerVariantDirectories.length;
 
 var booVariantDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/pretzel1.raw",
-  "@sx2022battlegroundsobjectpack/sounds/jose.raw",
-  "@sx2022battlegroundsobjectpack/sounds/milker.raw"
+  "@sx2022battlegroundsobjectpack/sounds/boos/boo.raw"
 ];
 var numOfBooVariants = booVariantDirectories.length;
 
@@ -251,7 +256,6 @@ var allDirectories = [
 // Change list to boo or cheer specific riders when they pass by the crowd
 var booRiderNames = [
   "brayden tharp",
-  "joe biden",
   "alexis leclair",
 	"rogan mcintosh",
 	"roborider",
@@ -259,8 +263,7 @@ var booRiderNames = [
   "larry reyes jr",
   "jr reyes",
   "tyler lang",
-  "rasmus balzer",
-  "obama"
+  "rasmus balzer"
 ];
 var cheerRiderNames = [
   "cade matherly",
@@ -301,7 +304,7 @@ const undefinedTime = 999999999;
 const normalLapLength = mx.normal_lap_length;
 const firstLapLength = mx.first_lap_length;
 const holeshotGate = 2;
-const songs_on = false;
+const songs_on = true;
 
 // true = track is in stadium, false = track is not in stadium
 /*
@@ -325,7 +328,7 @@ const lapToActivateMechanics = 1;
 before activating mechanics. Ex. 1 means the first time the rider passes the mechanic gate*/
 
 // if inside a stadium, you only need one sound that updates at the camera position of every rider
-if (stadium){
+if (stadium) {
 	crowdConstants = mx.add_sound("@sx2022battlegroundsobjectpack/sounds/crowd/constant.raw");
 	mx.set_sound_freq(crowdConstants, 44100);
 	mx.set_sound_vol(crowdConstants, crowd_constant_base_vol);
@@ -339,29 +342,29 @@ determineMainEvent();
 initializeCrowdSounds();
 
 
-  /*
-  #################
-  SET UP PYRO
-  #################
-  */
-  var finish_flames_texture = mx.read_texture("@sx2022battlegroundsobjectpack/js/pyro/finishflames.seq");
-  var finish_flames_2_texture = mx.read_texture("@sx2022battlegroundsobjectpack/js/pyro/finishflames2.seq");
-  var holeshot_flames_texture = mx.read_texture("@sx2022battlegroundsobjectpack/js/pyro/holeshotflames.seq");
-  var start_flames_texture = mx.read_texture("@sx2022battlegroundsobjectpack/js/pyro/holeshotflames.seq");
+/*
+#################
+SET UP PYRO
+#################
+*/
+var finish_flames_texture = mx.read_texture("@sx2022battlegroundsobjectpack/js/pyro/finishflames.seq");
+var finish_flames_2_texture = mx.read_texture("@sx2022battlegroundsobjectpack/js/pyro/finishflames2.seq");
+var holeshot_flames_texture = mx.read_texture("@sx2022battlegroundsobjectpack/js/pyro/holeshotflames.seq");
+var start_flames_texture = mx.read_texture("@sx2022battlegroundsobjectpack/js/pyro/holeshotflames.seq");
 
-  var start_flame_loop_indexes = {start:1,end:6};
-  var holeshot_flame_indexes = {start:7,end:8};
-  var finish_flame_indexes = {start:9,end:10};
-  var start_shoot_flame_indexes = {start:11,end:16};
+var start_flame_loop_indexes = {start:1,end:8};
+var holeshot_flame_indexes = {start:9,end:10};
+var finish_flame_indexes = {start:11,end:12};
+var start_shoot_flame_indexes = {start:13,end:20};
 
-  // hide flames on start until called upon
-  hide_all_flames();
-  var show_loop_pyro_val = 0;
-  if (mainEvent)
-    show_loop_pyro_val = 1
-  for (var i = 0; i < 6; i++) {
-    mx.color_billboard(i, 1, 1, 1, show_loop_pyro_val);
-  }
+// hide flames on start until called upon
+hide_all_flames();
+var show_loop_pyro_val = 0;
+if (mainEvent)
+  show_loop_pyro_val = 1
+for (var i = 0; i < 6; i++) {
+  mx.color_billboard(i, 1, 1, 1, show_loop_pyro_val);
+}
 
 if (mainEvent) {
 
@@ -410,16 +413,15 @@ if (mainEvent) {
     var song_lengths = [279,239,323];
     // song files
     var song_directories = [
-      "@sx2022battlegroundsobjectpack/sounds/calmdownjuliet.raw",
-      "@sx2022battlegroundsobjectpack/sounds/somethingwicked.raw",
-      "@sx2022battlegroundsobjectpack/sounds/perfectmachine.raw"
+      "@sx2022battlegroundsobjectpack/sounds/songs/calmdownjuliet.raw",
+      "@sx2022battlegroundsobjectpack/sounds/songs/somethingwicked.raw",
+      "@sx2022battlegroundsobjectpack/sounds/songs/perfectmachine.raw"
     ];
     shuffle_songs();
   }
   var time = g_finish_time / 60;
   var four_fifty = false;
-  if (time == 20)
-    four_fifty = true;
+  if (time == 20) four_fifty = true;
 
   for (var i = 0; i < numOfSpeakers; i++){
     if (four_fifty)
@@ -445,7 +447,7 @@ if (mainEvent) {
   
 }
 
-function shuffle_songs(){
+function shuffle_songs() {
   var currentIndex = song_directories.length;
   var randomIndex;
 
@@ -487,25 +489,23 @@ var gateSoundPositions = [
 var gateSounds = [];
 var gateDropped = false;
 
-for (var i = 0; i < gateSoundPositions.length; i++){
+for (var i = 0; i < gateSoundPositions.length; i++) {
   gateSounds[i] = mx.add_sound("@sx2022battlegroundsobjectpack/sounds/gate/gatedrop.raw");
   mx.set_sound_freq(gateSounds[i], 44100);
   mx.set_sound_vol(gateSounds[i], 0.5);
   mx.set_sound_pos(gateSounds[i], gateSoundPositions[i][0], gateSoundPositions[i][1], gateSoundPositions[i][2]);
 }
 
-function determineMainEvent(){
+function determineMainEvent() {
   var time = g_finish_time / 60;
   var laps = g_finish_laps;
-  if ((time == 15 || time == 20) && laps == 1){
+  if ((time == 15 || time == 20) && laps == 1) {
     mainEvent = true;
     racingEvent = true;
   }
   else if ((time == 6 || time == 5) && laps == 1)
     racingEvent = true;
 }
-
-var started_flame_sound = false;
 
 function gateSound() {
   if (!gateDropped) {
@@ -541,45 +541,248 @@ function hide_all_flames() {
 }
 
 function hide_start_flames() {
-  for (var i = start_shoot_flame_indexes.start - 1; i < start_shoot_flame_indexes.end; i++) {
-    mx.color_billboard(i, 1, 1, 1, 0);
-  }
+  for (var i = start_shoot_flame_indexes.start - 1; i < start_shoot_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
   start_flames_hidden = true;
 }
 
 function hide_holeshot_flames() {
-  for (var i = holeshot_flame_indexes.start - 1; i < holeshot_flame_indexes.end; i++) {
-    mx.color_billboard(i, 1, 1, 1, 0);
-  }
+  for (var i = holeshot_flame_indexes.start - 1; i < holeshot_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
   holeshot_flames_hidden = true;
 }
 
 function hide_finish_flames() {
-  for (var i = finish_flame_indexes.start - 1; i < finish_flame_indexes.end; i++) {
-    mx.color_billboard(i, 1, 1, 1, 0);
-  }
+  for (var i = finish_flame_indexes.start - 1; i < finish_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
   finish_flames_hidden = true;
 }
 
 function show_start_flames() {
-  for (var i = start_shoot_flame_indexes.start - 1; i < start_shoot_flame_indexes.end; i++) {
-    mx.color_billboard(i, 1, 1, 1, 1);
-  }
+  for (var i = start_shoot_flame_indexes.start - 1; i < start_shoot_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
   start_flames_hidden = false;
 }
 
 function show_holeshot_flames() {
-  for (var i = holeshot_flame_indexes.start - 1; i < holeshot_flame_indexes.end; i++) {
-    mx.color_billboard(i, 1, 1, 1, 1);
-  }
+  for (var i = holeshot_flame_indexes.start - 1; i < holeshot_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
   holeshot_flames_hidden = false;
 }
 
 function show_finish_flames() {
-  for (var i = finish_flame_indexes.start - 1; i < finish_flame_indexes.end; i++) {
-    mx.color_billboard(i, 1, 1, 1, 1);
-  }
+  for (var i = finish_flame_indexes.start - 1; i < finish_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
   finish_flames_hidden = false;
+}
+
+function do_pyro() {
+  if (!mainEvent) return;
+  do_start_pyro();
+  do_holeshot_pyro();
+  do_finish_pyro();
+}
+
+function do_start_pyro() {
+  if (trigger_start_shoot_flames) {
+    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
+    if (mx.seconds - time_started_start_flame < 0) hide_start_flames();
+  
+    if (mx.seconds - seconds_since_start_shoot_update < start_shoot_frames_delay / 128) return;
+
+    if (start_flames_hidden) show_start_flames();
+
+    seconds_since_start_shoot_update = mx.seconds;
+
+    if (current_start_shoot_frame <= max_frames) {
+      mx.begin_custom_frame(start_flames_texture);
+      mx.paste_custom_frame(start_flames_texture, current_start_shoot_frame, 0, 0, 0, 0, 1, 1);
+      mx.end_custom_frame(start_flames_texture);
+      current_start_shoot_frame++;
+    } else {
+      trigger_start_shoot_flames = false;
+      hide_start_flames();
+    }
+  }
+}
+
+function do_holeshot_pyro() {
+  if (trigger_holeshot_flames) {
+    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
+    if (mx.seconds - time_started_holeshot_flame < 0) hide_holeshot_flames();
+
+    if (mx.seconds - seconds_since_holeshot_update < holeshot_frames_delay / 128) return;
+
+    if (holeshot_flames_hidden) show_holeshot_flames();
+
+    seconds_since_holeshot_update = mx.seconds;
+    if (current_holeshot_frame <= max_frames) {
+      mx.begin_custom_frame(holeshot_flames_texture);
+      mx.paste_custom_frame(holeshot_flames_texture, current_holeshot_frame, 0, 0, 0, 0, 1, 1);
+      mx.end_custom_frame(holeshot_flames_texture);
+      current_holeshot_frame++;
+    }
+    else {
+      trigger_holeshot_flames = false;
+      hide_holeshot_flames();
+    }  
+  }
+}
+
+function do_finish_pyro() {
+  if (trigger_finish_flames) {
+    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
+    if (mx.seconds - time_started_finish_flame < 0) hide_finish_flames();
+
+    if (mx.seconds - seconds_since_finish_update < finish_frames_delay / 128) return;
+
+    if (finish_flames_hidden) show_finish_flames();
+
+    seconds_since_finish_update = mx.seconds;
+
+    if (current_finish_frame <= max_frames) {
+      mx.begin_custom_frame(finish_flames_texture);
+      mx.begin_custom_frame(finish_flames_2_texture);
+      mx.paste_custom_frame(finish_flames_texture, current_finish_frame, 0, 0, 0, 0, 1, 1);
+      mx.paste_custom_frame(finish_flames_2_texture, current_finish_frame, 0, 0, 0, 0, 1, 1);
+      mx.end_custom_frame(finish_flames_texture);
+      mx.end_custom_frame(finish_flames_2_texture);
+      current_finish_frame++;
+    } else {
+      trigger_finish_flames = false;
+      hide_finish_flames();
+    }   
+  }
+}
+
+function triggerFinishFlameSound()
+{
+  if (!finishFlameSoundAdded) {
+    finishFlameSound = [];
+    finishWhistleSound = [];
+    for (var i = 0; i < finishFlameCoords.length; i++) {
+      finishFlameSound[i] = mx.add_sound("@sx2022battlegroundsobjectpack/sounds/pyro/finishlineflame.raw");
+      finishWhistleSound[i] = mx.add_sound("@sx2022battlegroundsobjectpack/sounds/pyro/finishlinewhistle.raw");
+      mx.set_sound_freq(finishFlameSound[i], 44100);
+      mx.set_sound_freq(finishWhistleSound[i], 44100);
+      mx.set_sound_vol(finishFlameSound[i], 0.5);
+      mx.set_sound_vol(finishWhistleSound[i], 2);
+      mx.set_sound_pos(finishFlameSound[i], finishFlameCoords[i][0], finishFlameCoords[i][1], finishFlameCoords[i][2]);
+      mx.set_sound_pos(finishWhistleSound[i], finishFlameCoords[i][0], finishFlameCoords[i][1], finishFlameCoords[i][2]);
+      finishFlameSoundAdded = true;
+    }
+  }
+  for (var i = 0; i < finishFlameSound.length; i++)
+    mx.start_sound(finishFlameSound[i]);
+
+  return;
+}
+
+function triggerholeshotFlameSounds() {
+  if (!holeshotFlameSoundsAdded) {
+    for (var i = 0; i < holeshotCoords.length; i++) {
+      holeshotFlameSounds[i] = mx.add_sound("@sx2022battlegroundsobjectpack/sounds/pyro/holeshotflame.raw");
+      mx.set_sound_freq(holeshotFlameSounds[i], 44100);
+      mx.set_sound_vol(holeshotFlameSounds[i], 2);
+      mx.set_sound_pos(holeshotFlameSounds[i], holeshotCoords[i][0], holeshotCoords[i][1], holeshotCoords[i][2]);
+    }
+    holeshotFlameSoundsAdded = true;
+  }
+
+  for (var i = 0; i < holeshotFlameSounds.length; i++) mx.start_sound(holeshotFlameSounds[i]);
+  
+}
+
+function triggerStartFlameSound(status) {
+  if (status == "dropped") {
+    if (startFlameSound != null){
+      for (var i = 0; i < startFlameSound.length; i++){
+        if (startFlameSound[i] != null){
+          mx.stop_sound(startFlameSound[i]);
+          mx.set_sound_loop(startFlameSound[i], 0);
+          mx.set_sound_vol(startFlameSound[i], 20);
+          mx.start_sound(startFlameSound[i]);
+          set_start_flame_loop = false;
+        }
+      }
+    }
+    // hide start loop pyro
+    for (var i = start_flame_loop_indexes.start - 1; i < start_flame_loop_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
+  }
+  else {
+    // show start loop pyro
+    for (var i = start_flame_loop_indexes.start - 1; i < start_flame_loop_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+  
+    if (!startFlameSoundAdded){
+      startFlameSound = [];
+      for (var i = 0; i < startFlameCoords.length; i++){
+        startFlameSound[i] = mx.add_sound("@sx2022battlegroundsobjectpack/sounds/pyro/startflameburst.raw");
+        mx.set_sound_freq(startFlameSound[i], 44100);
+        mx.set_sound_vol(startFlameSound[i], 0.5);
+        mx.set_sound_pos(startFlameSound[i], startFlameCoords[i][0], startFlameCoords[i][1], startFlameCoords[i][2]);
+        startFlameSoundAdded = true;
+      }
+    }
+    if (!set_start_flame_loop){
+      for (var i = 0; i < startFlameSound.length; i++){
+        mx.stop_sound(startFlameSound[i]);
+        mx.set_sound_loop(startFlameSound[i], 1);
+        mx.set_sound_vol(startFlameSound[i], 0.5);
+        mx.start_sound(startFlameSound[i]);
+      }
+      set_start_flame_loop = true;
+    }
+  }
+  return;
+}
+
+function triggerFireworkSounds() {
+  for (var i = 0; i < finishWhistleSound.length; i++) mx.start_sound(finishWhistleSound[i]);
+}
+
+function triggerAllFlameSounds() {
+  triggerCrowdRoar(0.8);
+  trigger_all_pyro();
+}
+
+function triggerCrowdRoar(volume) {
+  var randNumber;
+  if (!stadium) {
+    for (var i = 0; i < numOfBleachers; i++) {
+      randNumber = randomIntFromInterval(0, (numOfRoarVariants - 1));
+      mx.set_sound_vol(crowdRoars[i][randNumber], volume);
+      mx.start_sound(crowdRoars[i][randNumber]);
+    }
+  }
+  else {
+    randNumber = randomIntFromInterval(0, numOfBleachers - 1);
+    mx.set_sound_vol(crowdRoars[randNumber], volume);
+		mx.start_sound(crowdRoars[randNumber]);
+  }
+}
+
+function trigger_all_pyro() {
+  trigger_start_shoot_pyro();
+  trigger_finish_pyro();
+  trigger_holeshot_pyro();
+}
+
+function trigger_start_shoot_pyro() {
+  current_start_shoot_frame = 0;
+  seconds_since_start_shoot_update = 0;
+  trigger_start_shoot_flames = true;
+  time_started_start_flame = mx.seconds;
+  triggerStartFlameSound("dropped");
+}
+
+function trigger_holeshot_pyro() {
+  current_holeshot_frame = 0;
+  seconds_since_holeshot_update = 0;
+  trigger_holeshot_flames = true;
+  time_started_holeshot_flame = mx.seconds;
+  triggerholeshotFlameSounds();
+}
+
+function trigger_finish_pyro() {
+  current_finish_frame = 0;
+  seconds_since_finish_update = 0;
+  trigger_finish_flames = true;
+  time_started_finish_flame = mx.seconds;
+  triggerFinishFlameSound();
 }
 
 // Update Cam Positioning for Constant crowd sounds
@@ -605,104 +808,6 @@ function initializeBalesToPushArrays() {
     balesToPushDown.push([i + baleDownStartIndex, baleCoordsDown[i]]);
 }
 
-function do_pyro() {
-  do_start_pyro();
-  do_holeshot_pyro();
-  do_finish_pyro();
-}
-
-function do_start_pyro() {
-  if (trigger_start_shoot_flames) {
-    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - time_started_start_flame < 0) {
-      hide_start_flames();
-    }
-
-    if (mx.seconds - seconds_since_start_shoot_update < start_shoot_frames_delay / 128) {
-      return;
-    }
-
-    if (start_flames_hidden){
-      show_start_flames();
-    }
-
-    seconds_since_start_shoot_update = mx.seconds;
-
-    if (current_start_shoot_frame <= max_frames) {
-      mx.begin_custom_frame(start_flames_texture);
-      mx.paste_custom_frame(start_flames_texture, current_start_shoot_frame, 0, 0, 0, 0, 1, 1);
-      mx.end_custom_frame(start_flames_texture);
-      current_start_shoot_frame++;
-    }
-    else {
-      trigger_start_shoot_flames = false;
-      hide_start_flames();
-    }
-  }
-}
-
-function do_holeshot_pyro() {
-  if (trigger_holeshot_flames) {
-    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - time_started_holeshot_flame < 0) {
-      hide_holeshot_flames();
-    }
-
-    if (mx.seconds - seconds_since_holeshot_update < holeshot_frames_delay / 128) {
-      return;
-    }
-
-    if (holeshot_flames_hidden) {
-      show_holeshot_flames();
-    }
-
-    seconds_since_holeshot_update = mx.seconds;
-    if (current_holeshot_frame <= max_frames) {
-      mx.begin_custom_frame(holeshot_flames_texture);
-      mx.paste_custom_frame(holeshot_flames_texture, current_holeshot_frame, 0, 0, 0, 0, 1, 1);
-      mx.end_custom_frame(holeshot_flames_texture);
-      current_holeshot_frame++;
-    }
-    else {
-      trigger_holeshot_flames = false;
-      hide_holeshot_flames();
-    }  
-  }
-}
-
-function do_finish_pyro() {
-  if (trigger_finish_flames) {
-    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - time_started_finish_flame < 0) {
-      hide_finish_flames();
-    }
-
-    if (mx.seconds - seconds_since_finish_update < finish_frames_delay / 128) {
-      return;
-    }
-
-    if (finish_flames_hidden) {
-      show_finish_flames();
-    }
-
-    seconds_since_finish_update = mx.seconds;
-
-    if (current_finish_frame <= max_frames) {
-      mx.begin_custom_frame(finish_flames_texture);
-      mx.begin_custom_frame(finish_flames_2_texture);
-      mx.paste_custom_frame(finish_flames_texture, current_finish_frame, 0, 0, 0, 0, 1, 1);
-      mx.paste_custom_frame(finish_flames_2_texture, current_finish_frame, 0, 0, 0, 0, 1, 1);
-      mx.end_custom_frame(finish_flames_texture);
-      mx.end_custom_frame(finish_flames_2_texture);
-      current_finish_frame++;
-    }
-    else {
-      trigger_finish_flames = false;
-      hide_finish_flames();
-    }   
-  }
-}
-
 /*
 ###############################
       MOVE BALES FUNCTION
@@ -718,15 +823,15 @@ const speedOfBales = unitsToMoveBales/timeToMoveBales;
 var gotDelay = false;
 var movedOutside = false;
 var moveBalesDelay = undefinedTime;
-function moveBales(){
+function moveBales() {
   var seconds = mx.seconds;
   var index,x,y,z,a,t;
-  if (gateDropTime > 0 && !gotDelay){ 
+  if (gateDropTime > 0 && !gotDelay) { 
     moveBalesDelay = delayForBales + gateDropTime;
     gotDelay = true;
   }
-  if ((moveBalesDelay - 1) <= seconds <= (moveBalesDelay + timeToMoveBales + 1) || seconds <= 1){
-    if (seconds > moveBalesDelay){
+  if ((moveBalesDelay - 1) <= seconds <= (moveBalesDelay + timeToMoveBales + 1) || seconds <= 1) {
+    if (seconds > moveBalesDelay) {
       if (seconds >= moveBalesDelay + timeToMoveBales)
         t = timeToMoveBales;
       else
@@ -735,7 +840,7 @@ function moveBales(){
     else
       t = 0;
     // moves statues up y axis
-    for (var i = 0; i < numOfBalesToPushUp; i++){
+    for (var i = 0; i < numOfBalesToPushUp; i++) {
       index = balesToPushUp[i][0];
       x = balesToPushUp[i][1][0];
       y = balesToPushUp[i][1][1] + (speedOfBales * t);
@@ -744,7 +849,7 @@ function moveBales(){
       mx.move_statue(index, x, y, z, a);
     }
     // move statues down y axis
-    for (var i = 0; i < numOfBalesToPushDown; i++){
+    for (var i = 0; i < numOfBalesToPushDown; i++) {
       index = balesToPushDown[i][0];
       x = balesToPushDown[i][1][0];
       y = balesToPushDown[i][1][1] - (speedOfBales * t);
@@ -755,18 +860,18 @@ function moveBales(){
   }
 }
 
-function addCrashAndRoarSounds(){
-  if (!stadium){
-    try{
-      for (var i = 0; i < numOfBleachers; i++){
+function addCrashAndRoarSounds() {
+  if (!stadium) {
+    try {
+      for (var i = 0; i < numOfBleachers; i++) {
         crowdRoars.push([]);
-        for (var j = 0; j < numOfRoarVariants; j++){
+        for (var j = 0; j < numOfRoarVariants; j++) {
           crowdRoars[i][j] = mx.add_sound(crowdRoarDirectories[j]);
           mx.set_sound_freq(crowdRoars[i][j], 44100);
           mx.set_sound_pos(crowdRoars[i][j], bleacherSoundPositions[i][0], bleacherSoundPositions[i][1], bleacherSoundPositions[i][2]);
         }
       }
-      for (var i = 0; i < numOfBleachers; i++){
+      for (var i = 0; i < numOfBleachers; i++) {
         crashSounds.push([]);
         for (var j = 0; j < numOfCrashVariants; j++){
           crashSounds[i][j] = mx.add_sound(crashSoundDirectories[j]);
@@ -774,37 +879,35 @@ function addCrashAndRoarSounds(){
         }
       }
     }
-    catch (e){
+    catch (e) {
       mx.message('sound error: ' + e);
     }
-  }
-  else{
-    for (var i = 0; i < numOfRoarVariants; i++){
-      crowdRoars[i] = mx.add_sound(crowdRoarDirectories[i]);
-      mx.set_sound_freq(crowdRoars[i], 44100);
-      mx.set_sound_pos(crowdRoars[i], bleacherSoundPositions[i][0], bleacherSoundPositions[i][1], bleacherSoundPositions[i][2]);
-    }
-    for (var i = 0; i < numOfCrashVariants; i++){
-      crashSounds[i] = mx.add_sound(crashSoundDirectories[i]);
-      mx.set_sound_freq(crashSounds[i], 44100);
-    }
+  } else {
+      for (var i = 0; i < numOfRoarVariants; i++){
+        crowdRoars[i] = mx.add_sound(crowdRoarDirectories[i]);
+        mx.set_sound_freq(crowdRoars[i], 44100);
+        mx.set_sound_pos(crowdRoars[i], bleacherSoundPositions[i][0], bleacherSoundPositions[i][1], bleacherSoundPositions[i][2]);
+      }
+      for (var i = 0; i < numOfCrashVariants; i++){
+        crashSounds[i] = mx.add_sound(crashSoundDirectories[i]);
+        mx.set_sound_freq(crashSounds[i], 44100);
+      }
   }
 }
 
-function addCrashPositions()
-{
-  for (var i = 0; i < numOfBleachers; i++)
+function addCrashPositions() {
+  for (var i = 0; i < numOfBleachers; i++) {
     for (var j = 0; j < numOfCrashVariants; j++)
       mx.set_sound_pos(crashSounds[i][j], bleacherSoundPositions[i][0], bleacherSoundPositions[i][1], bleacherSoundPositions[i][2]);
+  }
 }
 
-function initializeAllMechanicSoundsArray(){
+function initializeAllMechanicSoundsArray() {
   // push a new array to put sounds in every new variant
-  for (var i = 0; i < allDirectories.length; i++)
-    allMechanicSounds.push([]);
+  for (var i = 0; i < allDirectories.length; i++) allMechanicSounds.push([]);
 }
 
-function initializeMechanicSounds(){
+function initializeMechanicSounds() {
   // need to add a new array for every variant
   initializeAllMechanicSoundsArray();
 
@@ -847,9 +950,7 @@ function initializeCrowdSounds()
 
 // Gets random integer when called
 // min and max included 
-function randomIntFromInterval(min, max){
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
+function randomIntFromInterval(min, max) {return Math.floor(Math.random() * (max - min + 1) + min);}
 
 /*
 ################################################
@@ -861,7 +962,7 @@ var initialize_gate_and_slot_pos = false;
 // will cheer if there is a battle, in this case they will cheer if there is a battle
 // within the top 3
 var numOfPeopleToCheer = 3;
-var timing_gate_to_start_battles = 14;
+const timing_gate_to_start_battles = 14;
 var startedBattleFunction = false;
 
 // Index 0 is gap between 1st and 2nd, Index 1 is gap between 2nd and 3rd, etc.
@@ -870,8 +971,8 @@ var reset_crowd_default_vol = true;
 var max_gap_between_riders = 2;
 const max_crowd_vol = (((4 * numOfPeopleToCheer) + numOfBleachers)) + (2 * crowd_constant_base_vol);
 var current_volume = 0;
-var vol_fade_time = 2;
-var vol_reset_fade_time = 5;
+const vol_fade_time = 2;
+const vol_reset_fade_time = 5;
 var got_time_start_reset = false;
 var time_started_increase_or_decrease;
 var current_crowd_vol = crowd_constant_base_vol;
@@ -901,12 +1002,12 @@ function battlesFunction() {
 
   if (startedBattleFunction){
     // checks for a position change
-    for (var i = 0; i < numOfPeopleToCheer - 1; i++){
+    for (var i = 0; i < numOfPeopleToCheer - 1; i++) {
       current_rider_slot = r[i].slot;
       current_rider_timingGate = r[i].position;
-      if (current_rider_timingGate != current_timing_gates[current_rider_slot]){
+      if (current_rider_timingGate != current_timing_gates[current_rider_slot]) {
         // if there was a position change, crowd cheers
-        if (checkPosChange(current_rider_slot, i)){
+        if (checkPosChange(current_rider_slot, i)) {
           var vol_factor;
 
           if (mx.get_rider_down(r[i + 1].slot) == 1)
@@ -920,10 +1021,10 @@ function battlesFunction() {
       }
     }
     // Get gaps between riders and store in gap_between_riders array
-    for (i = numOfPeopleToCheer - 1; i > 0; i--){
+    for (i = numOfPeopleToCheer - 1; i > 0; i--) {
       current_rider_slot = r[i].slot;
       current_rider_timingGate = r[i].position - 1;
-      if (current_rider_timingGate + 1 != current_timing_gates[current_rider_slot]){
+      if (current_rider_timingGate + 1 != current_timing_gates[current_rider_slot]) {
         var next_rider_slot = r[i-1].slot;
         // time the rider ahead hit the gate that the rider is currently at
         var time_rider_ahead_gate = mx.get_timing(next_rider_slot, current_rider_timingGate);
@@ -939,17 +1040,17 @@ function battlesFunction() {
     }
     // Get lowest gap
     // if priority battle is 0, there's a battle between 1st and 2nd, if 1, 2nd and 3rd, etc.
-    if (gaps_between_riders.length > 0){
+    if (gaps_between_riders.length > 0) {
       var priority_battle = 0;
       var lowest_gap = gaps_between_riders[0];
       var numOfBattles = 0;
-      if (gaps_between_riders.length > 1){
-        for (var i = 1; i < gaps_between_riders.length; i++){
+      if (gaps_between_riders.length > 1) {
+        for (var i = 1; i < gaps_between_riders.length; i++) {
           if (gaps_between_riders[i] < lowest_gap){
             lowest_gap = gaps_between_riders[i];
             priority_battle = i;
           }
-          if (gaps_between_riders.length > priority_battle + 2){
+          if (gaps_between_riders.length > priority_battle + 2) {
             // number of battles for the same pos
             if (gaps_between_riders[priority_battle + 2] - gaps_between_riders[priority_battle] <= max_gap_between_riders)
               numOfBattles++;
@@ -957,14 +1058,13 @@ function battlesFunction() {
         }
       }
 
-      if (lowest_gap <= max_gap_between_riders)
-        battle_between_riders = true;
+      if (lowest_gap <= max_gap_between_riders) battle_between_riders = true;
       // if someone in the priority battle goes down, check for other battles then set the priority battle and lowest gap
       if (mx.get_rider_down(r[priority_battle + 1].slot) == 1 || mx.get_rider_down(r[priority_battle].slot) == 1){
         if (gaps_between_riders.length > 1){
           var second_lowest_gap = gaps_between_riders[priority_battle + 1];
-          for (var i = priority_battle; i < gaps_between_riders.length; i++){
-            if (gaps_between_riders[i] < second_lowest_gap){
+          for (var i = priority_battle; i < gaps_between_riders.length; i++) {
+            if (gaps_between_riders[i] < second_lowest_gap) {
               second_lowest_gap = gaps_between_riders[i];
               lowest_gap = second_lowest_gap;
               priority_battle = i;
@@ -980,8 +1080,7 @@ function battlesFunction() {
       }
     }
     // If there's a battle, set the volume of the crowd constant based on the gap and position
-    if (battle_between_riders)
-    {
+    if (battle_between_riders) {
       var volume = (((((4 * numOfBattles) + numOfBleachers) / ((lowest_gap + 0.8) * (priority_battle + 1))) + (2 * crowd_constant_base_vol)) / vol_divisor);
       // If crowd has already reached desired calculated volume, return
       if (current_crowd_vol == volume) return;
@@ -999,7 +1098,7 @@ function battlesFunction() {
       current_volume = volume;
 
       // Another holder that holds the current crowd volume at the start of the fade
-      if (!set_holder){
+      if (!set_holder) {
         vol_holder = current_crowd_vol;
         set_holder = true;
         // sets reset values to false because this means that there is a battle fade going on
@@ -1016,17 +1115,16 @@ function battlesFunction() {
       // If there's an increase, vol/sec * t will be positive.  If there's a decrease, vol/sec * t will be negative. 
       current_crowd_vol = vol_holder + (vol_per_sec * t);
 
-      for (var i = 0; i < numOfBleachers; i++)
-        mx.set_sound_vol(crowdConstants[i], current_crowd_vol);
+      for (var i = 0; i < numOfBleachers; i++) mx.set_sound_vol(crowdConstants[i], current_crowd_vol);
 
     }
-    else if (!reset_crowd_default_vol){
-      if (!got_time_start_reset){
+    else if (!reset_crowd_default_vol) {
+      if (!got_time_start_reset) {
         time_started_increase_or_decrease = seconds;
         got_time_start_reset = true;
       }
       // sets the start fade vol to the current crowd volume
-      if (!set_reset_holder){
+      if (!set_reset_holder) {
         reset_holder = current_crowd_vol;
         set_reset_holder = true;
       }
@@ -1131,7 +1229,7 @@ var time_to_play_scream;
 var playing_song = false;
 var time_started_song = 20;
 var current_song = -1;
-function dynamicMechanicAndFans(){
+function dynamicMechanicAndFans() {
 
 	var randNumber, slot, timing_gate, i;
 	var running_order = g_running_order;
@@ -1178,6 +1276,8 @@ function dynamicMechanicAndFans(){
       mx.start_sound(main_event_screams[i]);
     playedScream = true;
   }
+
+  if (playedScream && mx.seconds < time_to_play_scream) playedScream = false;
 
   if (songs_on)
     song_function();
@@ -1311,7 +1411,7 @@ function makeNameComparison(slot, benchPos){
 }
 
 // Make name comparison at the finish to determine if the rider should be booed or not when they win
-function makeNameComparisonFinish(name){
+function makeNameComparisonFinish(name) {
 	var booSoundMatch = false;
   var randNumber;
 	
@@ -1322,13 +1422,13 @@ function makeNameComparisonFinish(name){
 		}
 	}
 	if (booSoundMatch) {
-		for (var i = 0; i < numOfBleachers; i++){
+		for (var i = 0; i < numOfBleachers; i++) {
       randNumber = randomIntFromInterval(0, (allBooSounds.length - 1));
 			mx.start_sound(allBooSounds[randNumber][i]);
 		}		
 	}
   else {
-		for (var i = 0; i < numOfBleachers; i++){
+		for (var i = 0; i < numOfBleachers; i++) {
       randNumber = randomIntFromInterval(0, (allCheerSounds.length - 1));
 			mx.start_sound(allCheerSounds[randNumber][j]);
 		}
@@ -1448,14 +1548,14 @@ var gotRunningOrder = false;
 var displayLeadLap = false;
 var debug_laps = true;
 
-function displayLaptimes(){
+function displayLaptimes() {
 	var riderName;
 	var r, slot, timing_gate;
 	var laptimeToString;
 
   r = g_running_order;
 
-	if (!gotRunningOrder && mx.seconds >= 0){
+	if (!gotRunningOrder && mx.seconds >= 0) {
 		// sets an unchanging running order for storing unchanging element positions
 		for (var i = 0; i < r.length; i++) {
 			// best laps set to undefined time for every rider at the start of the session
@@ -1469,7 +1569,7 @@ function displayLaptimes(){
 		gotRunningOrder = true;
 	}
 
-	for (var i = 0; i < r.length; i++){
+	for (var i = 0; i < r.length; i++) {
 		// initialize rider names array
 		slot = r[i].slot;
 		timing_gate = r[i].position;
@@ -1477,7 +1577,7 @@ function displayLaptimes(){
   
 		if ((timing_gate - firstLapLength) % normalLapLength == 0 && (timing_gate > 0) && (timing_gate != firstLapLength) && (timing_gate != current_timing_gates[slot])) {
       var laptime = get_laptime(slot, timing_gate);
-      
+
       // store laptime, if its the second lap we want to replace undefinedTime. If not second lap, append.
       if (timing_gate > firstLapLength + normalLapLength)
         all_player_laps[slot][all_player_laps[slot].length] = laptime;
@@ -1510,7 +1610,7 @@ function displayLaptimes(){
   }
 }
 
-function is_fastest_lap(laptime){
+function is_fastest_lap(laptime) {
 
   var best_player_laps_srtd = best_player_laps.slice();
   best_player_laps_srtd.sort(function (a, b){return a[0] - b[0];});
@@ -1521,7 +1621,7 @@ function is_fastest_lap(laptime){
   return false;
 }
 
-function get_laptime(slot, current_gate){
+function get_laptime(slot, current_gate) {
   var end_gate = current_gate - 1;
   var start_gate = end_gate - normalLapLength;
   var start_lap = mx.get_timing(slot, start_gate);
@@ -1580,10 +1680,10 @@ var timeFirstCrashed, timeSecondCrashed, timeThirdCrashed;
 /*
 ###############################
 is rider in top 3 down function
+TODO: REWRITE FUNCTION TO WORK WITH ANY NUMBER OF PEOPLE
 ###############################
 */
-function isRiderDown()
-{
+function isRiderDown() {
 	var oneHappened = false;
 	var bothHappened = false;
 	var display123 = false;
@@ -1596,13 +1696,13 @@ function isRiderDown()
 	r = g_running_order;
 
 	// store names and slots in local variables and initialize check gates
-	for (var i = 0; i < r.length; i++) {
-    if (!initialize_down_gates) {
+  if (!initialize_down_gates) {
+    for (var i = 0; i < r.length; i++) {
       down_check_gates[r[i].slot] = 0;
       if (i == r.length - 1) 
         initialize_down_gates = true;
-    }
-	}
+	  }
+  }
 
   // wait 20 seconds after gate drop until checking for the top 3 riders going down
   if (gateDropped) 
@@ -1953,8 +2053,7 @@ function isRiderDown()
 	}
 }
 
-function updateRunningOrderScreen()
-{
+function updateRunningOrderScreen() {
   var r = g_running_order;
   var slot, timing_gate;
   if (g_running_order.length > 1) {
@@ -1974,22 +2073,21 @@ function updateRunningOrderScreen()
   }
 }
 
-function ResetSlotPositionHolder(){
+function ResetSlotPositionHolder() {
   for (var i = 0; i < g_running_order.length; i++)
     slot_position_holder[i] = g_running_order[i].slot;
 }
 
 var initializedArrays = false;
-function frameHandler(seconds){
+function frameHandler(seconds) {
   g_running_order = mx.get_running_order();
   if (!initializedArrays) {
     reset_current_timing_gates();
     ResetSlotPositionHolder();
     initializedArrays = true;
   }
-  if (stadium)
-    updateCamPosition();
 
+  if (stadium) updateCamPosition();
 	gateSound();
   determineHoleshot();
   if (racingEvent) {
@@ -2002,9 +2100,8 @@ function frameHandler(seconds){
     }
     battlesFunction();
     updateRunningOrderScreen();
-    if (mainEvent) {
-      do_pyro();
-    } 
+    do_pyro();
+    rider_awards();
   }
   try {
 		displayLaptimes();
@@ -2012,7 +2109,6 @@ function frameHandler(seconds){
 	catch (e) {
 		mx.message('laptimes error: ' + e);
 	}
-  rider_awards();
   moveBales();
   time_or_laps_remaining();
 	flaggers_frame_handler(seconds);
@@ -2041,8 +2137,7 @@ var most_consistent_rider;
 
 function rider_awards() {
 
-  if (!mainEvent)
-    return;
+  if (!mainEvent) return;
 
   var r = g_running_order;
   var timing_gate, slot, rider_laps_remain;
@@ -2074,7 +2169,7 @@ function rider_awards() {
 
     // if time has expired
     if (mx.seconds >= g_drop_time + g_finish_time || g_finish_time == 0) {
-      // get laps that remian
+      // get laps that remain
       if (g_finish_time == 0 && g_finish_laps == 0)
         rider_laps_remain = 1 - g_running_order[0].position;
       else if (g_finish_time == 0)
@@ -2134,9 +2229,7 @@ function rider_awards() {
 
   if (every_rider_finished && !displayed_awards) {
     
-    if (first_calculations) {
-      calculate_positions_gained();
-    }
+    if (first_calculations) calculate_positions_gained();
 
     mx.message("\x1b[33m-----------");
     mx.message("\x1b[33mAwards:");
@@ -2226,17 +2319,17 @@ function rider_awards() {
 
 // calculate stats
 function calculate_positions_gained () {
-  if (rider_positions_after_L1.length != rider_positions_finish.length)
-    return;
+  if (rider_positions_after_L1.length != rider_positions_finish.length) return;
 
   var num_null_arrs = 0;
   for (var i = 0; i < rider_positions_after_L1.length; i++) {
     if (rider_positions_after_L1[i] && rider_positions_finish[i]) {
       rider_positions_gained.push([]);
+      // first store the number of positions gained
       rider_positions_gained[i - num_null_arrs][0] = rider_positions_after_L1[i][0] - rider_positions_finish[i][0];
+      // then their slot number associated
       rider_positions_gained[i - num_null_arrs][1] = rider_positions_after_L1[i][1];
-    }
-    else {
+    } else {
       num_null_arrs++;
     }
   }
@@ -2245,7 +2338,9 @@ function calculate_positions_gained () {
 }
 
 function get_fastest_lap() {
+  // copy best_player_laps into temp array
   var best_player_laps_srtd = best_player_laps.slice();
+  // srt array and return
   best_player_laps_srtd.sort(function (a, b){return a[0] - b[0];});
   return best_player_laps_srtd[0];
 }
@@ -2278,6 +2373,7 @@ function get_rider_consistency() {
     }
   }
 
+  // sort by array by each rider's standard deviation
   std_devs.sort(function (a, b){return a[0] - b[0];})
   
   // filter out zeros and undefined.
@@ -2309,10 +2405,10 @@ function reset_current_timing_gates(){
 var maxCrashRepetitions;
 var maxRepCrashCounter = [];
 var setMaxCrashRep = false;
-function playCrashSound(multiplier){
+function playCrashSound(multiplier) {
 	var volume, randNumber;
 	volume = multiplier;
-	if (!stadium){
+	if (!stadium) {
 		volume = multiplier;
     for (var i = 0; i < numOfCrashVariants; i++)
       maxRepCrashCounter[i] = 0;
@@ -2320,16 +2416,17 @@ function playCrashSound(multiplier){
       maxCrashRepetitions = Math.ceil(numOfBleachers / numOfCrashVariants);
       setMaxCrashRep = true;
     }
-		for (var i = 0; i < numOfBleachers; i++){
-      randNumber = randomIntFromInterval(0, numOfCrashVariants - 1);
-      while (maxRepCrashCounter[randNumber] >= maxCrashRepetitions)
+		for (var i = 0; i < numOfBleachers; i++) {
+      do {
         randNumber = randomIntFromInterval(0, numOfCrashVariants - 1);
+      }
+      while (maxRepCrashCounter[randNumber] >= maxCrashRepetitions)
+
       maxRepCrashCounter[randNumber]++;
 			mx.set_sound_vol(crashSounds[i][randNumber], volume);
 			mx.start_sound(crashSounds[i][randNumber]);
 		}
-	}
-	else{
+	} else {
 		// if the sounds are in a stadium, then just play a random variant for all the riders
 		randNumber = randomIntFromInterval(0, numOfCrashVariants - 1);
 		mx.set_sound_vol(crashSounds[randNumber], volume);
@@ -2365,139 +2462,6 @@ function determineHoleshot(){
       holeshot = false;
     }
   }
-}
-function triggerFinishFlameSound()
-{
-  if (!finishFlameSoundAdded){
-    finishFlameSound = [];
-    finishWhistleSound = [];
-    for (var i = 0; i < finishFlameCoords.length; i++){
-      finishFlameSound[i] = mx.add_sound("@sx2022battlegroundsobjectpack/sounds/pyro/finishlineflame.raw");
-      finishWhistleSound[i] = mx.add_sound("@sx2022battlegroundsobjectpack/sounds/pyro/finishlinewhistle.raw");
-      mx.set_sound_freq(finishFlameSound[i], 44100);
-      mx.set_sound_freq(finishWhistleSound[i], 44100);
-      mx.set_sound_vol(finishFlameSound[i], 0.5);
-      mx.set_sound_vol(finishWhistleSound[i], 2);
-      mx.set_sound_pos(finishFlameSound[i], finishFlameCoords[i][0], finishFlameCoords[i][1], finishFlameCoords[i][2]);
-      mx.set_sound_pos(finishWhistleSound[i], finishFlameCoords[i][0], finishFlameCoords[i][1], finishFlameCoords[i][2]);
-      finishFlameSoundAdded = true;
-    }
-  }
-  for (var i = 0; i < finishFlameSound.length; i++)
-    mx.start_sound(finishFlameSound[i]);
-
-  return;
-}
-
-function triggerHoleshotFlameSound(){
-  if (!holeshotFlameSoundAdded){
-    holeshotFlameSound = mx.add_sound("@sx2022battlegroundsobjectpack/sounds/pyro/holeshotflame.raw");
-    mx.set_sound_freq(holeshotFlameSound, 44100);
-    mx.set_sound_vol(holeshotFlameSound, 2);
-    mx.set_sound_pos(holeshotFlameSound, holeshotCoords[0], holeshotCoords[1], holeshotCoords[2]);
-    holeshotFlameSoundAdded = true;
-  }
-  mx.start_sound(holeshotFlameSound);
-}
-
-function triggerStartFlameSound(status) {
-  if (status == "dropped") {
-    if (startFlameSound != null){
-      for (var i = 0; i < startFlameSound.length; i++){
-        if (startFlameSound[i] != null){
-          mx.stop_sound(startFlameSound[i]);
-          mx.set_sound_loop(startFlameSound[i], 0);
-          mx.start_sound(startFlameSound[i]);
-          set_start_flame_loop = false;
-        }
-      }
-    }
-    // hide start loop pyro
-    for (var i = start_flame_loop_indexes.start - 1; i < start_flame_loop_indexes.end; i++) {
-      mx.color_billboard(i, 1, 1, 1, 0);
-    }
-  }
-  else {
-    // show start loop pyro
-    for (var i = start_flame_loop_indexes.start - 1; i < start_flame_loop_indexes.end; i++) {
-      mx.color_billboard(i, 1, 1, 1, 1);
-    }
-    if (!startFlameSoundAdded){
-      startFlameSound = [];
-      for (var i = 0; i < startFlameCoords.length; i++){
-        startFlameSound[i] = mx.add_sound("@sx2022battlegroundsobjectpack/sounds/pyro/startflameburst.raw");
-        mx.set_sound_freq(startFlameSound[i], 44100);
-        mx.set_sound_vol(startFlameSound[i], 0.5);
-        mx.set_sound_pos(startFlameSound[i], startFlameCoords[i][0], startFlameCoords[i][1], startFlameCoords[i][2]);
-        startFlameSoundAdded = true;
-      }
-    }
-    if (!set_start_flame_loop){
-      for (var i = 0; i < startFlameSound.length; i++){
-        mx.stop_sound(startFlameSound[i]);
-        mx.set_sound_loop(startFlameSound[i], 1);
-        mx.start_sound(startFlameSound[i]);
-      }
-      set_start_flame_loop = true;
-    }
-  }
-  return;
-}
-
-function triggerFireworkSounds(){
-  for (var i = 0; i < finishWhistleSound.length; i++)
-    mx.start_sound(finishWhistleSound[i]);
-}
-
-function triggerAllFlameSounds(){
-  triggerCrowdRoar(0.8);
-  trigger_all_pyro();
-}
-
-function triggerCrowdRoar(volume){
-  var randNumber;
-  if (!stadium){
-    for (var i = 0; i < numOfBleachers; i++){
-      randNumber = randomIntFromInterval(0, (numOfRoarVariants - 1));
-      mx.set_sound_vol(crowdRoars[i][randNumber], volume);
-      mx.start_sound(crowdRoars[i][randNumber]);
-    }
-  }
-  else{
-    randNumber = randomIntFromInterval(0, numOfBleachers - 1);
-    mx.set_sound_vol(crowdRoars[randNumber], volume);
-		mx.start_sound(crowdRoars[randNumber]);
-  }
-}
-
-function trigger_all_pyro() {
-  trigger_start_shoot_pyro();
-  trigger_finish_pyro();
-  trigger_holeshot_pyro();
-}
-
-function trigger_start_shoot_pyro() {
-  current_start_shoot_frame = 0;
-  seconds_since_start_shoot_update = 0;
-  trigger_start_shoot_flames = true;
-  time_started_start_flame = mx.seconds;
-  triggerStartFlameSound("dropped");
-}
-
-function trigger_holeshot_pyro() {
-  current_holeshot_frame = 0;
-  seconds_since_holeshot_update = 0;
-  trigger_holeshot_flames = true;
-  time_started_holeshot_flame = mx.seconds;
-  triggerHoleshotFlameSound();
-}
-
-function trigger_finish_pyro() {
-  current_finish_frame = 0;
-  seconds_since_finish_update = 0;
-  trigger_finish_flames = true;
-  time_started_finish_flame = mx.seconds;
-  triggerFinishFlameSound();
 }
 
 var g_starter_start_pos = [ 312.8, 385.2 ];
@@ -2643,7 +2607,7 @@ function update_finisher() {
 		pose_animate(g_flag_on_ground, g_green_flag_index, mx.seconds);
 		pose_animate(g_flag_on_ground, g_white_flag_index, mx.seconds);
 		pose_animate(g_flag_wave, g_checkered_flag_index, mx.seconds);
-	} else if (l == last_lap - 1) {
+	} else if (l == last_lap - 1 && g_running_order[0].position > 0) {
 		/* white */
 		pose_animate(g_flagger_wave, g_finisher_index, mx.seconds);
 		pose_animate(g_flag_on_ground, g_green_flag_index, mx.seconds);
@@ -2657,7 +2621,7 @@ function update_finisher() {
 		pose_animate(g_flag_on_ground, g_checkered_flag_index, mx.seconds);
     // wave green flag until last active rider crosses finish for first lap
 	} else if (l == 0 || (g_running_order[lastPlace].position < firstLapLength)) {
-		if (p >= ((firstLapLength + normalLapLength) - 2) || p < firstLapLength - 1) {
+		if (p >= firstLapLength + normalLapLength - 2 || p < firstLapLength - 1) {
       // leader came around second lap without everyone crossing the first lap or first hasn't reached the finish on the first lap yet, idleAnimate
 			idleAnimate();
 			return;
@@ -6598,12 +6562,12 @@ function get_cell_coords(font, character) {
   // if character is not in the font map we created, return
 	if (!(character in font.map))
 		mx.message("Not in map " + character);
-  // return the coords in our font variable
-  // ex. font.coords[font.map[character]];
-  // character = ','
-  // font.coords[font.map[,]];
-  // font.map[,] = 11;
-  // font.coords[11] = [360, 0, 40]
+  /* return the coords in our font variable
+    ex. font.coords[font.map[character]];
+    character = ','
+    font.coords[font.map[,]];
+    font.map[,] = 11;
+    font.coords[11] = [360, 0, 40] */
 	return font.coords[font.map[character]];
 }
 
@@ -6636,25 +6600,25 @@ function draw_text(font, x, y, current_screen) {
 		}
     // get cell coordinates of current character of font
 		cell_coords = get_cell_coords(font, current_screen[i]);
-    // source x is first value / (font width * font xscale + xoffset)
-    // ex char = '"', cell coords = [24, 0, 32]
-    // sx = (24 / 1024 * 1 + 0) = 0.0234375
-    // sy = (0 / 512 * 1 + 0) = 0
-    // width = (32 / 1024 * 1) = 0.03125
-    // height = (64 / 512 * 1) = 0.125
+    /* source x is first value / (font width * font xscale + xoffset)
+      ex char = '"', cell coords = [24, 0, 32]
+      sx = (24 / 1024 * 1 + 0) = 0.0234375
+      sy = (0 / 512 * 1 + 0) = 0
+      width = (32 / 1024 * 1) = 0.03125
+      height = (64 / 512 * 1) = 0.125 */
 		sx = cell_coords[0] / font.width * font.xscale + font.xoffset;
 		sy = cell_coords[1] / font.height * font.yscale + font.yoffset;
 		width = cell_coords[2] / font.width * font.xscale;
 		height = font.line_height / font.height * font.yscale;
 		mx.paste_custom_frame(font.tid, 0, sx, sy, dx, dy, width, height);
-    // add to dx so new character doesn't overlap
-    // dx += 0.03125 - (8 / (1024 * 1)) => 0.03125 - 0.0078125 => 0.0234375
-    // dx += 0.0234375
+    /* add to dx so new character doesn't overlap
+    dx += 0.03125 - (8 / (1024 * 1)) => 0.03125 - 0.0078125 => 0.0234375
+    dx += 0.0234375 */
 		dx += width - (font.overlap / (font.width * font.xscale));
 	}
 }
 
-var g_screen_tid = mx.read_texture("@RandomSX3/billboard/screen.seq");
+var g_screen_tid = mx.read_texture("@sx2022battlegroundsobjectpack/statue/other/timingtower/scoringtower.seq");
 
 var g_screen_font = {
 tid: g_screen_tid,
@@ -6663,7 +6627,7 @@ yoffset: 0,
 xscale: 1,
 yscale: 1,
 overlap: 8,
-width: 1024,
+width: 512,
 height: 512,
 line_height: 64,
 coords: [ [ 0, 0, 24 ], [ 24, 0, 32 ], [ 56, 0, 48 ], [ 104, 0, 40 ],
@@ -6704,13 +6668,13 @@ function show_text(screen) {
 	g_current_screen = screen;
 	mx.begin_custom_frame(g_screen_tid);
   // mx.paste_custom_frame(texture_id, frame_number, src_x, src_y, dst_x, dst_y, width, height)
-	mx.paste_custom_frame(g_screen_tid, 0, 0, .5, 0, 0, 1.0, 0.5);
-	mx.paste_custom_frame(g_screen_tid, 0, 0, .5, 0, .5, 1.0, 0.5);
+	mx.paste_custom_frame(g_screen_tid, 0, 0, .5, 0.75, 0, 1.0, 0.5);
+	mx.paste_custom_frame(g_screen_tid, 0, 0, .5, 0.75, .5, 1.0, 0.5);
 	draw_text(g_screen_font, 0, 0, screen);
 	mx.end_custom_frame(g_screen_tid);
 }
 
-function get_condensed_name(name){
+function get_condensed_name(name) {
   // trim team name off
   name = name.replace(/\|.*/gm, "");
   // trim beginning and ending white spaces
@@ -6729,7 +6693,7 @@ function get_condensed_name(name){
 }
 
 var tower_max_showing_riders = 5;
-function update_screen(){
+function update_screen() {
 	// gets column numbers in array based on column n
 	// used for getting laptimes
 	var a = [];
