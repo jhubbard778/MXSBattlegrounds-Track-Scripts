@@ -1,0 +1,12 @@
+sun_vector [ -0.55 0.5973 0.75]
+sun_color [ 1 0.94 0.83 ]
+ambient [ 0.45 0.456 0.476 ]
+global_ambient [0.3 0.3 0.3]
+sky_n @sx2022battlegroundsobjectpack/skyboxes/skybox9/sky-n.png
+sky_e @sx2022battlegroundsobjectpack/skyboxes/skybox9/sky-e.png
+sky_s @sx2022battlegroundsobjectpack/skyboxes/skybox9/sky-s.png
+sky_w @sx2022battlegroundsobjectpack/skyboxes/skybox9/sky-w.png
+sky_u @sx2022battlegroundsobjectpack/skyboxes/skybox9/sky-u.png
+sky_env @sx2022battlegroundsobjectpack/skyboxes/skybox9/sky-env.png
+fog [ .75 .80 .87 ] .00013
+dynamic_lighting 1
