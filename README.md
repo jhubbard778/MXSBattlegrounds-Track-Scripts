@@ -1,2 +1,2 @@
 # MXSBattlegrounds-Track-Scripts
-Client Javascript Scripts for the tracks for MXSBattlegrounds Series
+Client Javascript Scripts for the tracks my MXSBattlegrounds SX Series
