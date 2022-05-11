@@ -56,7 +56,7 @@ else
 CHANGE COORDS EVERY TRACK
 #########################
 */
-var startFlameCoords = [
+const startFlameCoords = [
   [128.438416, 9.000000, 497.612274],
   [137.961914, 9.000000, 506.996399],
   [153.301193, 9.000000, 522.226196],
@@ -66,15 +66,15 @@ var startFlameCoords = [
   [203.094864, 9.000000, 571.254089],
   [193.566559, 9.000000, 561.846985]
 ];
-var holeshotCoords = [
+const holeshotCoords = [
   [315.363922, 8.000000, 283.171173],
   [323.246948, 8.000000, 291.764801]
 ];
-var finishFlameCoords = [
+const finishFlameCoords = [
   [459.547089, 20.500000, 361.974976],
   [459.601410, 20.500000, 395.998230]
 ];
-var baleCoordsUp = [
+const baleCoordsUp = [
   [266.018646, -5.000000, 438.696808, -0.684825],
   [284.193237, -5.000000, 420.691467, -0.947597],
   [274.541595, -5.000000, 429.045013, -0.758380],
@@ -94,8 +94,8 @@ var baleCoordsUp = [
   [296.786530, -5.000000, 412.985748, -1.083203]
 ];
 var balesToPushUp = [];
-var numOfBalesToPushUp = baleCoordsUp.length;
-var baleCoordsDown = [
+const numOfBalesToPushUp = baleCoordsUp.length;
+const baleCoordsDown = [
   [361.818756, 0.000000, 368.099213, -0.692641],
   [346.484894, 0.000000, 387.481903, -0.692641],
   [255.023163, 0.000000, 501.121552, -0.700494],
@@ -109,11 +109,11 @@ var baleCoordsDown = [
 ];
 var balesToPushDown = [];
 // have at least 1 object in between the two bale sets as a separator
-var baleDownStartIndex = baleUpStartIndex + numOfBalesToPushUp + 1;
-var numOfBalesToPushDown = baleCoordsDown.length;
+const baleDownStartIndex = baleUpStartIndex + numOfBalesToPushUp + 1;
+const numOfBalesToPushDown = baleCoordsDown.length;
 
 // Coordinates of each bleacher
-var bleacherSoundPositions = [
+const bleacherSoundPositions = [
   [401, 0, 90],
   [501, 0, 90],
   [175, 0, 177],
@@ -124,12 +124,12 @@ var bleacherSoundPositions = [
   [565, 0, 594],
   [664, 0, 425]
 ];
-var numOfBleachers = bleacherSoundPositions.length;
+const numOfBleachers = bleacherSoundPositions.length;
   
 /* This is for boos/cheers on the track, if you want that.
 Array is written as [element1, element 2]; where each element =
 [timing gate,[soundPosX, soundPosY, soundPosZ]]*/
-var gatesAndPosCheerOrBoo = [
+const gatesAndPosCheerOrBoo = [
   [16,bleacherSoundPositions[0]],
   [15,bleacherSoundPositions[1]],
   [18,bleacherSoundPositions[2]],
@@ -144,44 +144,44 @@ var gatesAndPosCheerOrBoo = [
 // leave blank
 var crashSounds = [];
 // choose random directories to assign to crashsounds so it's not all the same sound when someone crashes
-var crashSoundDirectories = [
+const crashSoundDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/crashes/crash1.raw",
   "@sx2022battlegroundsobjectpack/sounds/crashes/crash2.raw",
   "@sx2022battlegroundsobjectpack/sounds/cheers/roar1.raw"
 ];
-var numOfCrashVariants = crashSoundDirectories.length;
+const numOfCrashVariants = crashSoundDirectories.length;
 
 var crowdConstants;
 var crowdRoars = [];
-var crowdRoarDirectories = [
+const crowdRoarDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/cheers/cheer1.raw",
   "@sx2022battlegroundsobjectpack/sounds/cheers/roar1.raw",
   "@sx2022battlegroundsobjectpack/sounds/pretzel1.raw",
 ];
-var numOfRoarVariants = crowdRoarDirectories.length;
+const numOfRoarVariants = crowdRoarDirectories.length;
 
 var allCheerSounds = [];
 var allBooSounds = [];
 
-var cheerVariantDirectories = [
+const cheerVariantDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/cheers/cheer.raw",
   "@sx2022battlegroundsobjectpack/sounds/cheers/cheer1.raw",
   "@sx2022battlegroundsobjectpack/sounds/cheers/roar1.raw"
 
 ];
-var numOfCheerVariants = cheerVariantDirectories.length;
+const numOfCheerVariants = cheerVariantDirectories.length;
 
-var booVariantDirectories = [
+const booVariantDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/pretzel1.raw",
   "@sx2022battlegroundsobjectpack/sounds/boos/boo.raw"
 ];
-var numOfBooVariants = booVariantDirectories.length;
+const numOfBooVariants = booVariantDirectories.length;
 
 // leave blank
 var allMechanicSounds = [];
 // to add another variant, make an array of the sound directories to store and add that
 // array directory name into all directories array.
-var joeSoundDirectories = [
+const joeSoundDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe1.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe2.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe3.raw", 
   "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe4.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe5.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe6.raw", 
   "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe7.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe8.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe9.raw", 
@@ -197,7 +197,7 @@ var joeSoundDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe37.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe38.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe39.raw",
   "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/joe40.raw"
 ];
-var sethSoundDirectories = [
+const sethSoundDirectories = [
 "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth1.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth2.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth3.raw", 
 "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth4.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth5.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth6.raw", 
 "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth7.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth8.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth9.raw", 
@@ -213,7 +213,7 @@ var sethSoundDirectories = [
 "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth37.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth38.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/seth/seth39.raw",
 "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/seth40.raw"
 ];
-var hubSoundDirectories = [
+const hubSoundDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub1.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub2.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub3.raw", 
   "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub4.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub5.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub6.raw", 
   "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub7.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub8.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub9.raw", 
@@ -229,7 +229,7 @@ var hubSoundDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub37.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub38.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/hub/hub39.raw",
   "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/hub40.raw"
 ];
-var someSoundDirectories = [
+const someSoundDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/mechanic/some/some1.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/some/some2.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/some/some3.raw", 
   "@sx2022battlegroundsobjectpack/sounds/mechanic/some/some4.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/some/some5.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/some/some6.raw", 
   "@sx2022battlegroundsobjectpack/sounds/mechanic/some/some7.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/some/some8.raw", "@sx2022battlegroundsobjectpack/sounds/mechanic/some/some9.raw", 
@@ -246,7 +246,7 @@ var someSoundDirectories = [
   "@sx2022battlegroundsobjectpack/sounds/mechanic/joe/some40.raw"
 ];
 
-var allDirectories = [
+const allDirectories = [
   joeSoundDirectories,
   sethSoundDirectories,
   hubSoundDirectories,
@@ -254,7 +254,7 @@ var allDirectories = [
 ];
 
 // Change list to boo or cheer specific riders when they pass by the crowd
-var booRiderNames = [
+const booRiderNames = [
   "brayden tharp",
   "alexis leclair",
 	"rogan mcintosh",
@@ -265,7 +265,7 @@ var booRiderNames = [
   "tyler lang",
   "rasmus balzer"
 ];
-var cheerRiderNames = [
+const cheerRiderNames = [
   "cade matherly",
 	"alexis leclair",
   "jakob hubbard",
@@ -278,9 +278,12 @@ var cheerRiderNames = [
   "brandon larsen"
 ];
 
+const race_event_crowd = [
+];
+
 // ADD POSITIONS FOR MECHANICS X Y Z
 // How this works is every slot number will be signed a unique mechanic position
-var mechanicPositions = [
+const mechanicPositions = [
 [0, 0, 0], [1, 0, 1], 
 [265, 6, 436], [265, 6, 436], 
 [4, 0, 4], [5, 0, 5], 
@@ -293,7 +296,7 @@ var mechanicPositions = [
 [18, 0, 18], [19, 0, 19], 
 [20, 0, 20], [21, 0, 21]
 ];
-var numOfMechanicPositions = mechanicPositions.length;
+const numOfMechanicPositions = mechanicPositions.length;
 
 /*
 ############
@@ -340,6 +343,13 @@ initializeBalesToPushArrays();
 initializeMechanicSounds();
 determineMainEvent();
 initializeCrowdSounds();
+
+// Add racing event crowd
+if (racingEvent && race_event_crowd != undefined) {
+  for (var i = 0; i < race_event_crowd.length; i++) {
+    mx.add_billboard(race_event_crowd[i].coords[0], race_event_crowd[i].coords[1], race_event_crowd[i].coords[2], race_event_crowd[i].size, race_event_crowd[i].aspect, race_event_crowd[i].png);
+  }
+}
 
 
 /*
