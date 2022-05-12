@@ -370,9 +370,11 @@ var start_shoot_flame_indexes = {start:13,end:20};
 // hide flames on start until called upon
 hide_all_flames();
 var show_loop_pyro_val = 0;
-if (mainEvent)
+if (mainEvent) {
   show_loop_pyro_val = 1
-for (var i = 0; i < 6; i++) {
+}
+// hides or shows start flames on start of race
+for (var i = start_flame_loop_indexes.start - 1; i < start_flame_loop_indexes.end; i++) {
   mx.color_billboard(i, 1, 1, 1, show_loop_pyro_val);
 }
 
@@ -531,7 +533,7 @@ function gateSound() {
       triggerAllFlameSounds();
     }
   }
-  if (mainEvent && ((gateDropped && mx.seconds < gateDropTime) || (!gateDropped && !started_flame_sound))) {
+  if (mainEvent && ((gateDropped && mx.seconds < gateDropTime) || (!gateDropped && !started_flame_sound && mx.seconds > 0))) {
     triggerStartFlameSound("notdropped");
     hide_all_flames();
     gateDropped = false;
