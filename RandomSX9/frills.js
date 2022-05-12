@@ -1771,7 +1771,6 @@ function isRiderDown() {
   const num_riders_down = slots_down.length;
   if (num_riders_down < 1) return;
 
-  mx.message("slots down: " + slots_down.toString());
   var riders_down_together = 0;
   var num_riders_down_at_same_time = 0;
 
@@ -1784,7 +1783,7 @@ function isRiderDown() {
         out_str += slots_down[i][1].toString() + place_extensions[(slots_down[i][1] % 10)] + " " + mx.get_rider_name(slots_down[i][0]);
       }
       if (i != num_riders_down - 1 && i > 0) out_str += ", ";
-      if (i == num_riders_down - 2) out_str += "and ";
+      if (i == num_riders_down - 2 && num_riders_down > 2) out_str += "and ";
 
       var tg = down_check_gates[slots_down[i][0]];
       
