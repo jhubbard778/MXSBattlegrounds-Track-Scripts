@@ -307,7 +307,7 @@ const undefinedTime = 999999999;
 const normalLapLength = mx.normal_lap_length;
 const firstLapLength = mx.first_lap_length;
 const holeshotGate = 2;
-const songs_on = true;
+const songs_on = false;
 
 // true = track is in stadium, false = track is not in stadium
 /*
@@ -1680,387 +1680,133 @@ function time_to_string(t) {
    return s;
 }
 
-var initialize_down_gates = false;
+var initialize_rider_down_stuff = false;
+var set_start_delay = false;
 var down_check_gates = [];
-var startDelay = undefinedTime;
-var crashSoundDelay;
-var initializeGateChecksDownedRiders = false;
-var initializedSlotsAndNames = false;
-var timeFirstCrashed, timeSecondCrashed, timeThirdCrashed;
+var times_riders_last_crash = [];
+var start_delay = undefinedTime;
+// this number is the top x people the crowd will react to going down
+var max_num_riders_down = 3;
+const base_vol_factor = 1.5;
+
+const place_extensions = [
+  "th", "st", "nd", "rd", "th", "th",
+  "th", "th", "th", "th"
+];
+
 /*
 ###############################
-is rider in top 3 down function
-TODO: REWRITE FUNCTION TO WORK WITH ANY NUMBER OF PEOPLE
+REWRITE FUNCTION TO WORK WITH ANY NUMBER OF PEOPLE -> DONE
 ###############################
 */
 function isRiderDown() {
-	var oneHappened = false;
-	var bothHappened = false;
-	var display123 = false;
-	var display12 = false;
-	var display13 = false;
-	var display23 = false;
-  var seconds = mx.seconds;
+
 	var r;
-	// runningOrder is stored as the running order
+	// r is stored as the running order
 	r = g_running_order;
 
-	// store names and slots in local variables and initialize check gates
-  if (!initialize_down_gates) {
+	// store down check gates at 0, initialize times_riders_crashed, and reassign num of riders down
+  if (!initialize_rider_down_stuff) {
     for (var i = 0; i < r.length; i++) {
-      down_check_gates[r[i].slot] = 0;
-      if (i == r.length - 1) 
-        initialize_down_gates = true;
+      times_riders_last_crash[r[i].slot] = -1;
+      down_check_gates[r[i].slot] = 0;     
 	  }
+    // change the number of riders to cheer for going down if somehow the number is greater than the running order length
+    if (max_num_riders_down > r.length) {
+      max_num_riders_down = r.length;
+    }
+    initialize_rider_down_stuff = true;
   }
 
   // wait 20 seconds after gate drop until checking for the top 3 riders going down
-  if (gateDropped) 
-		startDelay = gateDropTime + 20;
-	
-  // Local variables to hold values so api is not referrenced so frequently.
-	var firstPlaceGate, secondPlaceGate, thirdPlaceGate, 
-	firstPlaceRiderDownValue, secondPlaceRiderDownValue, thirdPlaceRiderDownValue,
-  firstPlaceName, secondPlaceName, thirdPlaceName;
-	
-  try {
-    if (r.length > 0) {
-      firstPlaceGate = mx.get_timing_position(r[0].slot);
-	    firstPlaceRiderDownValue = mx.get_rider_down(r[0].slot);
-      firstPlaceName = mx.get_rider_name(r[0].slot);
-    }
-    if (r.length > 1) {
-      secondPlaceGate = mx.get_timing_position(r[1].slot);
-	    secondPlaceRiderDownValue = mx.get_rider_down(r[1].slot);
-      secondPlaceName = mx.get_rider_name(r[1].slot);
-    }
-	  if (r.length > 2) {
-      thirdPlaceGate = mx.get_timing_position(r[2].slot);
-	    thirdPlaceRiderDownValue = mx.get_rider_down(r[2].slot);
-      thirdPlaceName = mx.get_rider_name(r[2].slot);
-    }
-  }
-  catch (e) {
-    mx.message(e.toString());
-  }
-	
-	/*
-	###############################################################
-	IF FIRST IS DOWN, KEEP CHECKING FOR SECOND AND THIRD BEING DOWN
-	IF SECOND IS DOWN, KEEP CHECKING FOR FIRST AND THIRD BEING DOWN
-	IF THIRD IS DOWN, KEEP CHECKING FOR FIRST AND SECOND BEING DOWN
-	###############################################################
-	*/
-	try {	
-    //is a rider down?
-	  if ((firstPlaceRiderDownValue == 1 || secondPlaceRiderDownValue == 1 || thirdPlaceRiderDownValue == 1) && seconds > startDelay) {	
-	  	//if first is down, player slot isn't empty, and rider isn't at down_check_gates
-	  	if (firstPlaceRiderDownValue == 1 && (r[0].slot != null) 
-	  	&& (firstPlaceGate != down_check_gates[r[0].slot])) {	
-	  		// if first place is down and happened to roll into the next timing gate after their gate check
-	  		if (firstPlaceGate == (down_check_gates[r[0].slot] + 1) && seconds < (timeFirstCrashed + 4)) {
-          down_check_gates[r[0].slot] = firstPlaceGate;
-	  			// do not execute function
-	  			return;
-	  		}
-        down_check_gates[r[0].slot] = firstPlaceGate;
-	  		timeFirstCrashed = seconds;
-	  		if (r.length > 1 && r.length > 2) {
-	  				// if second is down, third is down, and have not already displayed 1st 2nd and 3rd down
-	  			if (secondPlaceRiderDownValue == 1 && thirdPlaceRiderDownValue == 1 && !display123) {
-	  				// if first, second, and third crashed in the same timing gate roughly at the same time
-	  				if (firstPlaceGate == secondPlaceGate
-	  				&& firstPlaceGate == thirdPlaceGate
-	  				&& (timeFirstCrashed - timeThirdCrashed <= 2 && timeFirstCrashed - timeSecondCrashed <= 2)) {
-	  					playCrashSound(2);
-	  					// first, second, and third crashed together
-	  					mx.message('Leader ' + firstPlaceName + ', 2nd place ' + secondPlaceName + ', and 3rd place ' + thirdPlaceName + ' all go down together!');
-	  				}
-	  				else {
-	  					// if first, second, and third crashed within 2 seconds
-	  					if ((timeFirstCrashed - timeThirdCrashed <= 2) && (timeFirstCrashed - timeSecondCrashed <= 2)) {
-	  						playCrashSound(1.9);
-	  						// first, second, and third all crashed at the same time
-	  						mx.message('Leader ' + firstPlaceName + ', 2nd place ' + secondPlaceName + ', and 3rd place ' + thirdPlaceName + 
-	  						' crash at the same time! Damn this class sucks...');
-	  					}
-	  					else {
-	  						playCrashSound(1.8);
-	  						// first crashed while second and third were down
-	  						mx.message('Leader ' + firstPlaceName + ' decided to join 2nd ' + secondPlaceName + ' and 3rd ' + thirdPlaceName + ' on the ground');
-	  					}
+  if (gateDropped && !set_start_delay) {
+    start_delay = gateDropTime + 20;
+    set_start_delay = true;
+  } 
+		
+  if (mx.seconds < start_delay) return;
 
-	  				}
-	  				bothHappened = true;
-	  				display123 = true;
-	  			}
-        
-	  			// if third is down, both others didn't crash, one other didn't crash, and not displayed 1st and 3rd down
-	  			if (thirdPlaceRiderDownValue == 1 && !bothHappened && !oneHappened && !display13) {
-	  				// if first and third crashed within 2 seconds of each other and in the same timing gate
-	  				if (firstPlaceGate == thirdPlaceGate && timeFirstCrashed - timeThirdCrashed <= 2) {
-	  					playCrashSound(1.5);
-	  					// first and third crashed together
-	  					mx.message('Leader ' + firstPlaceName + ' and 3rd place ' + thirdPlaceName + ' crashed together');
-	  				}
-	  				else {
-	  					// if first and third crashed within 2 seconds of each other
-	  					if (timeFirstCrashed - timeThirdCrashed <= 2) {
-	  						playCrashSound(1.4);
-	  						// first and third crashed at the same time
-	  						mx.message('Leader ' + firstPlaceName + ' and 3rd place ' + thirdPlaceName + ' crashed at the same time');
-	  					}
-	  					else {
-	  						playCrashSound(1.3);
-	  						// first crashed while third was down
-	  						mx.message('Leader ' + firstPlaceName + ' decided to throw like 3rd place ' + thirdPlaceName + ' did');
-	  					}
+  var seconds = mx.seconds;
+  var slots_down = [];
+  var out_str;
+  var sum_positions_down = 0;
 
-	  				}
-	  				oneHappened = true;
-	  				display13 = true;
-	  			}
-        
-	  			// if second is down, both others didn't crash, one other didn't crash and haven't displayed 1st and 2nd down
-	  			if (secondPlaceRiderDownValue == 1 && !bothHappened && !oneHappened && !display12) {
-	  				// if first crashed in the same timing gate and within 2 seconds of second crashing
-	  				if (firstPlaceGate == secondPlaceGate && (timeSecondCrashed - timeFirstCrashed <= 2)) {
-	  					playCrashSound(1.6);
-	  					// first and second crashed together
-	  					mx.message('Leader ' + firstPlaceName + ' and 2nd place ' + secondPlaceName + ' end their lives together');
-	  				}
-	  				else {
-	  					// if first and second crashed within 2 seconds of each other but weren't in the same timing gate
-	  					if (timeFirstCrashed - timeSecondCrashed <= 2) {
-	  						playCrashSound(1.5);
-	  						// first crashed at the same time as second
-	  						mx.message('Leader ' + firstPlaceName + ' and 2nd place ' + secondPlaceName + ' crash at the same time like a bunch of idiots');
-	  					}
-	  					// first and second crashed at different times at different timing gates
-	  					else {
-	  						playCrashSound(1.4);
-	  						// first crashed while second was down
-	  						mx.message('Leader ' + firstPlaceName + ' threw so hard after his spotter said 2nd place ' + secondPlaceName + ' was down');
-	  					}
+  for (var i = 0; i < max_num_riders_down; i++) {
+    var slot = r[i].slot;
+    var timing_gate = r[i].position;
+    if (mx.get_rider_down(slot) === 1 && timing_gate != down_check_gates[slot]) {
+      // if rider is down and happened to roll into the next timing gate after their gate check
+      if (timing_gate === (down_check_gates[slot] + 1) && seconds < (times_riders_last_crash[slot] + 4)) {
+        down_check_gates[slot] = timing_gate;
+        return;
+      }
+      times_riders_last_crash[slot] = mx.seconds;
+      // store the slot down, and position they're in.
+      slots_down[slots_down.length] = [slot, i + 1];
+      sum_positions_down = i + 1;
 
-	  				}
-	  				oneHappened = true;
-	  				display12 = true;
-	  			}
-	  		}
-        // if one other rider wasn't already down or both other riders aren't already down
-	  		if (!oneHappened && !bothHappened) {
-	  			playCrashSound(1.3);
-	  			// first crashed by themselves
-	  			mx.message('Leader ' + firstPlaceName + ' crashes hard!');
-	  		}
-	  	}
-    
-	  		// second is down, player slot is not null, and rider is not at their down_check_gates
-	  	if (secondPlaceRiderDownValue == 1 && r.length > 1 
-	  	&& secondPlaceGate != down_check_gates[r[1].slot]) {
-	  		// if there was a change where first moved into second, return and do not call the function
-	  		if (checkPosChange(r[1].slot, 1)) {
-	  			// reset the riders check gate check gate at the timing gate where the rider initially caused the crash
-	  			down_check_gates[r[1].slot] = secondPlaceGate;
-	  			// No need to set new first places check gate because they have passed the timing gate first was down without crashing
-	  			return;
-	  		}
-	  		// second place is down and happened to roll into the next timing gate after their gate check
-	  		if (secondPlaceGate == (down_check_gates[r[1].slot] + 1) && seconds < (timeSecondCrashed + 4)) {
-          down_check_gates[r[1].slot] = secondPlaceGate;
-	  			return;
-	  		}
-	  		down_check_gates[r[1].slot] = secondPlaceGate;
-	  		// initialize the time that second crashed
-	  		timeSecondCrashed = seconds;
-      
-	  		if (r.length > 2) {
-	  				//if first is down, third is down, and have not already done 1st, 2nd, and 3rd down
-	  			if (firstPlaceRiderDownValue == 1 && thirdPlaceRiderDownValue == 1 && !display123) {
-	  				if (firstPlaceGate == secondPlaceGate 
-	  				&& secondPlaceGate == thirdPlaceGate 
-	  				&& (timeSecondCrashed - timeThirdCrashed <= 2 && timeSecondCrashed - timeFirstCrashed <= 2)) {
-	  					//First, second, and third all crashed together
-	  					playCrashSound(1.7);
-	  					mx.message('2nd place ' + secondPlaceName + ', Leader ' + 
-	  					firstPlaceName + ' and 3rd place ' + thirdPlaceName + ' decided it was a good idea to all crash together');
-	  				}
-	  				else {
-	  					if ((timeSecondCrashed - timeThirdCrashed <= 2) && (timeSecondCrashed - timeFirstCrashed <= 2)) {
-	  						// first second and third all crashed at the same time
-	  						playCrashSound(1.6);
-	  						mx.message('2nd place ' + secondPlaceName + ' sucks just as much as leader ' + 
-	  						firstPlaceName + ' and 3rd place ' + thirdPlaceName);
-	  					}
-	  					else {
-	  						// second crashed while first and third were down
-	  						playCrashSound(1.5);
-	  						mx.message('2nd place ' + secondPlaceName + ' joins leader ' + 
-	  						firstPlaceName + ' and 3rd place ' + thirdPlaceName + ' in the dirt');
-	  					}
-	  				}
-	  				bothHappened = true;
-	  			}
-        
-	  			// if third is down, both other riders didn't already go down, and have not done 2nd and 3rd being down
-	  			if (thirdPlaceRiderDownValue == 1 && !bothHappened && !display23) {
-	  				if (secondPlaceGate == thirdPlaceGate && (timeSecondCrashed - timeThirdCrashed <= 2)) {
-	  					playCrashSound(1.5);
-	  					// second and third crashed together
-	  					mx.message('2nd place ' + secondPlaceName + ' and 3rd place ' + thirdPlaceName + ' decide to crash together');
-	  				}
-	  				else {
-	  					if (timeSecondCrashed - timeThirdCrashed <= 2) {
-	  						playCrashSound(1.4);
-	  						// second and third crashed at the same time
-	  						mx.message('2nd place ' + secondPlaceName + ' and 3rd place ' + thirdPlaceName + ' decide to crash together');
-	  					}
-	  					else {
-	  						playCrashSound(1.3);
-	  						// second joined the ground with third
-	  						mx.message('2nd place ' + secondPlaceName + ' crashes while 3rd place ' + thirdPlaceName + ' was down');
-	  					}
-	  				}
-	  				oneHappened = true;
-	  				display23 = true;
-	  			}
-        
-	  			// if first is down, both other riders didn't already go down, and have not done 1st and 2nd being down
-	  			if (firstPlaceRiderDownValue == 1 && !bothHappened && !display12) {
-	  				// if 2nd crashed in the same timing gate as 1st and within 2 seconds
-	  				if (firstPlaceGate == secondPlaceGate && (timeSecondCrashed - timeFirstCrashed <= 2)) {
-	  					playCrashSound(1.5);
-	  					// 2nd crashed with 1st
-	  					mx.message('2nd place ' + secondPlaceName + ' crashes with leader ' + firstPlaceName);
-	  				}
-	  				else {
-	  					// if 2nd crashed roughly at the same time as first
-	  					if (timeSecondCrashed - timeFirstCrashed <= 2) {
-	  						playCrashSound(1.4);
-	  						// 2nd crashed at the same time as first place
-	  						mx.message('2nd place ' + secondPlaceName + ' crashes at the same time as our Leader ' + firstPlaceName);
-	  					}
-	  					else {
-	  						playCrashSound(1.2);
-	  						// second crashed while first was down
-	  						mx.message('2nd place ' + secondPlaceName + ' chokes realizing the leader ' + firstPlaceName + ' went down');
-	  					}
-	  				}
-	  				oneHappened = true;
-	  			}
-	  		}
-      
-	  		if (!oneHappened && !bothHappened) {
-	  			// second crashed by themselves
-	  			playCrashSound(1.1);
-	  			mx.message('2nd place ' + secondPlaceName + ' is down BAADD');
-	  		}
-	  	}
-    
-	  	//if third is down, player slot isn't null, and rider is not down in the down_check_gates
-	  	if (thirdPlaceRiderDownValue == 1 && r.length > 2
-	  	&& thirdPlaceGate != down_check_gates[r[2].slot]) {	
-	  		if (checkPosChange(r[2].slot, 2)) {
-          down_check_gates[r[2].slot] = thirdPlaceGate;
-          return;
+      out_str = (i + 1).toString() + place_extensions[(i+1) % 10] + " " + mx.get_rider_name(slot) + " goes down";
+
+      // go through again and see if someone's already down and accounted for
+      for (var j = 0; j < max_num_riders_down; j++) {
+        if (i == j) continue;
+        var slot_two = r[j].slot;
+        var timing_gate_two = r[j].position;
+        if (mx.get_rider_down(slot_two) === 1 && timing_gate_two == down_check_gates[slot_two]) {
+          // store the slot down, and position they're in.
+          slots_down[slots_down.length] = [slot_two, j + 1];
         }
-	  		// if third place is down and happened to roll into the next timing gate after their gate check
-	  		if (thirdPlaceGate == (down_check_gates[r[2].slot] + 1) && seconds < (timeThirdCrashed + 4)) {
-          down_check_gates[r[2].slot] = thirdPlaceGate;
-	  			// return and do not execute function
-	  			return;
-	  		}
-        down_check_gates[r[2].slot] = thirdPlaceGate;
-	  		timeThirdCrashed = seconds;
+      }
+      down_check_gates[slot] = timing_gate;
+    }
+  }
+
+  const num_riders_down = slots_down.length;
+  if (num_riders_down < 1) return;
+
+  var riders_down_together = 0;
+  var num_riders_down_at_same_time = 0;
+
+  // See how many riders are down at the same time, or same gate
+  if (num_riders_down > 1) {
+    out_str += " with ";
+
+    for (var i = 0; i < num_riders_down; i++) {
+      if (i > 0) {
+        out_str += slots_down[i][1].toString() + place_extensions[(slots_down[i][1] % 10)] + " " + mx.get_rider_name(slots_down[i][0]);
+        sum_positions_down += slots_down[i][1];
+      }
+      if (i != num_riders_down - 1 && i > 1) out_str += ", ";
+  
+      var tg = down_check_gates[slots_down[i][0]];
       
-	  		//if first is down, second is down, and not already done 1st, 2nd, and 3rd down
-	  		if (firstPlaceRiderDownValue == 1 && secondPlaceRiderDownValue == 1 && !display123) {
-	  			// if third crashed in the same timing gate as first and second and within 2 seconds of their crashes
-	  			if (thirdPlaceGate == firstPlaceGate 
-	  			&& thirdPlaceGate == secondPlaceGate 
-	  			&& (timeThirdCrashed - timeFirstCrashed <= 2 && timeThirdCrashed - timeSecondCrashed <= 2)) {
-	  				playCrashSound(1.7);
-	  				// third crashed together with first and second
-	  				mx.message('3rd place ' + thirdPlaceName + ' is now crying that he, 2nd place ' + secondPlaceName +
-	  				' and our leader ' + firstPlaceName + ' went down at the same time.');
-	  			}
-	  			else {
-	  				// if time time third crashed is within 2 seconds of first and second
-	  				if ((timeThirdCrashed - timeFirstCrashed <= 2) && (timeThirdCrashed - timeSecondCrashed <= 2)) {
-	  					playCrashSound(1.6);
-	  					// third crashed at the same time as first and second
-	  					mx.message('3rd place ' + thirdPlaceName + ' is cheering that 2nd place ' + secondPlaceName +
-	  					' and our leader ' + firstPlaceName + ' went down at the same time as him.');
-	  				}
-	  				else {
-	  					playCrashSound(1.5);
-	  					// third crashed while first and second were down
-	  					mx.message('3rd place ' + thirdPlaceName + ' absolutely obliterates himself while 2nd place ' + secondPlaceName +
-	  					' and our leader ' + firstPlaceName + ' are down.');
-	  				}
-	  			}
-	  			bothHappened = true;
-	  		}
-      
-	  		// if second is down, !bothHappened, and 2nd and 3rd down hasn't already been displayed
-	  		if (secondPlaceRiderDownValue == 1 && !bothHappened && !display23) {
-	  			// if third crashed in the same timing gate as second and within 2 seconds
-	  			if (thirdPlaceGate == secondPlaceGate && (timeThirdCrashed - timeSecondCrashed <= 2)) {
-	  				playCrashSound(1.4);
-	  				// third crashed together with second
-	  				mx.message('3rd place ' + thirdPlaceName + ' crashes with 2nd place ' + secondPlaceName);
-	  			}
-	  			else {
-	  				// if third crashed within 2 seconds of second's crash
-	  				if (timeThirdCrashed - timeSecondCrashed <= 2) {
-	  					playCrashSound(1.3);
-	  					// third crashed at the same time as second
-	  					mx.message('3rd place ' + thirdPlaceName + ' crashes at the same time as 2nd place ' + secondPlaceName);
-	  				}
-	  				else {
-	  					playCrashSound(1.2);
-	  					// third crashed while second was down
-	  					mx.message('3rd place ' + thirdPlaceName + ' crashes while 2nd place ' + secondPlaceName + ' is down');
-	  				}
-	  			}
-	  			oneHappened = true;
-	  		}
-      
-	  		// if first is down, !bothHappened, and have not already displayed 1st and 3rd down
-	  		if (firstPlaceRiderDownValue == 1 && !bothHappened && !display13) {
-	  			// if third crashed in the same timing gate as first and within 2 seconds of first crashing
-	  			if (thirdPlaceGate == firstPlaceGate && timeThirdCrashed - timeFirstCrashed <= 2) {
-	  				playCrashSound(1.4);
-	  				// third crashed with first
-	  				mx.message('3rd place ' + thirdPlaceName + ' crashes with the leader ' + firstPlaceName);
-	  			}
-	  			else {
-	  				// if third crashed within 2 seconds of first crashing
-	  				if (timeThirdCrashed - timeFirstCrashed <= 2) {
-	  					playCrashSound(1.3);
-	  					// third crashed at the same time as first
-	  					mx.message('3rd place ' + thirdPlaceName + ' crashes at the same time as the leader ' + firstPlaceName);
-	  				}
-	  				else {
-	  					playCrashSound(1.2);
-	  					// third crashed while first was down
-	  					mx.message('3rd place ' + thirdPlaceName + ' crashes while the leader ' + firstPlaceName + ' is down');
-	  				}
-	  			}
-	  			oneHappened = true;
-	  		}
-	  		if (!oneHappened && !bothHappened) {
-	  			playCrashSound(1);
-	  			// third crashed by themselves
-	  			mx.message('3rd place ' + thirdPlaceName + ' goes down hard');
-	  		}
-	  	}
-	  }
-	}
-	catch (e){
-		mx.message('chunk rider error: ' + e);
-	}
+      for (var j = i + 1; j < num_riders_down; j++) {
+        var tg2 = down_check_gates[slots_down[j][0]];
+        
+        /* Have to take the absolute value because the slots down doesn't take into account in which order the riders crashed, just that they crashed and the times
+            it happened, and since the gaps can never be less than zero, we can take the absolute value which essentially flip flops the times 
+            if someone crashed before the other person */
+        if (Math.abs(times_riders_last_crash[slots_down[i][0]] - times_riders_last_crash[slots_down[j][0]]) <= 2) {
+          num_riders_down_at_same_time++;
+        }
+  
+        if (tg === tg2) {
+          riders_down_together++;
+        }
+      }
+    }
+  }
+
+  out_str += "!";
+  
+  // display riders down ## temp ##
+  mx.message(out_str);
+
+  const avg_position_down = sum_positions_down / num_riders_down;
+  // volume is determined by what positions are currently down, how many riders are down, how many are down together, how many crashed at the same time
+  var volume = (base_vol_factor + ((num_riders_down_at_same_time + riders_down_together) / 2)) / (avg_position_down / num_riders_down);
+
+  playCrashSound(volume);
 }
 
 function updateRunningOrderScreen() {
@@ -2101,7 +1847,12 @@ function frameHandler(seconds) {
 	gateSound();
   determineHoleshot();
   if (racingEvent) {
-    isRiderDown();
+    try {
+      isRiderDown();
+    } 
+    catch (e){
+      mx.message("rider down error: " + e);
+    }
     try {
       dynamicMechanicAndFans();
     }
