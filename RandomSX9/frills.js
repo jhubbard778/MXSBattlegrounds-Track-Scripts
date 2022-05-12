@@ -978,7 +978,7 @@ var startedBattleFunction = false;
 // Index 0 is gap between 1st and 2nd, Index 1 is gap between 2nd and 3rd, etc.
 var gaps_between_riders = [];
 var reset_crowd_default_vol = true;
-var max_gap_between_riders = 2;
+const max_gap_between_riders = 2;
 const max_crowd_vol = (((4 * numOfPeopleToCheer) + numOfBleachers)) + (2 * crowd_constant_base_vol);
 var current_volume = 0;
 const vol_fade_time = 2;
@@ -1023,9 +1023,9 @@ function battlesFunction() {
           if (mx.get_rider_down(r[i + 1].slot) == 1)
             vol_factor = (i + 1) * 2;
           else
-            vol_factor = i;
+            vol_factor = i + 1;
 
-          var volume = ((numOfPeopleToCheer / (vol_factor + 1)) / vol_divisor);
+          var volume = ((2 / (vol_factor)) / vol_divisor);
           startRoar(volume);
         }
       }
@@ -1071,9 +1071,10 @@ function battlesFunction() {
       if (lowest_gap <= max_gap_between_riders) battle_between_riders = true;
       // if someone in the priority battle goes down, check for other battles then set the priority battle and lowest gap
       if (mx.get_rider_down(r[priority_battle + 1].slot) == 1 || mx.get_rider_down(r[priority_battle].slot) == 1){
-        if (gaps_between_riders.length > 1){
-          var second_lowest_gap = gaps_between_riders[priority_battle + 1];
-          for (var i = priority_battle; i < gaps_between_riders.length; i++) {
+        if (gaps_between_riders.length > 1) {
+          var second_lowest_gap = undefinedTime;
+          for (var i = 0; i < gaps_between_riders.length; i++) {
+            if (i == priority_battle) continue;
             if (gaps_between_riders[i] < second_lowest_gap) {
               second_lowest_gap = gaps_between_riders[i];
               lowest_gap = second_lowest_gap;
@@ -1081,17 +1082,17 @@ function battlesFunction() {
             }
           }
           // no other battles
-          if (lowest_gap > max_gap_between_riders)
+          if (lowest_gap > max_gap_between_riders) {
             battle_between_riders = false;
+          }
         }
         // no other battles
-        else
-          battle_between_riders = false;
+        else battle_between_riders = false;
       }
     }
     // If there's a battle, set the volume of the crowd constant based on the gap and position
     if (battle_between_riders) {
-      var volume = (((((4 * numOfBattles) + numOfBleachers) / ((lowest_gap + 0.8) * (priority_battle + 1))) + (2 * crowd_constant_base_vol)) / vol_divisor);
+      var volume = (((((3 * numOfBattles) + numOfBleachers) / ((lowest_gap + 0.9) * (priority_battle + 1))) + (1.5 * crowd_constant_base_vol)) / vol_divisor);
       // If crowd has already reached desired calculated volume, return
       if (current_crowd_vol == volume) return;
 
@@ -1687,7 +1688,7 @@ var times_riders_last_crash = [];
 var start_delay = undefinedTime;
 // this number is the top x people the crowd will react to going down
 var max_num_riders_down = 3;
-const base_vol_factor = 1.5;
+const base_vol_factor = 1.75;
 
 const place_extensions = [
   "th", "st", "nd", "rd", "th", "th",
@@ -1740,7 +1741,7 @@ function isRiderDown() {
         down_check_gates[slot] = timing_gate;
         return;
       }
-      times_riders_last_crash[slot] = mx.seconds;
+      times_riders_last_crash[slot] = seconds;
       // store the slot down, and position they're in.
       slots_down[slots_down.length] = [slot, i + 1];
       sum_positions_down = i + 1;
@@ -1752,9 +1753,15 @@ function isRiderDown() {
         if (i == j) continue;
         var slot_two = r[j].slot;
         var timing_gate_two = r[j].position;
-        if (mx.get_rider_down(slot_two) === 1 && timing_gate_two == down_check_gates[slot_two]) {
-          // store the slot down, and position they're in.
+        if (mx.get_rider_down(slot_two) === 1) {
+          // If this is the first time the rider has been caught crashing as well, set their down check gate and time they crashed
+          if (timing_gate_two != down_check_gates[slot_two]) {
+            down_check_gates[slot_two] = timing_gate_two;
+            times_riders_last_crash[slot_two] = seconds;
+          }
+          // store the slot down, and position they're in.  Accumulate sum of positions down
           slots_down[slots_down.length] = [slot_two, j + 1];
+          sum_positions_down += (j + 1);
         }
       }
       down_check_gates[slot] = timing_gate;
@@ -1764,6 +1771,7 @@ function isRiderDown() {
   const num_riders_down = slots_down.length;
   if (num_riders_down < 1) return;
 
+  mx.message("slots down: " + slots_down.toString());
   var riders_down_together = 0;
   var num_riders_down_at_same_time = 0;
 
@@ -1774,10 +1782,10 @@ function isRiderDown() {
     for (var i = 0; i < num_riders_down; i++) {
       if (i > 0) {
         out_str += slots_down[i][1].toString() + place_extensions[(slots_down[i][1] % 10)] + " " + mx.get_rider_name(slots_down[i][0]);
-        sum_positions_down += slots_down[i][1];
       }
-      if (i != num_riders_down - 1 && i > 1) out_str += ", ";
-  
+      if (i != num_riders_down - 1 && i > 0) out_str += ", ";
+      if (i == num_riders_down - 2) out_str += "and ";
+
       var tg = down_check_gates[slots_down[i][0]];
       
       for (var j = i + 1; j < num_riders_down; j++) {
