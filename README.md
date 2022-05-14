@@ -5,7 +5,7 @@ Client Javascript Scripts for the tracks in my MXSBattlegrounds SX Series
 
 # General Info
 
->The track script can be named either "nofrills.js" or "frills.js". The difference is "nofrills.js" is part of the track checksum, so if you want the |script to be mandatory you need to name it "nofrills.js".
+>The track script can be named either "nofrills.js" or "frills.js". The difference is "nofrills.js" is part of the track checksum, so if you want the script to be mandatory you need to name it "nofrills.js".
 
 <br>
 
