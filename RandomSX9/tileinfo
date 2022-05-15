@@ -29,9 +29,10 @@ erode_limit 1.5 0.05 1.35
 erode_limit 2.25 0.05 0.75
 erode_limit 3.25 0.05 0.05
 erode_lateral_scale 1.5
-texture @sx2021/tiles/exit.ppm
-roost texture=@lakes/tile/dirtroost.png count=3 dig=0.0 slip_threshold=1.200 slow_speed=0.0 fast_speed=64.0 slow_angle=1.17 fast_angle=0.226 size=1.0 grow=2.7 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
-roost texture=@lakes/tile/dirtroost.png count=5 dig=1.0 slip_threshold=3.60 slow_speed=0.0 fast_speed=64.0 slow_angle=1.47 fast_angle=0.206 size=1.0 grow=2.70 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+texture @sx2022battlegroundsobjectpack/tile/sx/exit.ppm
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=1 dig=1.0 slip_threshold=0.9 slow_speed=0.5 fast_speed=64.0 slow_angle=0.3 fast_angle=0.3 size=2 grow=3.5 drag=0.5 vscale=0.5 r=58 g=41 b=19 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=3 dig=1.2 slip_threshold=2.5 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=0.8 grow=4 drag=1.5 vscale=0.8 randomize=1 r=163 g=125 b=76 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost2.png count=3 dig=1.2 slip_threshold=3 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=1.0 grow=5 drag=1.5 vscale=0.8 randomize=1 r=117 g=89 b=53 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
 addtile
 
 name Corner Transition
@@ -63,9 +64,10 @@ erode_limit 0.75 0.6 1.7
 erode_limit 1.5 0.3 0.75
 erode_limit 2.5 0.3 0.3
 erode_lateral_scale 0.5
-texture @sx2021/tiles/transition.ppm
-roost texture=@lakes/tile/dirtroost.png count=3 dig=0.0 slip_threshold=1.200 slow_speed=0.0 fast_speed=64.0 slow_angle=1.17 fast_angle=0.226 size=1.0 grow=2.7 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
-roost texture=@lakes/tile/dirtroost.png count=5 dig=1.0 slip_threshold=3.60 slow_speed=0.0 fast_speed=64.0 slow_angle=1.47 fast_angle=0.206 size=1.0 grow=2.70 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+texture @sx2022battlegroundsobjectpack/tile/sx/transition.ppm
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=1 dig=1.0 slip_threshold=0.9 slow_speed=0.5 fast_speed=64.0 slow_angle=0.3 fast_angle=0.3 size=2 grow=3.5 drag=0.5 vscale=0.5 r=58 g=41 b=19 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=3 dig=1.2 slip_threshold=2.5 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=0.8 grow=4 drag=1.5 vscale=0.8 randomize=1 r=163 g=125 b=76 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost2.png count=3 dig=1.2 slip_threshold=3 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=1.0 grow=5 drag=1.5 vscale=0.8 randomize=1 r=117 g=89 b=53 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
 addtile
 
 name Jumps
@@ -99,8 +101,9 @@ erode_limit 1.5 0.35 3.35
 erode_limit 2.25 0.25 3.25
 erode_limit 3.25 0.05 2.05
 texture @dirt.ppm
-roost texture=@lakes/tile/dirtroost.png count=3 dig=0.0 slip_threshold=1.200 slow_speed=0.0 fast_speed=64.0 slow_angle=1.17 fast_angle=0.226 size=1.0 grow=2.7 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
-roost texture=@lakes/tile/dirtroost.png count=5 dig=1.0 slip_threshold=3.60 slow_speed=0.0 fast_speed=64.0 slow_angle=1.47 fast_angle=0.206 size=1.0 grow=2.70 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=1 dig=1.0 slip_threshold=0.9 slow_speed=0.5 fast_speed=64.0 slow_angle=0.3 fast_angle=0.3 size=2 grow=3.5 drag=0.5 vscale=0.5 r=58 g=41 b=19 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=3 dig=1.2 slip_threshold=2.5 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=0.8 grow=4 drag=1.5 vscale=0.8 randomize=1 r=163 g=125 b=76 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost2.png count=3 dig=1.2 slip_threshold=3 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=1.0 grow=5 drag=1.5 vscale=0.8 randomize=1 r=117 g=89 b=53 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
 addtile
 
 name Nothing
@@ -113,9 +116,10 @@ roll_resist 50.0 70.0 45.0
 roll_resist 70.0 90.0 60.0
 erode_depth 0
 erode_inner_depth 0
-texture @sx2021/tiles/midcorner.ppm
-roost texture=@lakes/tile/dirtroost.png count=3 dig=0.0 slip_threshold=1.200 slow_speed=0.0 fast_speed=64.0 slow_angle=1.17 fast_angle=0.226 size=1.0 grow=2.7 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
-roost texture=@lakes/tile/dirtroost.png count=5 dig=1.0 slip_threshold=3.60 slow_speed=0.0 fast_speed=64.0 slow_angle=1.47 fast_angle=0.206 size=1.0 grow=2.70 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+texture @sx2022battlegroundsobjectpack/tile/sx/midcorner.ppm
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=1 dig=1.0 slip_threshold=0.9 slow_speed=0.5 fast_speed=64.0 slow_angle=0.3 fast_angle=0.3 size=2 grow=3.5 drag=0.5 vscale=0.5 r=58 g=41 b=19 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=3 dig=1.2 slip_threshold=2.5 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=0.8 grow=4 drag=1.5 vscale=0.8 randomize=1 r=163 g=125 b=76 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost2.png count=3 dig=1.2 slip_threshold=3 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=1.0 grow=5 drag=1.5 vscale=0.8 randomize=1 r=117 g=89 b=53 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
 addtile
 
 name Berm Transition
@@ -147,9 +151,10 @@ erode_limit 0.75 0.6 1.7
 erode_limit 1.5 0.3 0.75
 erode_limit 2.5 0.3 0.3
 erode_lateral_scale 0.5
-texture @sx2021/tiles/transition.ppm
-roost texture=@lakes/tile/dirtroost.png count=3 dig=0.0 slip_threshold=1.200 slow_speed=0.0 fast_speed=64.0 slow_angle=1.17 fast_angle=0.226 size=1.0 grow=2.7 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
-roost texture=@lakes/tile/dirtroost.png count=5 dig=1.0 slip_threshold=3.60 slow_speed=0.0 fast_speed=64.0 slow_angle=1.47 fast_angle=0.206 size=1.0 grow=2.70 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+texture @sx2022battlegroundsobjectpack/tile/sx/transition.ppm
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=1 dig=1.0 slip_threshold=0.9 slow_speed=0.5 fast_speed=64.0 slow_angle=0.3 fast_angle=0.3 size=2 grow=3.5 drag=0.5 vscale=0.5 r=58 g=41 b=19 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=3 dig=1.2 slip_threshold=2.5 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=0.8 grow=4 drag=1.5 vscale=0.8 randomize=1 r=163 g=125 b=76 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost2.png count=3 dig=1.2 slip_threshold=3 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=1.0 grow=5 drag=1.5 vscale=0.8 randomize=1 r=117 g=89 b=53 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
 addtile
 
 name Whoops
@@ -164,9 +169,10 @@ erode_depth 10
 erode_displacement 3
 erode_radius 5
 erode_max_slope 0.35
-texture @sx2021/tiles/entry.ppm
-roost texture=@lakes/tile/dirtroost.png count=3 dig=0.0 slip_threshold=1.200 slow_speed=0.0 fast_speed=64.0 slow_angle=1.17 fast_angle=0.226 size=1.0 grow=2.7 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
-roost texture=@lakes/tile/dirtroost.png count=5 dig=1.0 slip_threshold=3.60 slow_speed=0.0 fast_speed=64.0 slow_angle=1.47 fast_angle=0.206 size=1.0 grow=2.70 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+texture @sx2022battlegroundsobjectpack/tile/sx/entry.ppm
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=1 dig=1.0 slip_threshold=0.9 slow_speed=0.5 fast_speed=64.0 slow_angle=0.3 fast_angle=0.3 size=2 grow=3.5 drag=0.5 vscale=0.5 r=58 g=41 b=19 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=3 dig=1.2 slip_threshold=2.5 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=0.8 grow=4 drag=1.5 vscale=0.8 randomize=1 r=163 g=125 b=76 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost2.png count=3 dig=1.2 slip_threshold=3 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=1.0 grow=5 drag=1.5 vscale=0.8 randomize=1 r=117 g=89 b=53 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
 addtile
 
 name Jump Transition
@@ -199,9 +205,10 @@ erode_limit 0.95 0.80 1.00
 erode_limit 1.5 0.35 0.75
 erode_limit 2.5 0.35 0.35
 erode_lateral_scale 0.15
-texture @sx2021/tiles/jumptrans.ppm
-roost texture=@lakes/tile/dirtroost.png count=3 dig=0.0 slip_threshold=1.200 slow_speed=0.0 fast_speed=64.0 slow_angle=1.17 fast_angle=0.226 size=1.0 grow=2.7 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
-roost texture=@lakes/tile/dirtroost.png count=5 dig=1.0 slip_threshold=3.60 slow_speed=0.0 fast_speed=64.0 slow_angle=1.47 fast_angle=0.206 size=1.0 grow=2.70 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+texture @sx2022battlegroundsobjectpack/tile/sx/jumptrans.ppm
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=1 dig=1.0 slip_threshold=0.9 slow_speed=0.5 fast_speed=64.0 slow_angle=0.3 fast_angle=0.3 size=2 grow=3.5 drag=0.5 vscale=0.5 r=58 g=41 b=19 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=3 dig=1.2 slip_threshold=2.5 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=0.8 grow=4 drag=1.5 vscale=0.8 randomize=1 r=163 g=125 b=76 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost2.png count=3 dig=1.2 slip_threshold=3 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=1.0 grow=5 drag=1.5 vscale=0.8 randomize=1 r=117 g=89 b=53 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
 addtile
 
 name Whoop Transition
@@ -216,8 +223,10 @@ erode_depth 4.25
 erode_displacement 3
 erode_radius 4.5
 erode_max_slope 0.35
-roost texture=@lakes/tile/dirtroost.png count=3 dig=0.0 slip_threshold=1.200 slow_speed=0.0 fast_speed=64.0 slow_angle=1.17 fast_angle=0.226 size=1.0 grow=2.7 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
-roost texture=@lakes/tile/dirtroost.png count=5 dig=1.0 slip_threshold=3.60 slow_speed=0.0 fast_speed=64.0 slow_angle=1.47 fast_angle=0.206 size=1.0 grow=2.70 drag=0.200 vscale=0.550 randomize=10.0 r=95 g=72 b=57 a=205 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+texture @sx2022battlegroundsobjectpack/tile/sx/whooptrans.ppm
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=1 dig=1.0 slip_threshold=0.9 slow_speed=0.5 fast_speed=64.0 slow_angle=0.3 fast_angle=0.3 size=2 grow=3.5 drag=0.5 vscale=0.5 r=58 g=41 b=19 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=0
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost_solid.png count=3 dig=1.2 slip_threshold=2.5 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=0.8 grow=4 drag=1.5 vscale=0.8 randomize=1 r=163 g=125 b=76 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
+roost texture=@sx2022battlegroundsobjectpack/tile/roost/roost2.png count=3 dig=1.2 slip_threshold=3 slow_speed=0.0 fast_speed=64.0 slow_angle=0.4 fast_angle=0.2 size=1.0 grow=5 drag=1.5 vscale=0.8 randomize=1 r=117 g=89 b=53 a=50 fade_r=0 fade_g=0 fade_b=0 fade_a=-255
 addtile
 
 name Sand
@@ -232,7 +241,7 @@ erode_depth 10
 erode_displacement 3
 erode_radius 5
 erode_max_slope 0.35
-texture @grass.ppm
+texture @sx2022battlegroundsobjectpack/tile/sx/sand.ppm
 roost texture=@sx2022battlegroundsobjectpack/tile/roost/sandroost1.png count=2 dig=1.0 slip_threshold=2.0 slow_speed=0.0 fast_speed=50.0 slow_angle=1 fast_angle=0.1 size=2.0 grow=2.0 drag=1.5 vscale=1.0 randomize=1 r=255 g=255 b=255 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=-256
 roost texture=@sx2022battlegroundsobjectpack/tile/roost/sandroost2.png count=6 dig=0.0 slip_threshold=2.0 slow_speed=0.0 fast_speed=50.0 slow_angle=1.57 fast_angle=0.296 size=1.0 grow=2.5 drag=1.0 vscale=1.0 randomize=1 r=255 g=255 b=255 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=256
 addtile
