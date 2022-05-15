@@ -1386,10 +1386,10 @@ function song_function() {
 
 function assignPositionsForMechanicsAndPlaySound(slotNumber, mechanicNumberIdentifiers, randNumber){
   var mechNum = mechanicNumberIdentifiers[slotNumber];
-	mx.message('slot number: ' + slotNumber);
+	/*mx.message('slot number: ' + slotNumber);
   mx.message('setting sound position for: [' + mechNum + '][' + randNumber + '] at ' + mechanicPositions[slotNumber]);
   mx.set_sound_pos(allMechanicSounds[mechNum][randNumber], mechanicPositions[slotNumber][0], mechanicPositions[slotNumber][1], mechanicPositions[slotNumber][2]);
-  mx.start_sound(allMechanicSounds[mechNum][randNumber]);
+  mx.start_sound(allMechanicSounds[mechNum][randNumber]);*/
 }
 
 function makeNameComparison(slot, benchPos){
@@ -1429,23 +1429,24 @@ function makeNameComparisonFinish(name) {
   var randNumber;
 	
 	for (var i = 0; i < booRiderNames.length; i++) {
-		if (name.includes(booRiderNames[i])){
+		if (name.includes(booRiderNames[i])) {
 			booSoundMatch = true;
       break;
 		}
 	}
+
 	if (booSoundMatch) {
 		for (var i = 0; i < numOfBleachers; i++) {
       randNumber = randomIntFromInterval(0, (allBooSounds.length - 1));
 			mx.start_sound(allBooSounds[randNumber][i]);
-		}		
-	}
-  else {
-		for (var i = 0; i < numOfBleachers; i++) {
-      randNumber = randomIntFromInterval(0, (allCheerSounds.length - 1));
-			mx.start_sound(allCheerSounds[randNumber][j]);
 		}
-  }
+    return;
+	}
+
+	for (var i = 0; i < numOfBleachers; i++) {
+    randNumber = randomIntFromInterval(0, (allCheerSounds.length - 1));
+		mx.start_sound(allCheerSounds[randNumber][j]);
+	}
 }
 
 var playFinishSoundAndFlame = false;
@@ -1458,11 +1459,10 @@ function laps_remaining_string(l) {
           triggerAllFlameSounds();
           triggerFireworkSounds();
           makeNameComparisonFinish(firstPlaceName);
-          mx.message(firstPlaceName + ' wins the race!');
+          // mx.message(firstPlaceName + ' wins the race!');
         }
         // someone wins a heat or lcq
-        else
-          triggerCrowdRoar(0.4);
+        else triggerCrowdRoar(0.4);
         playFinishSoundAndFlame = true;
       }
      }
@@ -1592,20 +1592,26 @@ function displayLaptimes() {
       var laptime = get_laptime(slot, timing_gate);
 
       // store laptime, if its the second lap we want to replace undefinedTime. If not second lap, append.
-      if (timing_gate > firstLapLength + normalLapLength)
+      if (timing_gate > firstLapLength + normalLapLength) {
         all_player_laps[slot][all_player_laps[slot].length] = laptime;
-      else
+      }
+      else {
         all_player_laps[slot][0] = laptime;
+      }
       
       var new_pb = false;
 
 			// if 2nd lap, replace pb of 0
-			if (timing_gate == (firstLapLength + normalLapLength))
+			if (timing_gate == (firstLapLength + normalLapLength)) {
         new_pb = true;
+      }
+        
 
 			// not 2nd lap, check to see if lap is faster
-			else if (best_player_laps[slot][0] > laptime)
+			else if (best_player_laps[slot][0] > laptime) {
         new_pb = true;
+      }
+        
 
       if (new_pb) {
         best_player_laps[slot][0] = laptime;
@@ -1615,8 +1621,9 @@ function displayLaptimes() {
 				if (!racingEvent) {
           update_screen();
           // Display person ran best lap of the session
-          if (is_fastest_lap(laptime))
+          if (is_fastest_lap(laptime)) {
             mx.message("\x1b[42m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + laptimeToString);
+          }
         }
       }
 		}
@@ -1628,9 +1635,8 @@ function is_fastest_lap(laptime) {
   var best_player_laps_srtd = best_player_laps.slice();
   best_player_laps_srtd.sort(function (a, b){return a[0] - b[0];});
   var best_lap = best_player_laps_srtd[0][0];
-  if (best_lap == laptime)
-    return true;
-  
+  if (best_lap == laptime) return true;
+
   return false;
 }
 
@@ -1809,7 +1815,7 @@ function isRiderDown() {
   out_str += "!";
   
   // display riders down ## temp ##
-  mx.message(out_str);
+  // mx.message(out_str);
 
   const avg_position_down = sum_positions_down / num_riders_down;
   // volume is determined by what positions are currently down, how many riders are down, how many are down together, how many crashed at the same time
@@ -1826,21 +1832,21 @@ function updateRunningOrderScreen() {
       slot = r[i].slot;
       timing_gate = r[i].position;
       if (timing_gate != current_timing_gates[slot]){
-        if (checkPosChange(slot, i) || timing_gate == 1)
+        if (checkPosChange(slot, i) || timing_gate == 1) {
           update_screen();
+        }
       }
     }
   }
-  else {
-    timing_gate = r[0].position;
-    if (timing_gate == 1 && timing_gate != current_timing_gates[slot])
-      update_screen();
+  else if (r[0].position == 1 && r[0].position != current_timing_gates[slot]) {
+    update_screen();
   }
 }
 
 function ResetSlotPositionHolder() {
-  for (var i = 0; i < g_running_order.length; i++)
+  for (var i = 0; i < g_running_order.length; i++) {
     slot_position_holder[i] = g_running_order[i].slot;
+  }
 }
 
 var initializedArrays = false;
@@ -1856,12 +1862,7 @@ function frameHandler(seconds) {
 	gateSound();
   determineHoleshot();
   if (racingEvent) {
-    try {
-      isRiderDown();
-    } 
-    catch (e){
-      mx.message("rider down error: " + e);
-    }
+    isRiderDown();
     try {
       dynamicMechanicAndFans();
     }
@@ -2165,8 +2166,9 @@ function reset_current_timing_gates(){
     timingGate = g_running_order[i].position;
     if (timingGate != current_timing_gates[slot]){
       // for demos going back in time, reset their down check gate
-      if (timingGate < current_timing_gates[slot])
+      if (timingGate < current_timing_gates[slot]) {
         down_check_gates[slot] = 0;
+      }
       current_timing_gates[slot] = timingGate;
     }
   }
@@ -2190,7 +2192,7 @@ function playCrashSound(multiplier) {
       do {
         randNumber = randomIntFromInterval(0, numOfCrashVariants - 1);
       }
-      while (maxRepCrashCounter[randNumber] >= maxCrashRepetitions)
+      while (maxRepCrashCounter[randNumber] >= maxCrashRepetitions);
 
       maxRepCrashCounter[randNumber]++;
 			mx.set_sound_vol(crashSounds[i][randNumber], volume);
@@ -2224,11 +2226,8 @@ function determineHoleshot(){
     }
     else {
       // for demos going backwards in time
-      if (r[0].position >= (holeshotGate + 1))
-        backwards = true;
-      else
-        backwards = false;
-      
+      if (r[0].position >= (holeshotGate + 1)) backwards = true;
+      else backwards = false;
       holeshot = false;
     }
   }
