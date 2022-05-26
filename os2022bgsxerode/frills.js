@@ -2592,17 +2592,27 @@ function displayLaptimes() {
 		// initialize rider names array
 		slot = r[i].slot;
 		timing_gate = r[i].position;
-    riderName = mx.get_rider_name(slot);
   
 		if ((timing_gate - firstLapLength) % normalLapLength == 0 && (timing_gate > 0) && (timing_gate != firstLapLength) && (timing_gate != current_timing_gates[slot])) {
+      riderName = mx.get_rider_name(slot);
+
+      // Laptime will be an array that stores the laptime and if the laptime is good or not
       var laptime = get_laptime(slot, timing_gate);
+
+      // For time trial catching
+      if (r.length > all_player_laps.length) {
+        for (i = all_player_laps.length - 1; i < r.length; i++) {
+          best_player_laps[i] = [undefinedTime, slot];
+          all_player_laps[i] = [undefinedTime];
+        }
+      }
 
       // store laptime, if its the second lap we want to replace undefinedTime. If not second lap, append.
       if (timing_gate > firstLapLength + normalLapLength) {
-        all_player_laps[slot][all_player_laps[slot].length] = laptime;
+        all_player_laps[slot][all_player_laps[slot].length] = laptime[0];
       }
       else {
-        all_player_laps[slot][0] = laptime;
+        all_player_laps[slot][0] = laptime[0];
       }
       
       var new_pb = false;
@@ -2611,24 +2621,28 @@ function displayLaptimes() {
 			if (timing_gate == (firstLapLength + normalLapLength)) {
         new_pb = true;
       }
-        
-
 			// not 2nd lap, check to see if lap is faster
-			else if (best_player_laps[slot][0] > laptime) {
+			else if (best_player_laps[slot][0] > laptime[0]) {
         new_pb = true;
       }
-        
+
+      // If the rider missed a timing gate and it's there best, don't count the lap as a pb
+      if (laptime[1] == false && new_pb) new_pb = false;
 
       if (new_pb) {
-        best_player_laps[slot][0] = laptime;
-				laptimeToString = time_to_string(laptime);
+        best_player_laps[slot][0] = laptime[0];
+				laptimeToString = time_to_string(laptime[0]);
       
 				// update screen
 				if (!racingEvent) {
           update_screen();
+          // For time trial catching
+          if (riderName == "") {
+            riderName = "Ghost Rider";
+          }
           // Display person ran best lap of the session
-          if (is_fastest_lap(laptime)) {
-            mx.message("\x1b[42m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + laptimeToString);
+          if (is_fastest_lap(laptime[0])) {
+            mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + laptimeToString);
           }
         }
       }
@@ -2649,9 +2663,17 @@ function is_fastest_lap(laptime) {
 function get_laptime(slot, current_gate) {
   var end_gate = current_gate - 1;
   var start_gate = end_gate - normalLapLength;
+  var is_lap_good = true;
+  // If the rider missed a timing gate between the lap, don't count it
+  for (var i = start_gate + 1; i < end_gate; i++) {
+    if (mx.get_timing(slot, i) < 0) {
+      is_lap_good = false;
+      break;
+    }
+  }
   var start_lap = mx.get_timing(slot, start_gate);
   var finish_lap = mx.get_timing(slot, end_gate);
-  return finish_lap - start_lap;
+  return [finish_lap - start_lap, is_lap_good];
 }
 
 function break_time(t) {
@@ -3036,27 +3058,21 @@ function rider_awards() {
     mx.message("\x1b[32mHard Charger Award:");
     mx.message("\x1b[32m--------------------------");
     mx.message("");
-    if (positions_gained != 0)
-      mx.message("\x1b[32m+" + positions_gained.toString() + ' Positions\x1b[0m - ' + rider_name.toString());
-    else
-      mx.message("Nobody");
+    if (positions_gained != 0) mx.message("\x1b[32m+" + positions_gained.toString() + ' Positions\x1b[0m - ' + rider_name.toString());
+    else mx.message("Nobody");
     mx.message("");
 
     // Anchor Award
-    if (positions_gained > 0) {
-      if (rider_positions_gained[rider_positions_gained.length - 1]) {
-        positions_gained = rider_positions_gained[rider_positions_gained.length - 1][0];
-        rider_name = mx.get_rider_name(rider_positions_gained[rider_positions_gained.length - 1][1]);
-      }
+    if (rider_positions_gained[rider_positions_gained.length - 1][0] != rider_positions_gained[0][0]) {
+      positions_gained = rider_positions_gained[rider_positions_gained.length - 1][0];
+      rider_name = mx.get_rider_name(rider_positions_gained[rider_positions_gained.length - 1][1]);
     }
     mx.message("\x1b[31m-------------------");
     mx.message("\x1b[31mAnchor Award:");
     mx.message("\x1b[31m-------------------");
     mx.message("");
-    if (positions_gained != 0)
-      mx.message("\x1b[31m" + positions_gained.toString() + ' Positions\x1b[0m - ' + rider_name.toString());
-    else
-      mx.message("Nobody");
+    if (positions_gained != 0) mx.message("\x1b[31m" + positions_gained.toString() + ' Positions\x1b[0m - ' + rider_name.toString());
+    else mx.message("Nobody");
     mx.message("");
 
     // On the Clock Award
@@ -3066,10 +3082,8 @@ function rider_awards() {
     mx.message("\x1b[34mOn The Clock Award:");
     mx.message("\x1b[34m--------------------------");
     mx.message("");
-    if (fastest_rider[0] != undefinedTime)
-      mx.message("\x1b[34m" + time_to_string(fastest_rider[0]) + '\x1b[0m - ' + rider_name.toString());
-    else
-      mx.message("Nobody");
+    if (fastest_rider[0] != undefinedTime) mx.message("\x1b[34m" + time_to_string(fastest_rider[0]) + '\x1b[0m - ' + rider_name.toString());
+    else mx.message("Nobody");
     mx.message("");
 
     // Consistency Award
@@ -3111,7 +3125,19 @@ function calculate_positions_gained () {
     }
   }
   // sort by largest num of positions gained.
-  rider_positions_gained.sort(function (a, b){return b[0] - a[0];});
+  rider_positions_gained.sort(function (a, b) {
+    if (a[0] < b[0]) {
+      return -1;
+    }
+
+    if (a[0] == b[0]) {
+      // If the two riders gained or lost the same number of positions but the finish position of A rider was worse then B rider, then A rider gained 'less' positions
+      if (rider_positions_finish[a[1]] > rider_positions_finish[b[1]]) {
+        return -1;
+      }
+    }
+    return 1;
+  });
 }
 
 function get_fastest_lap() {
@@ -3144,6 +3170,7 @@ function get_rider_consistency() {
       sum = 0;
       for (var j = 0; j < all_player_laps[slot].length; j++)
         sum += Math.pow(all_player_laps[slot][j] - avg_laps[slot],2);
+
       var variance = sum / all_player_laps[slot].length;
       var std_deviation = Math.sqrt(variance);
       std_devs[slot] = [std_deviation, slot];

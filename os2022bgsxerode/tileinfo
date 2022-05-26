@@ -245,3 +245,16 @@ texture @os2022bgsxobj/tile/sx/sand.ppm
 roost texture=@os2022bgsxobj/tile/roost/sandroost1.png count=2 dig=1.0 slip_threshold=2.0 slow_speed=0.0 fast_speed=50.0 slow_angle=1 fast_angle=0.1 size=2.0 grow=2.0 drag=1.5 vscale=1.0 randomize=1 r=255 g=255 b=255 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=-256
 roost texture=@os2022bgsxobj/tile/roost/sandroost2.png count=6 dig=0.0 slip_threshold=2.0 slow_speed=0.0 fast_speed=50.0 slow_angle=1.57 fast_angle=0.296 size=1.0 grow=2.5 drag=1.0 vscale=1.0 randomize=1 r=255 g=255 b=255 a=255 fade_r=0 fade_g=0 fade_b=0 fade_a=256
 addtile
+
+name Start Grate
+friction 1.2 0
+roll_resist 10 20 0
+erode_depth 0
+erode_inner_depth 0
+erode_lower 50
+erode_upper 200.0
+erode_displacement 5.0
+erode_radius 5.0
+erode_max_slope 0.6
+texture @os2022bgsxobj/tile/sx/grate.ppm
+addtile
