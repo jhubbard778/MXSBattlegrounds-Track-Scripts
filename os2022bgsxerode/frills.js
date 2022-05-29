@@ -147,7 +147,9 @@ var crashSounds = [];
 const crashSoundDirectories = [
   "@os2022bgsxobj/sounds/crashes/crash1.raw",
   "@os2022bgsxobj/sounds/crashes/crash2.raw",
-  "@os2022bgsxobj/sounds/cheers/roar1.raw"
+  "@os2022bgsxobj/sounds/crashes/crash3.raw",
+  "@os2022bgsxobj/sounds/cheers/roar1.raw",
+  "@os2022bgsxobj/sounds/cheers/roar2.raw"
 ];
 const numOfCrashVariants = crashSoundDirectories.length;
 
@@ -155,8 +157,10 @@ var crowdConstants;
 var crowdRoars = [];
 const crowdRoarDirectories = [
   "@os2022bgsxobj/sounds/cheers/cheer1.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer4.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer5.raw",
   "@os2022bgsxobj/sounds/cheers/roar1.raw",
-  "@os2022bgsxobj/sounds/pretzel1.raw",
+  "@os2022bgsxobj/sounds/cheers/roar2.raw"
 ];
 const numOfRoarVariants = crowdRoarDirectories.length;
 
@@ -164,16 +168,22 @@ var allCheerSounds = [];
 var allBooSounds = [];
 
 const cheerVariantDirectories = [
-  "@os2022bgsxobj/sounds/cheers/cheer.raw",
   "@os2022bgsxobj/sounds/cheers/cheer1.raw",
-  "@os2022bgsxobj/sounds/cheers/roar1.raw"
+  "@os2022bgsxobj/sounds/cheers/cheer2.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer3.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer4.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer5.raw",
+  "@os2022bgsxobj/sounds/cheers/roar1.raw",
+  "@os2022bgsxobj/sounds/cheers/roar2.raw"
 
 ];
 const numOfCheerVariants = cheerVariantDirectories.length;
 
 const booVariantDirectories = [
-  "@os2022bgsxobj/sounds/pretzel1.raw",
-  "@os2022bgsxobj/sounds/boos/boo.raw"
+  "@os2022bgsxobj/sounds/boos/boo1.raw",
+  "@os2022bgsxobj/sounds/boos/boo2.raw",
+  "@os2022bgsxobj/sounds/boos/boo3.raw",
+  "@os2022bgsxobj/sounds/boos/boo4.raw"
 ];
 const numOfBooVariants = booVariantDirectories.length;
 
@@ -1428,14 +1438,11 @@ if (mainEvent) {
     var time_to_start_songs = 20;
     var songs = [[]];
     // song lengths in seconds, 1:1 correlation with song_directories
-    var song_lengths = [279,239,323];
+    var song_lengths = [];
     // song files
     var song_directories = [
-      "@os2022bgsxobj/sounds/songs/calmdownjuliet.raw",
-      "@os2022bgsxobj/sounds/songs/somethingwicked.raw",
-      "@os2022bgsxobj/sounds/songs/perfectmachine.raw"
     ];
-    shuffle_songs();
+    shuffle_songs(song_directories, song_lengths);
   }
   var time = g_finish_time / 60;
   var four_fifty = false;
@@ -1465,8 +1472,8 @@ if (mainEvent) {
   
 }
 
-function shuffle_songs() {
-  var currentIndex = song_directories.length;
+function shuffle_songs(directories, lengths) {
+  var currentIndex = directories.length;
   var randomIndex;
 
   // While there remain elements to shuffle...
@@ -1477,13 +1484,13 @@ function shuffle_songs() {
     currentIndex--;
 
     // swap elements
-    var temp = song_directories[currentIndex];
-    song_directories[currentIndex] = song_directories[randomIndex];
-    song_directories[randomIndex] = temp;
+    var temp = directories[currentIndex];
+    directories[currentIndex] = directories[randomIndex];
+    directories[randomIndex] = temp;
 
-    temp = song_lengths[currentIndex];
-    song_lengths[currentIndex] = song_lengths[randomIndex];
-    song_lengths[randomIndex] = temp;
+    temp = lengths[currentIndex];
+    lengths[currentIndex] = lengths[randomIndex];
+    lengths[randomIndex] = temp;
     
   }
 }
@@ -2212,6 +2219,7 @@ function initializeCheerAndBooVariantSounds() {
         mx.set_sound_pos(allBooSounds[i][j], bleacherSoundPositions[j][0], bleacherSoundPositions[j][1], bleacherSoundPositions[j][2]);
       }
     }
+   
     for (i = 0; i < numOfCheerVariants; i++) {
       for (j = 0; j < numOfBleachers; j++) {
         allCheerSounds[i][j] = mx.add_sound(cheerVariantDirectories[i]);
@@ -2220,6 +2228,7 @@ function initializeCheerAndBooVariantSounds() {
         mx.set_sound_pos(allCheerSounds[i][j], bleacherSoundPositions[j][0], bleacherSoundPositions[j][1], bleacherSoundPositions[j][2]);
       }
     }
+    
   }
 }
 
@@ -2391,7 +2400,7 @@ function song_function() {
 }
 
 function assignPositionsForMechanicsAndPlaySound(slotNumber, mechanicNumberIdentifiers, randNumber){
-  var mechNum = mechanicNumberIdentifiers[slotNumber];
+  //var mechNum = mechanicNumberIdentifiers[slotNumber];
 	/*mx.message('slot number: ' + slotNumber);
   mx.message('setting sound position for: [' + mechNum + '][' + randNumber + '] at ' + mechanicPositions[slotNumber]);
   mx.set_sound_pos(allMechanicSounds[mechNum][randNumber], mechanicPositions[slotNumber][0], mechanicPositions[slotNumber][1], mechanicPositions[slotNumber][2]);
@@ -2400,12 +2409,13 @@ function assignPositionsForMechanicsAndPlaySound(slotNumber, mechanicNumberIdent
 
 function makeNameComparison(slot, benchPos){
 	var riderName = mx.get_rider_name(slot).toLowerCase();
-  var randNumber;
+  var randNumber, randnumber2;
 	for (var i = 0; i < cheerRiderNames.length; i++){
 		if (riderName.includes(cheerRiderNames[i])){
-      // cheer sounds have a 5% chance of playing
-      randNumber = randomIntFromInterval(0, 19);
-      if (randNumber == 2){
+      // cheer sounds have a 7% chance of playing
+      randNumber = randomIntFromInterval(0, 13);
+      randnumber2 = randomIntFromInterval(0, 13);
+      if (randNumber == randnumber2) {
         randNumber = randomIntFromInterval(0, (numOfCheerVariants - 1));
         mx.start_sound(allCheerSounds[randNumber][benchPos]);
         // delay so sounds don't overlay
@@ -2416,9 +2426,10 @@ function makeNameComparison(slot, benchPos){
 	}
 	for (var i = 0; i < booRiderNames.length; i++){
 		if (riderName.includes(booRiderNames[i])){
-      // boo sounds have a 5% chance of playing
-      randNumber = randomIntFromInterval(0, 19);
-      if (randNumber == 1){
+      // boo sounds have a 7% chance of playing
+      randNumber = randomIntFromInterval(0, 13);
+      randnumber2 = randomIntFromInterval(0, 13);
+      if (randNumber == randnumber2) {
         randNumber = randomIntFromInterval(0, (numOfBooVariants - 1));
         mx.start_sound(allBooSounds[randNumber][benchPos]);
         // delay so sounds don't overlay
