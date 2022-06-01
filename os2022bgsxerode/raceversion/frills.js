@@ -157,10 +157,11 @@ var crowdConstants;
 var crowdRoars = [];
 const crowdRoarDirectories = [
   "@os2022bgsxobj/sounds/cheers/cheer1.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer3.raw",
   "@os2022bgsxobj/sounds/cheers/cheer4.raw",
-  "@os2022bgsxobj/sounds/cheers/cheer5.raw",
   "@os2022bgsxobj/sounds/cheers/roar1.raw",
-  "@os2022bgsxobj/sounds/cheers/roar2.raw"
+  "@os2022bgsxobj/sounds/cheers/roar2.raw",
+  "@os2022bgsxobj/sounds/cheers/horn2.raw"
 ];
 const numOfRoarVariants = crowdRoarDirectories.length;
 
@@ -172,9 +173,10 @@ const cheerVariantDirectories = [
   "@os2022bgsxobj/sounds/cheers/cheer2.raw",
   "@os2022bgsxobj/sounds/cheers/cheer3.raw",
   "@os2022bgsxobj/sounds/cheers/cheer4.raw",
-  "@os2022bgsxobj/sounds/cheers/cheer5.raw",
   "@os2022bgsxobj/sounds/cheers/roar1.raw",
-  "@os2022bgsxobj/sounds/cheers/roar2.raw"
+  "@os2022bgsxobj/sounds/cheers/roar2.raw",
+  "@os2022bgsxobj/sounds/cheers/horn1.raw",
+  "@os2022bgsxobj/sounds/cheers/horn2.raw"
 
 ];
 const numOfCheerVariants = cheerVariantDirectories.length;
@@ -287,6 +289,8 @@ const cheerRiderNames = [
   "maxime vanderbeek",
   "brandon larsen"
 ];
+var slots_to_cheer = [];
+var slots_to_boo = [];
 
 // An array of objects to hold each individual crowd member that's not in qualifying but in the race
 const race_event_crowd = [
@@ -1674,8 +1678,7 @@ function do_finish_pyro() {
   }
 }
 
-function triggerFinishFlameSound()
-{
+function triggerFinishFlameSound() {
   if (!finishFlameSoundAdded) {
     finishFlameSound = [];
     finishWhistleSound = [];
@@ -1688,8 +1691,8 @@ function triggerFinishFlameSound()
       mx.set_sound_vol(finishWhistleSound[i], 2);
       mx.set_sound_pos(finishFlameSound[i], finishFlameCoords[i][0], finishFlameCoords[i][1], finishFlameCoords[i][2]);
       mx.set_sound_pos(finishWhistleSound[i], finishFlameCoords[i][0], finishFlameCoords[i][1], finishFlameCoords[i][2]);
-      finishFlameSoundAdded = true;
     }
+    finishFlameSoundAdded = true;
   }
   for (var i = 0; i < finishFlameSound.length; i++)
     mx.start_sound(finishFlameSound[i]);
@@ -1946,8 +1949,7 @@ function initializeMechanicSounds() {
   }
 }
 
-function initializeCrowdSounds()
-{
+function initializeCrowdSounds() {
   addCrashAndRoarSounds();
 	// if track is not in a stadium, set the crash sound positions equal to the bleacher positions
 	if (!stadium){
@@ -2111,12 +2113,12 @@ function battlesFunction() {
       // If crowd has already reached desired calculated volume, return
       if (current_crowd_vol == volume) return;
 
-      if (current_crowd_vol < crowd_constant_base_vol){
+      if (current_crowd_vol < crowd_constant_base_vol) {
         current_crowd_vol = crowd_constant_base_vol;
       }
 
       // If volume is new, need to fade to new volume, get the time starting the increase/decrease
-      if (volume != current_volume){
+      if (volume != current_volume) {
         time_started_increase_or_decrease = seconds;
         set_holder = false;
       }
@@ -2251,6 +2253,7 @@ dynamic crowd and mechanic sounds based on rider
 var mechanicNumberIdentifiers = [];
 var initialize_mechanic_identifiers = false;
 var soundDelay = 0;
+const seconds_to_delay = 3;
 var initializeCheerAndBooVariants = false;
 var playedScream = false;
 var time_to_play_scream;
@@ -2261,56 +2264,66 @@ function dynamicMechanicAndFans() {
 
 	var randNumber, slot, timing_gate, i;
 	var running_order = g_running_order;
+  // use time to seed random numbers
+  var seconds = mx.seconds;
 
-	if (mx.seconds >= 0 && !initialize_mechanic_identifiers){
-    if (mainEvent)
-      time_to_play_scream = randomIntFromInterval(3,6);
+	if (seconds >= 0 && !initialize_mechanic_identifiers) {
+    if (mainEvent) {
+      // Use last place's slot number to seed a random number between 3 and 6 seconds
+      time_to_play_scream = (running_order[running_order.length-1].slot % 4) + 3;
+    }
 
 		if (running_order.length > numOfMechanicPositions)
 			mx.message('Warning: Not Every Rider Will Be Assigned a Mechanic');
 
-		for (i = 0; i < running_order.length; i++){
+		for (i = 0; i < running_order.length; i++) {
       slot = running_order[i].slot;
 
-      /* 
+      /*
       if the running order is longer than the mechanic positions length,
       not all riders will be assigned a mechanic, only the ones within the confines
       of the mechanic positions length
       */
 
       // assign mechanic sounds based on slot num
-			if (i <= numOfMechanicPositions){
-        if (slot % 4 == 0)
+			if (i <= numOfMechanicPositions) {
+        if (slot % 4 == 0) {
           mechanicNumberIdentifiers[slot] = 3;
-        else if (slot % 3 == 0)
+        }
+        else if (slot % 3 == 0) {
           mechanicNumberIdentifiers[slot] = 2;
-        else if (slot % 2 == 0)
+        }
+        else if (slot % 2 == 0) {
           mechanicNumberIdentifiers[slot] = 1;
-        else if (slot % 1 == 0)
+        }
+        else {
           mechanicNumberIdentifiers[slot] = 0;
-				
+        }
 			}
 		}
 		initialize_mechanic_identifiers = true;
 	}
 
-  if (!initializeCheerAndBooVariants){
+  if (!initializeCheerAndBooVariants) {
     initializeCheerAndBooVariantSounds();
     initializeCheerAndBooVariants = true;
   }
 
-  if (mx.seconds > time_to_play_scream && !playedScream && mainEvent){
+  if (seconds > time_to_play_scream && !playedScream && mainEvent) {
     for (var i = 0; i < main_event_screams.length; i++)
       mx.start_sound(main_event_screams[i]);
     playedScream = true;
   }
 
-  if (playedScream && mx.seconds < time_to_play_scream) playedScream = false;
+  if (playedScream && seconds < time_to_play_scream) {
+    playedScream = false;
+  }
 
-  if (songs_on)
+  if (songs_on) {
     song_function();
+  }
 
-	for (i = 0; i < running_order.length; i++){
+	for (i = 0; i < running_order.length; i++) {
 		slot = running_order[i].slot;
 		timing_gate = running_order[i].position;
 		/*
@@ -2318,15 +2331,15 @@ function dynamicMechanicAndFans() {
 		crowds at bleachers
 		###################
 		if you do not want boos/cheers just delete this whole if statement section
-		*/ 
-		if (timing_gate != current_timing_gates[slot] && (mx.seconds > soundDelay)){
+		*/
+    
+		if (timing_gate != current_timing_gates[slot] && (seconds >= soundDelay)) {
 			// Runs a loop every time someone hits a gate that's in the gatesAndPosCheerOrBoo array
-			for (var x = 0; x < gatesAndPosCheerOrBoo.length; x++){
+			for (var x = 0; x < gatesAndPosCheerOrBoo.length; x++) {
 				// every lap, and first sound only plays when you hit the first timing gate in the slot
-				if ((timing_gate - (gatesAndPosCheerOrBoo[x][0] + 1)) % normalLapLength == 0
-				&& timing_gate >= gatesAndPosCheerOrBoo[x][0] + 1){
+				if ((timing_gate - (gatesAndPosCheerOrBoo[x][0] + 1)) % normalLapLength == 0 && timing_gate >= gatesAndPosCheerOrBoo[x][0] + 1) {
 					// make's name comparison, sends in running order, index, and the array
-					makeNameComparison(slot, x);
+					makeNameComparison(slot, x, seconds);
           break;
 				}
 			}
@@ -2338,29 +2351,29 @@ function dynamicMechanicAndFans() {
 		*/ 
 		if (((timing_gate - (mechanicGate + 1)) % normalLapLength == 0) && 
     (timing_gate > ((mechanicGate + 1) * (lapToActivateMechanics - 1))) && 
-    (timing_gate != current_timing_gates[slot])){
+    (timing_gate != current_timing_gates[slot])) {
       var position = i + 1;
       // pick from first place prompts
 			if (position == 1)
-				randNumber = randomIntFromInterval(0,4);
+				randNumber = Math.floor((seconds % 5));
       // pick from front running sounds for top 5 that's not first
 			else if (position <= 5)
-				randNumber = randomIntFromInterval(5,10);
+				randNumber = Math.floor((seconds % 6)) + 5;
       // pick from 6th-10th sounds
       else if (position <= 10)
-				randNumber = randomIntFromInterval(11,15);
+				randNumber = Math.floor((seconds % 5)) + 11;
       // pick from midpack1 sounds (11th-15th)
       else if (position <= 15)
-				randNumber = randomIntFromInterval(16,19);
+				randNumber = Math.floor((seconds % 4)) + 16;
       // pick from midpack2 sounds (16th-21st)
       else if (position <= 21)
-				randNumber = randomIntFromInterval(20,24);
+				randNumber = Math.floor((seconds % 5)) + 20;
       // pick from last place prompts
       else if (position == running_order.length)
-				randNumber = randomIntFromInterval(35,39);
+				randNumber = Math.floor((seconds % 5)) + 35;
       // pick from endpack sounds
       else
-				randNumber = randomIntFromInterval(25,34);
+				randNumber = Math.floor((seconds % 10)) + 25;
       
       if (slot <= numOfMechanicPositions)
         assignPositionsForMechanicsAndPlaySound(slot, mechanicNumberIdentifiers, randNumber);
@@ -2371,7 +2384,7 @@ function dynamicMechanicAndFans() {
 
 function song_function() {
   try {
-    if (playing_song){
+    if (playing_song) {
       if (mx.seconds > song_lengths[current_song] + time_started_song || mx.seconds - time_started_song < 0) {
         if (mx.seconds - time_started_song < 0) {
           current_song--;
@@ -2407,58 +2420,70 @@ function assignPositionsForMechanicsAndPlaySound(slotNumber, mechanicNumberIdent
   mx.start_sound(allMechanicSounds[mechNum][randNumber]);*/
 }
 
-function makeNameComparison(slot, benchPos){
-	var riderName = mx.get_rider_name(slot).toLowerCase();
-  var randNumber, randnumber2;
-	for (var i = 0; i < cheerRiderNames.length; i++){
-		if (riderName.includes(cheerRiderNames[i])){
-      // cheer sounds have a 7% chance of playing
-      randNumber = randomIntFromInterval(0, 13);
-      randnumber2 = randomIntFromInterval(0, 13);
-      if (randNumber == randnumber2) {
-        randNumber = randomIntFromInterval(0, (numOfCheerVariants - 1));
-        mx.start_sound(allCheerSounds[randNumber][benchPos]);
-        // delay so sounds don't overlay
-        soundDelay = mx.seconds + 3;
-      }
-      break;
-		}
-	}
-	for (var i = 0; i < booRiderNames.length; i++){
-		if (riderName.includes(booRiderNames[i])){
-      // boo sounds have a 7% chance of playing
-      randNumber = randomIntFromInterval(0, 13);
-      randnumber2 = randomIntFromInterval(0, 13);
-      if (randNumber == randnumber2) {
-        randNumber = randomIntFromInterval(0, (numOfBooVariants - 1));
-        mx.start_sound(allBooSounds[randNumber][benchPos]);
-        // delay so sounds don't overlay
-        soundDelay = mx.seconds + 3;
-      }
-      break;
-		}
-	}
+function seed(s) {
+  var mask = 0xffffffff;
+  var m_w  = (123456789 + s) & mask;
+  var m_z  = (987654321 - s) & mask;
+
+  return function() {
+    m_z = (36969 * (m_z & 65535) + (m_z >>> 16)) & mask;
+    m_w = (18000 * (m_w & 65535) + (m_w >>> 16)) & mask;
+
+    var result = ((m_z << 16) + (m_w & 65535)) >>> 0;
+    result /= 4294967296;
+    return result;
+  }
+}
+
+function makeNameComparison(slot, benchPos, seconds) {
+  // use time to seed random numbers
+  seconds = seconds.toFixed(3);
+  var randNumber, randFunc;
+  var lucky_number = 2;
+
+  if (slots_to_cheer.indexOf(slot) != -1) {
+    // cheer sounds have a 10% chance of playing
+    randFunc = seed((seconds * 1000) << 2);
+    randNumber = Math.floor(randFunc() * 100) % 10;
+
+    if (randNumber == lucky_number) {
+      randFunc = seed((randNumber + seconds) * mx.tics_per_second);
+      randNumber = Math.floor(randFunc() * 100) % numOfCheerVariants;
+
+      mx.start_sound(allCheerSounds[randNumber][benchPos]);
+      // delay so sounds don't overlay
+      soundDelay = seconds + seconds_to_delay;
+    }
+  }
+
+  if (slots_to_boo.indexOf(slot) != -1) {
+    // boo sounds have a 10% chance of playing
+    randFunc = seed((seconds * 1000) << 2);
+    randNumber = Math.floor(randFunc() * 100) % 10;
+
+    if (randNumber == lucky_number) {
+      randFunc = seed((randNumber + seconds) * mx.tics_per_second);
+      randNumber = Math.floor(randFunc() * 100) % numOfBooVariants;
+
+      mx.start_sound(allBooSounds[randNumber][benchPos]);
+      // delay so sounds don't overlay
+      soundDelay = seconds + seconds_to_delay;
+    }
+  }
+
 }
 
 // Make name comparison at the finish to determine if the rider should be booed or not when they win
-function makeNameComparisonFinish(name) {
-	var booSoundMatch = false;
+function makeNameComparisonFinish(slot) {
   var randNumber;
 	
-	for (var i = 0; i < booRiderNames.length; i++) {
-		if (name.includes(booRiderNames[i])) {
-			booSoundMatch = true;
-      break;
-		}
-	}
-
-	if (booSoundMatch) {
-		for (var i = 0; i < numOfBleachers; i++) {
+  if (slots_to_boo.indexOf(slot) != -1) {
+    for (var i = 0; i < numOfBleachers; i++) {
       randNumber = randomIntFromInterval(0, (allBooSounds.length - 1));
 			mx.start_sound(allBooSounds[randNumber][i]);
 		}
     return;
-	}
+  }
 
 	for (var i = 0; i < numOfBleachers; i++) {
     randNumber = randomIntFromInterval(0, (allCheerSounds.length - 1));
@@ -2472,11 +2497,9 @@ function laps_remaining_string(l) {
      if (racingEvent) {
       if (!playFinishSoundAndFlame) {
         if (mainEvent) {
-          var firstPlaceName = mx.get_rider_name(g_running_order[0].slot);
           triggerAllFlameSounds();
           triggerFireworkSounds();
-          makeNameComparisonFinish(firstPlaceName);
-          // mx.message(firstPlaceName + ' wins the race!');
+          makeNameComparisonFinish(g_running_order[0].slot);
         }
         // someone wins a heat or lcq
         else triggerCrowdRoar(0.4);
@@ -2888,12 +2911,34 @@ function ResetSlotPositionHolder() {
   }
 }
 
+function set_up_cheer_boo_slots() {
+  if (!racingEvent) return;
+
+  for (var i = 0; i < g_running_order.length; i++) {
+    var slot = g_running_order[i].slot;
+    var rider_name = mx.get_rider_name(slot).toLowerCase();
+    for (var i = 0; i < booRiderNames.length; i++) {
+      if (rider_name.includes(booRiderNames[i])) {
+        slots_to_boo[slots_to_boo.length] = slot;
+        break;
+      }
+    }
+    for (var i = 0; i < cheerRiderNames.length; i++) {
+      if (rider_name.includes(cheerRiderNames[i])) {
+        slots_to_cheer[slots_to_cheer.length] = slot;
+        break;
+      }
+    }
+  }
+}
+
 var initializedArrays = false;
 function frameHandler(seconds) {
   g_running_order = mx.get_running_order();
   if (!initializedArrays) {
     reset_current_timing_gates();
     ResetSlotPositionHolder();
+    set_up_cheer_boo_slots();
     initializedArrays = true;
   }
 
@@ -3211,7 +3256,9 @@ function reset_current_timing_gates(){
     if (timingGate != current_timing_gates[slot]){
       // for demos going back in time, reset their down check gate
       if (timingGate < current_timing_gates[slot]) {
+        current_timing_gates[slot] = timingGate;
         down_check_gates[slot] = 0;
+        soundDelay = 0;
       }
       current_timing_gates[slot] = timingGate;
     }
@@ -3244,7 +3291,7 @@ function playCrashSound(multiplier) {
 		}
 	} else {
 		// if the sounds are in a stadium, then just play a random variant for all the riders
-		randNumber = randomIntFromInterval(0, numOfCrashVariants - 1);
+		randNumber = Math.floor(mx.seconds % numOfCrashVariants);
 		mx.set_sound_vol(crashSounds[randNumber], volume);
 		mx.start_sound(crashSounds[randNumber]);
 	}
