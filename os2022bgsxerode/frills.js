@@ -2438,7 +2438,7 @@ function seed(s) {
 function makeNameComparison(slot, benchPos, seconds) {
   // use time to seed random numbers
   seconds = seconds.toFixed(3);
-  var randNumber, randFunc;
+  var randNumber, randFunc, randFunc2;
   var lucky_number = 2;
 
   if (slots_to_cheer.indexOf(slot) != -1) {
@@ -2447,8 +2447,8 @@ function makeNameComparison(slot, benchPos, seconds) {
     randNumber = Math.floor(randFunc() * 100) % 10;
 
     if (randNumber == lucky_number) {
-      randFunc = seed((randNumber + seconds) * mx.tics_per_second);
-      randNumber = Math.floor(randFunc() * 100) % numOfCheerVariants;
+      randFunc2 = seed((randFunc()) * mx.tics_per_second);
+      randNumber = Math.floor(randFunc2() * 100) % numOfCheerVariants;
 
       mx.start_sound(allCheerSounds[randNumber][benchPos]);
       // delay so sounds don't overlay
@@ -2462,8 +2462,8 @@ function makeNameComparison(slot, benchPos, seconds) {
     randNumber = Math.floor(randFunc() * 100) % 10;
 
     if (randNumber == lucky_number) {
-      randFunc = seed((randNumber + seconds) * mx.tics_per_second);
-      randNumber = Math.floor(randFunc() * 100) % numOfBooVariants;
+      randFunc2 = seed((randFunc()) * mx.tics_per_second);
+      randNumber = Math.floor(randFunc2() * 100) % numOfBooVariants;
 
       mx.start_sound(allBooSounds[randNumber][benchPos]);
       // delay so sounds don't overlay
@@ -2597,9 +2597,12 @@ get, sort, and display laptimes function
 */
 var best_player_laps = [];
 var all_player_laps = [];
+var invalid_laptimes = [];
+var invalid_lap_numbers = [];
 var gotRunningOrder = false;
 var displayLeadLap = false;
 var debug_laps = true;
+var displayed_invalid_laps = false;
 
 function displayLaptimes() {
 	var riderName;
@@ -2614,11 +2617,14 @@ function displayLaptimes() {
 			// best laps set to undefined time for every rider at the start of the session
 			best_player_laps[r[i].slot] = [undefinedTime, r[i].slot];
       all_player_laps[r[i].slot] = [undefinedTime];
+      invalid_laptimes[r[i].slot] = [];
+      invalid_lap_numbers[r[i].slot] = [];
 		}
 		// update screen on start
-		if (!racingEvent)
+		if (!racingEvent) {
       update_screen();
-  
+    }
+      
 		gotRunningOrder = true;
 	}
 
@@ -2638,16 +2644,16 @@ function displayLaptimes() {
         for (i = all_player_laps.length - 1; i < r.length; i++) {
           best_player_laps[i] = [undefinedTime, slot];
           all_player_laps[i] = [undefinedTime];
+          invalid_laptimes[i] = [];
+          invalid_lap_numbers[i] = [];
         }
       }
 
-      // store laptime, if its the second lap we want to replace undefinedTime. If not second lap, append.
-      if (timing_gate > firstLapLength + normalLapLength) {
-        all_player_laps[slot][all_player_laps[slot].length] = laptime[0];
-      }
-      else {
-        all_player_laps[slot][0] = laptime[0];
-      }
+      // Have to add 1 since laps are 1 based-indexed, this is the lap number the rider is on
+      var lap_number = ((timing_gate - firstLapLength) / normalLapLength) + 1;
+
+      // Lap 2 is the first lap that counts, so take the lap number and subtract 2 to get the index
+      all_player_laps[slot][lap_number - 2] = laptime[0];
       
       var new_pb = false;
 
@@ -2661,7 +2667,16 @@ function displayLaptimes() {
       }
 
       // If the rider missed a timing gate and it's there best, don't count the lap as a pb
-      if (laptime[1] == false && new_pb) new_pb = false;
+      if (laptime[1] == false) {
+        if (new_pb) new_pb = false;
+        // If this rider has already had this invalid lap number and laptime added, return and don't add
+        if (invalid_lap_numbers[slot].indexOf(lap_number) > -1) return;
+
+        // These two arrays have the same length
+        var len = invalid_laptimes[slot].length;
+        invalid_laptimes[slot][len] = laptime[0];
+        invalid_lap_numbers[slot][len] = lap_number;
+      }
 
       if (new_pb) {
         best_player_laps[slot][0] = laptime[0];
@@ -2682,7 +2697,58 @@ function displayLaptimes() {
       }
 		}
   }
+
+  // display invalid laps if everyone finished
+  if (!racingEvent && every_rider_finished && !displayed_invalid_laps) {
+    display_invalid_laptimes();
+    displayed_invalid_laps = true;
+  }
 }
+
+function display_invalid_laptimes() {
+  var printed_header = false;
+  var riders_with_invalid_laps = 0;
+  var output;
+  for (var slot = 0; slot < invalid_laptimes.length; slot++) {
+    // if we have undefined slot, continue
+    if (invalid_laptimes[slot] == undefined) continue;
+
+    // if we have an empty array, where the rider had no invalid laps, continue to next rider
+    var sub_arr_len = invalid_laptimes[slot].length;
+    if (sub_arr_len == 0) continue;
+
+    
+    invalid_laptimes[slot].sort(function(a, b){return a-b});
+    var best_rider_lap = best_player_laps[slot][0];
+
+    // If their best invalid lap was slower than a lap that counted, continue to next rider
+    if (invalid_laptimes[slot][0] > best_rider_lap) continue;
+    
+    // Increment the number of riders with invalid laps
+    riders_with_invalid_laps++;
+
+    // Print the header of invalid laps if we have at least one person with an invalid laptime
+    if (!printed_header) {
+      print_header("\x1b[31m", "Invalid Laptimes:", 22, true);
+      printed_header = true;
+    }
+    var rider_name = mx.get_rider_name(slot);
+    output = rider_name + " - (\x1b[31m" + time_to_string(invalid_laptimes[slot][0]);
+
+    for (var i = 1; i < sub_arr_len; i++) {
+      // if we are at a lap that's 1.5 seconds slower than the faster than the slowest lap or it's slower than their best counted, exit loop
+      if (invalid_laptimes[slot][i] > invalid_laptimes[slot][0] + 1.5 || invalid_laptimes[slot][i] > best_rider_lap) break;
+      output += "\x1b[0m, \x1b[31m" + time_to_string(invalid_laptimes[slot][i]);
+    }
+
+    output += "\x1b[0m)";
+    mx.message(output);
+  }
+
+  if (riders_with_invalid_laps > 0) mx.message("");
+
+}
+
 
 function is_fastest_lap(laptime) {
 
@@ -2799,7 +2865,6 @@ function isRiderDown() {
 
   var seconds = mx.seconds;
   var slots_down = [];
-  var out_str;
   var sum_positions_down = 0;
 
   for (var i = 0; i < max_num_riders_down; i++) {
@@ -2815,8 +2880,6 @@ function isRiderDown() {
       // store the slot down, and position they're in.
       slots_down[slots_down.length] = [slot, i + 1];
       sum_positions_down = i + 1;
-
-      out_str = (i + 1).toString() + place_extensions[(i+1) % 10] + " " + mx.get_rider_name(slot) + " goes down";
 
       // go through again and see if someone's already down and accounted for
       for (var j = 0; j < max_num_riders_down; j++) {
@@ -2846,15 +2909,7 @@ function isRiderDown() {
 
   // See how many riders are down at the same time, or same gate
   if (num_riders_down > 1) {
-    out_str += " with ";
-
     for (var i = 0; i < num_riders_down; i++) {
-      if (i > 0) {
-        out_str += slots_down[i][1].toString() + place_extensions[(slots_down[i][1] % 10)] + " " + mx.get_rider_name(slots_down[i][0]);
-      }
-      if (i != num_riders_down - 1 && i > 0) out_str += ", ";
-      if (i == num_riders_down - 2 && num_riders_down > 2) out_str += "and ";
-
       var tg = down_check_gates[slots_down[i][0]];
       
       for (var j = i + 1; j < num_riders_down; j++) {
@@ -2873,11 +2928,6 @@ function isRiderDown() {
       }
     }
   }
-
-  out_str += "!";
-  
-  // display riders down ## temp ##
-  // mx.message(out_str);
 
   const avg_position_down = sum_positions_down / num_riders_down;
   // volume is determined by what positions are currently down, how many riders are down, how many are down together, how many crashed at the same time
@@ -2945,6 +2995,7 @@ function frameHandler(seconds) {
   if (stadium) updateCamPosition();
 	gateSound();
   determineHoleshot();
+  update_rider_finish_flags();
   if (racingEvent) {
     isRiderDown();
     try {
@@ -2974,195 +3025,103 @@ function frameHandler(seconds) {
 var frameHandlerPrev = mx.frame_handler;
 mx.frame_handler = frameHandler;
 
-  // zero indexed, 0 is 1st, 1 is 2nd, etc.
-var every_rider_finished = false;
-var time_to_give_up = 30;
-var riders_finished_flags = [];
-var times_until_give_up = [];
-var set_up_rider_finish_flags = false;
-var set_seconds_at_first_finish = false;
-var displayed_awards = false;
-var first_calculations = true;
-
-var rider_positions_after_L1 = [];
-var rider_positions_finish = [];
-var rider_positions_gained = [];
-
 var most_consistent_rider;
 
 function rider_awards() {
-
+  // If it's not a main event, don't display awards
   if (!mainEvent) return;
-
-  var r = g_running_order;
-  var timing_gate, slot, rider_laps_remain;
-
-  // stores rider start / finish positions
-  for (var i = 0; i < r.length; i++) {
-    slot = r[i].slot;
-    timing_gate = r[i].position;
-
-    if (!set_up_rider_finish_flags) {
-      // set all to 1 so null slots will get recognized
-      riders_finished_flags[slot] = 1;
-      if (i == r.length - 1) {
-        // set all flags that have a null slot to 1
-        for (var j = 0; j < riders_finished_flags.length; j++) {
-          if (!riders_finished_flags[j]) {
-            riders_finished_flags[j] = 1;
-          }
-          else {
-            riders_finished_flags[j] = 0;
-          }
-        }
-        set_up_rider_finish_flags = true;
-      }
-    }
-    // stores rider positions after lap 1
-    if (timing_gate == firstLapLength && timing_gate != current_timing_gates[slot])
-      rider_positions_after_L1[slot] = [(i + 1), slot];
-
-    // if time has expired
-    if (mx.seconds >= g_drop_time + g_finish_time || g_finish_time == 0) {
-      // get laps that remain
-      if (g_finish_time == 0 && g_finish_laps == 0)
-        rider_laps_remain = 1 - g_running_order[0].position;
-      else if (g_finish_time == 0)
-        rider_laps_remain = g_finish_laps - mx.index_to_lap(g_running_order[0].position);
-      else
-        rider_laps_remain = laps_remaining();
-      // if first has finished
-      if (rider_laps_remain == 0) {
-        // set up all times players have to hit the next timing gate except first
-        if (!set_seconds_at_first_finish) {
-          for (var j = 0; j < riders_finished_flags.length; j++) {
-            if (riders_finished_flags[j] == 0 && j != r[0].slot) {
-              times_until_give_up[j] = mx.seconds + time_to_give_up;
-            }
-          }
-          set_seconds_at_first_finish = true;
-        }
-        // if rider has hit a new timing gate
-        if (timing_gate != current_timing_gates[slot]) {
-          // if rider hit the finish, set the position they finished and a flag that they have finished
-          if ((timing_gate - firstLapLength) % normalLapLength == 0 || g_finish_laps == 0) {
-            rider_positions_finish[slot] = [(i + 1), slot];
-            riders_finished_flags[slot] = 1;
-          }
-          // if they haven't finished, but hit a new timing gate reset their time to give up
-          else if (riders_finished_flags[slot] == 0) {
-            times_until_give_up[slot] = mx.seconds + time_to_give_up;
-          }
-          else if (riders_finished_flags[slot] == 1) {
-            riders_finished_flags[slot] = 0;
-            times_until_give_up[slot] = undefined;
-            if (every_rider_finished && displayed_awards) {
-              every_rider_finished = false;
-              displayed_awards = false;
-            }
-          }
-        }
-        // if current in game time is greater than the riders time to give up, set flag that they have finished
-        else if (mx.seconds > times_until_give_up[slot] && riders_finished_flags[slot] == 0) {
-          rider_positions_finish[slot] = [(i + 1), slot];
-          riders_finished_flags[slot] = 1;
-        }
-      }
-    }
-  }
-
-  // check every flag is set to 1, if it is we can now display awards
-  if (!every_rider_finished) {
-    every_rider_finished = true;
-    for (var i = 0; i < riders_finished_flags.length; i++) {
-      if (riders_finished_flags[i] != 1) {
-        every_rider_finished = false;
-        break;
-      }
-    }
-  }
 
   if (every_rider_finished && !displayed_awards) {
     
-    if (first_calculations) calculate_positions_gained();
+    calculate_positions_gained();
+    most_consistent_rider = get_rider_consistency();
 
-    mx.message("\x1b[33m-----------");
-    mx.message("\x1b[33mAwards:");
-    mx.message("\x1b[33m-----------");
+    var msg;
+    var extra_space = false;
+    
+    // Initial Header
+    print_header("\x1b[33m", "Awards:", 11, extra_space);
     mx.message("Note: Hard Charger / Anchor do not account for cuts.");
     mx.message("");
+    msg = "Nobody";
+    extra_space = true;
     
     // Holeshot
+    print_header("\x1b[36m", "Holeshot Award:", 21, extra_space);
+
     var rider_name = mx.get_rider_name(holeshot_rider_slot);
-    mx.message("\x1b[36m---------------------");
-    mx.message("\x1b[36mHoleshot Award:");
-    mx.message("\x1b[36m---------------------");
+    if (rider_name) msg = rider_name.toString();
+    
+    mx.message(msg);
     mx.message("");
-    if (rider_name)
-      mx.message(rider_name.toString());
-    else
-      mx.message("Nobody");
-    mx.message("");
+    msg = "Nobody";
 
     // Hard Charger Award
+    print_header("\x1b[32m", "Hard Charger Award:", 27, extra_space)
+
     var positions_gained = 0;
     if (rider_positions_gained[0]){
       positions_gained = rider_positions_gained[0][0];
       rider_name = mx.get_rider_name(rider_positions_gained[0][1]);
+      if (positions_gained != 0) msg = "\x1b[32m+" + positions_gained.toString() + ' Positions\x1b[0m - ' + rider_name.toString();
     }
-    mx.message("\x1b[32m--------------------------");
-    mx.message("\x1b[32mHard Charger Award:");
-    mx.message("\x1b[32m--------------------------");
+    
+    mx.message(msg);
     mx.message("");
-    if (positions_gained != 0) mx.message("\x1b[32m+" + positions_gained.toString() + ' Positions\x1b[0m - ' + rider_name.toString());
-    else mx.message("Nobody");
-    mx.message("");
+    msg = "Nobody";
 
     // Anchor Award
+    print_header("\x1b[31m", "Anchor Award:", 19, extra_space);
+
     if (rider_positions_gained[rider_positions_gained.length - 1][0] != rider_positions_gained[0][0]) {
       positions_gained = rider_positions_gained[rider_positions_gained.length - 1][0];
       rider_name = mx.get_rider_name(rider_positions_gained[rider_positions_gained.length - 1][1]);
+      if (positions_gained != 0) msg = "\x1b[31m" + positions_gained.toString() + ' Positions\x1b[0m - ' + rider_name.toString();
     }
-    mx.message("\x1b[31m-------------------");
-    mx.message("\x1b[31mAnchor Award:");
-    mx.message("\x1b[31m-------------------");
+    
+    mx.message(msg);
     mx.message("");
-    if (positions_gained != 0) mx.message("\x1b[31m" + positions_gained.toString() + ' Positions\x1b[0m - ' + rider_name.toString());
-    else mx.message("Nobody");
-    mx.message("");
+    msg = "Nobody";
 
     // On the Clock Award
+    print_header("\x1b[34m", "On The Clock Award:", 26, extra_space);
+    
     var fastest_rider = get_fastest_lap();
-    rider_name = mx.get_rider_name(fastest_rider[1]);
-    mx.message("\x1b[34m--------------------------");
-    mx.message("\x1b[34mOn The Clock Award:");
-    mx.message("\x1b[34m--------------------------");
+    if (fastest_rider[0] != undefinedTime) {
+      rider_name = mx.get_rider_name(fastest_rider[1]);
+      msg = "\x1b[34m" + time_to_string(fastest_rider[0]) + '\x1b[0m - ' + rider_name.toString();
+    }
+    mx.message(msg);
     mx.message("");
-    if (fastest_rider[0] != undefinedTime) mx.message("\x1b[34m" + time_to_string(fastest_rider[0]) + '\x1b[0m - ' + rider_name.toString());
-    else mx.message("Nobody");
-    mx.message("");
+    msg = "Nobody";
 
     // Consistency Award
-    if (first_calculations) {
-      most_consistent_rider = get_rider_consistency();
-      first_calculations = false;
-    }
+    print_header("\x1b[35m", "Consistency Award:", 25, extra_space);
+
     var std_dev = most_consistent_rider[0].toFixed(3);
     rider_name = mx.get_rider_name(most_consistent_rider[1]);
-    mx.message("\x1b[35m-------------------------");
-    mx.message("\x1b[35mConsistency Award:");
-    mx.message("\x1b[35m-------------------------");
-    mx.message("");
-    if (most_consistent_rider) {
-      mx.message('\x1b[35mStd. Dev: ' + std_dev.toString() + '\x1b[0m - ' + rider_name.toString());
-    }
-    else {
-      mx.message("Nobody");
-    }
-      
+    if (most_consistent_rider) msg = "\x1b[35mStd. Dev: " + std_dev.toString() + "\x1b[0m - " + rider_name.toString();
+    mx.message(msg);
+
     displayed_awards = true;
   }
 }
+
+function print_header(color, header, dash_length, space) {
+  var dashes = "";
+  for (var i = 0; i < dash_length; i++) {
+    dashes += "-";
+  }
+  mx.message(color + dashes);
+  mx.message(color + header);
+  mx.message(color + dashes);
+  if (space) mx.message("");
+}
+
+// zero indexed, 0 is 1st, 1 is 2nd, etc.
+var rider_positions_after_L1 = [];
+var rider_positions_finish = [];
+var rider_positions_gained = [];
 
 // calculate stats
 function calculate_positions_gained () {
@@ -3180,19 +3139,20 @@ function calculate_positions_gained () {
       num_null_arrs++;
     }
   }
-  // sort by largest num of positions gained.
+
+  // sort in descending order by largest num of positions gained.
   rider_positions_gained.sort(function (a, b) {
     if (a[0] < b[0]) {
-      return -1;
+      return 1;
     }
 
     if (a[0] == b[0]) {
       // If the two riders gained or lost the same number of positions but the finish position of A rider was worse then B rider, then A rider gained 'less' positions
       if (rider_positions_finish[a[1]] > rider_positions_finish[b[1]]) {
-        return -1;
+        return 1;
       }
     }
-    return 1;
+    return -1;
   });
 }
 
@@ -3211,21 +3171,20 @@ function get_rider_consistency() {
 
   for (var slot = 0; slot < all_player_laps.length; slot++) {
     var sum = 0;
-    if (!all_player_laps[slot]) {
-      avg_laps[slot] = undefined;
-      std_devs[slot] = undefined;
-    }
-    else {
+    avg_laps[slot] = undefined;
+    std_devs[slot] = undefined;
+    if (all_player_laps[slot].length > 0) {
       // calculate average laptime for each player
-      for (var j = 0; j < all_player_laps[slot].length; j++)
+      for (var j = 0; j < all_player_laps[slot].length; j++) {
         sum += all_player_laps[slot][j];
-
+      }
       avg_laps[slot] = sum / all_player_laps[slot].length;
 
       // std deviation = sqrt((lap - avglap)^2 for all laps / num of laps)
       sum = 0;
-      for (var j = 0; j < all_player_laps[slot].length; j++)
-        sum += Math.pow(all_player_laps[slot][j] - avg_laps[slot],2);
+      for (var j = 0; j < all_player_laps[slot].length; j++) {
+        sum += Math.pow(all_player_laps[slot][j] - avg_laps[slot], 2);
+      }
 
       var variance = sum / all_player_laps[slot].length;
       var std_deviation = Math.sqrt(variance);
@@ -3246,6 +3205,117 @@ function get_rider_consistency() {
   
   // returns an array with the consistency and slot associated
   return std_devs[0];
+}
+
+var every_rider_finished = false;
+var time_to_give_up = 30;
+// flags to hold whether a person has finished the race or not
+var riders_finished = [];
+var times_until_give_up = [];
+var set_up_rider_finish_flags = false;
+var set_seconds_at_first_finish = false;
+var displayed_awards = false;
+
+function update_rider_finish_flags() {
+  var r = g_running_order;
+  var timing_gate, slot, rider_laps_remain;
+
+  // stores rider start / finish positions
+  for (var i = 0; i < r.length; i++) {
+    slot = r[i].slot;
+    timing_gate = r[i].position;
+
+    if (!set_up_rider_finish_flags) {
+      // Set all active slots to unfinished
+      riders_finished[slot] = false;
+      if (i == r.length - 1) {
+        set_up_rider_finish_flags = true;
+      }
+    }
+    
+    // stores rider positions after lap 1
+    if (timing_gate == firstLapLength && timing_gate != current_timing_gates[slot]) {
+      rider_positions_after_L1[slot] = [(i + 1), slot];
+    } 
+      
+
+    // if time has expired
+    if (mx.seconds >= g_drop_time + g_finish_time || g_finish_time == 0) {
+      
+      // get laps that remain
+      if (g_finish_time == 0 && g_finish_laps == 0) {
+        // Finish line is now first timing gate
+        rider_laps_remain = 1 - g_running_order[0].position;
+      }
+      else if (g_finish_time == 0) {
+        rider_laps_remain = g_finish_laps - mx.index_to_lap(g_running_order[0].position);
+      }
+      else {
+        rider_laps_remain = laps_remaining();
+      }
+        
+
+      // if first has finished
+      if (rider_laps_remain == 0) {
+
+        // set up all times players have to hit the next timing gate except first
+        if (!set_seconds_at_first_finish) {
+          for (var j = 0; j < riders_finished.length; j++) {
+            if (j == r[0].slot) continue;
+            times_until_give_up[j] = mx.seconds + time_to_give_up;
+          }
+          set_seconds_at_first_finish = true;
+        }
+
+        if (timing_gate != current_timing_gates[slot]) {
+
+          // if rider hit the finish timing gate, set the position they finished and a flag that they have finished
+          if ((timing_gate - firstLapLength) % normalLapLength == 0 || g_finish_laps == 0) {
+            rider_positions_finish[slot] = [(i + 1), slot];
+            riders_finished[slot] = true;
+          }
+
+          // if they haven't finished, but hit a new timing gate reset their time to give up
+          else if (!riders_finished[slot]) {
+            times_until_give_up[slot] = mx.seconds + time_to_give_up;
+          }
+
+          // if they have hit a new timing gate and have finished it means we've incorrectly assumed they've given up, so reset
+          else if (riders_finished[slot]) {
+            riders_finished[slot] = false;
+            times_until_give_up[slot] = undefined;
+            if (every_rider_finished && displayed_awards) {
+              every_rider_finished = false;
+              displayed_awards = false;
+            }
+          }
+        }
+
+        // if current in game time is greater than the riders time to give up, set flag that they have finished
+        else if (mx.seconds > times_until_give_up[slot] && riders_finished[slot] == 0) {
+          rider_positions_finish[slot] = [(i + 1), slot];
+          riders_finished[slot] = true;
+        }
+      }
+      // if first is the only rider and they haven't finished (going back in demos)
+      else if (every_rider_finished) {
+        riders_finished[r[0].slot] = false;
+        every_rider_finished = false;
+      }
+    }
+  }
+
+  // check every flag is set to true, if it is we can now display awards if it's a main, or display invalid laps if it's not a racing event
+  if (!every_rider_finished) {
+    every_rider_finished = true;
+    displayed_invalid_laps = false;
+    for (var i = 0; i < riders_finished.length; i++) {
+      if (riders_finished[i] == false) {
+        every_rider_finished = false;
+        break;
+      }
+    }
+  }
 }
 
 function reset_current_timing_gates(){
