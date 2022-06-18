@@ -3,1331 +3,23 @@
 Global Variables
 ################
 */
-var slot_position_holder = [];
-var g_running_order = mx.get_running_order();
+var slotPositionHolder = [];
+var globalRunningOrder = mx.get_running_order();
 // checks to make sure rider switched gates
-var current_timing_gates = [];
-var started_flame_sound = false;
-var soundedStartFlames = false;
-var set_start_flame_loop = false;
-var startFlameSoundAdded = false;
-var startedStartFlameSoundLoop = false;
-var holeshotFlameSoundsAdded = false;
-var finishFlameSoundAdded = false;
-var finishFlameSound;
-var finishWhistleSound;
-var holeshotFlameSounds = [];
-var startFlameSound = [];
-var finishFireworkSound;
-var gateDropTime;
+var currentTimingGates = [];
 var mainEvent = false;
 var racingEvent = false;
-var crowd_constant_base_vol = 1.5;
+const crowdConstantBaseVol = 1.5;
 // p and r store location of rider(s)
 var p = [], r = [];
-var g_finish_laps = mx.get_finish_laps();
-var g_finish_time = mx.get_finish_time();
-/*
-####################
-CHANGE EVERY TRACK
-####################
-*/
-var g_firstlap = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]; 
-var g_normallap = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]; 
-var g_flaggers = [];
-var g_flagger_count = g_flaggers.length;
-var g_starter_index = 0;
-var g_finisher_index = 1;
-var g_first_flagger_index = 2;
-var g_30board_index = g_first_flagger_index + g_flagger_count;
-var g_green_flag_index = g_30board_index + 1;
-var g_white_flag_index = g_green_flag_index + 1;
-var g_checkered_flag_index = g_white_flag_index + 1;
-var g_first_yellow_flag_index;
-var baleUpStartIndex;
-if (g_flagger_count > 0){
-  g_first_yellow_flag_index = g_checkered_flag_index + 1;
-  baleUpStartIndex = g_first_yellow_flag_index + g_flagger_count;
-}
-else
-  baleUpStartIndex = g_checkered_flag_index + 1;
-/*
-#########################
-CHANGE COORDS EVERY TRACK
-#########################
-*/
-const startFlameCoords = [
-  [128.438416, 9.000000, 497.612274],
-  [137.961914, 9.000000, 506.996399],
-  [153.301193, 9.000000, 522.226196],
-  [162.861298, 9.000000, 531.605957],
-  [168.705368, 9.000000, 537.329834],
-  [178.207001, 9.000000, 546.702881],
-  [203.094864, 9.000000, 571.254089],
-  [193.566559, 9.000000, 561.846985]
-];
-const holeshotCoords = [
-  [315.363922, 8.000000, 283.171173],
-  [323.246948, 8.000000, 291.764801]
-];
-const finishFlameCoords = [
-  [459.547089, 20.500000, 361.974976],
-  [459.601410, 20.500000, 395.998230]
-];
-const baleCoordsUp = [
-  [266.018646, -5.000000, 438.696808, -0.684825],
-  [284.193237, -5.000000, 420.691467, -0.947597],
-  [274.541595, -5.000000, 429.045013, -0.758380],
-  [251.907822, -5.000000, 460.145142, -0.402116],
-  [258.229523, -5.000000, 448.969452, -0.614020],
-  [247.455322, -5.000000, 475.834930, -0.112428],
-  [309.863434, -5.000000, 407.824677, -1.251727],
-  [324.396606, -5.000000, 405.088043, -1.480141],
-  [249.374390, -5.000000, 499.992462, 0.270154],
-  [319.340118, -5.000000, 345.775848, -0.415814],
-  [247.342438, -5.000000, 488.139465, 0.099668],
-  [337.289398, -5.000000, 390.421936, 1.176001],
-  [328.540283, -5.000000, 385.229401, 0.910669],
-  [321.428436, -5.000000, 377.609650, 0.588003],
-  [317.138855, -5.000000, 367.675690, 0.276909],
-  [316.517975, -5.000000, 356.387115, -0.083836],
-  [296.786530, -5.000000, 412.985748, -1.083203]
-];
-var balesToPushUp = [];
-const numOfBalesToPushUp = baleCoordsUp.length;
-const baleCoordsDown = [
-  [361.818756, 0.000000, 368.099213, -0.692641],
-  [346.484894, 0.000000, 387.481903, -0.692641],
-  [255.023163, 0.000000, 501.121552, -0.700494],
-  [269.041138, 0.000000, 484.039978, -0.700494],
-  [276.136200, 0.000000, 475.378845, -0.700494],
-  [312.056152, 0.000000, 430.399048, -0.692641],
-  [319.359924, 0.000000, 421.059967, -0.692641],
-  [327.525818, 0.000000, 410.849426, -0.692641],
-  [354.567291, 0.000000, 377.358459, -0.692641],
-  [262.296143, 0.000000, 492.341492, -0.700494]
-];
-var balesToPushDown = [];
-// have at least 1 object in between the two bale sets as a separator
-const baleDownStartIndex = baleUpStartIndex + numOfBalesToPushUp + 1;
-const numOfBalesToPushDown = baleCoordsDown.length;
 
-// Coordinates of each bleacher
-const bleacherSoundPositions = [
-  [401, 0, 90],
-  [501, 0, 90],
-  [175, 0, 177],
-  [97, 0, 252],
-  [665, 0, 283],
-  [238, 0, 584],
-  [414, 0, 594],
-  [565, 0, 594],
-  [664, 0, 425]
-];
-const numOfBleachers = bleacherSoundPositions.length;
-  
-/* This is for boos/cheers on the track, if you want that.
-Array is written as [element1, element 2]; where each element =
-[timing gate,[soundPosX, soundPosY, soundPosZ]]*/
-const gatesAndPosCheerOrBoo = [
-  [16,bleacherSoundPositions[0]],
-  [15,bleacherSoundPositions[1]],
-  [18,bleacherSoundPositions[2]],
-  [19,bleacherSoundPositions[3]],
-  [30,bleacherSoundPositions[4]],
-  [42,bleacherSoundPositions[5]],
-  [41,bleacherSoundPositions[6]],
-  [40,bleacherSoundPositions[7]],
-  [31,bleacherSoundPositions[8]],
-];
+const globalFinishLaps = mx.get_finish_laps();
+const globalFinishTime = mx.get_finish_time();
 
-// leave blank
-var crashSounds = [];
-// choose random directories to assign to crashsounds so it's not all the same sound when someone crashes
-const crashSoundDirectories = [
-  "@os2022bgsxobj/sounds/crashes/crash1.raw",
-  "@os2022bgsxobj/sounds/crashes/crash2.raw",
-  "@os2022bgsxobj/sounds/crashes/crash3.raw",
-  "@os2022bgsxobj/sounds/cheers/roar1.raw",
-  "@os2022bgsxobj/sounds/cheers/roar2.raw"
-];
-const numOfCrashVariants = crashSoundDirectories.length;
-
-var crowdConstants;
-var crowdRoars = [];
-const crowdRoarDirectories = [
-  "@os2022bgsxobj/sounds/cheers/cheer1.raw",
-  "@os2022bgsxobj/sounds/cheers/cheer3.raw",
-  "@os2022bgsxobj/sounds/cheers/cheer4.raw",
-  "@os2022bgsxobj/sounds/cheers/roar1.raw",
-  "@os2022bgsxobj/sounds/cheers/roar2.raw",
-  "@os2022bgsxobj/sounds/cheers/horn2.raw"
-];
-const numOfRoarVariants = crowdRoarDirectories.length;
-
-var allCheerSounds = [];
-var allBooSounds = [];
-
-const cheerVariantDirectories = [
-  "@os2022bgsxobj/sounds/cheers/cheer1.raw",
-  "@os2022bgsxobj/sounds/cheers/cheer2.raw",
-  "@os2022bgsxobj/sounds/cheers/cheer3.raw",
-  "@os2022bgsxobj/sounds/cheers/cheer4.raw",
-  "@os2022bgsxobj/sounds/cheers/roar1.raw",
-  "@os2022bgsxobj/sounds/cheers/roar2.raw",
-  "@os2022bgsxobj/sounds/cheers/horn1.raw",
-  "@os2022bgsxobj/sounds/cheers/horn2.raw"
-
-];
-const numOfCheerVariants = cheerVariantDirectories.length;
-
-const booVariantDirectories = [
-  "@os2022bgsxobj/sounds/boos/boo1.raw",
-  "@os2022bgsxobj/sounds/boos/boo2.raw",
-  "@os2022bgsxobj/sounds/boos/boo3.raw",
-  "@os2022bgsxobj/sounds/boos/boo4.raw"
-];
-const numOfBooVariants = booVariantDirectories.length;
-
-// leave blank
-var allMechanicSounds = [];
-// to add another variant, make an array of the sound directories to store and add that
-// array directory name into all directories array.
-const joeSoundDirectories = [
-  "@os2022bgsxobj/sounds/mechanic/joe/joe1.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe2.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe3.raw", 
-  "@os2022bgsxobj/sounds/mechanic/joe/joe4.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe5.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe6.raw", 
-  "@os2022bgsxobj/sounds/mechanic/joe/joe7.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe8.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe9.raw", 
-  "@os2022bgsxobj/sounds/mechanic/joe/joe10.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe11.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe12.raw", 
-  "@os2022bgsxobj/sounds/mechanic/joe/joe13.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe14.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe15.raw", 
-  "@os2022bgsxobj/sounds/mechanic/joe/joe16.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe17.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe18.raw", 
-  "@os2022bgsxobj/sounds/mechanic/joe/joe19.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe20.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe21.raw", 
-  "@os2022bgsxobj/sounds/mechanic/joe/joe22.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe23.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe24.raw", 
-  "@os2022bgsxobj/sounds/mechanic/joe/joe25.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe26.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe27.raw", 
-  "@os2022bgsxobj/sounds/mechanic/joe/joe28.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe29.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe30.raw",
-  "@os2022bgsxobj/sounds/mechanic/joe/joe31.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe32.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe33.raw",
-  "@os2022bgsxobj/sounds/mechanic/joe/joe34.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe35.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe36.raw",
-  "@os2022bgsxobj/sounds/mechanic/joe/joe37.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe38.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe39.raw",
-  "@os2022bgsxobj/sounds/mechanic/joe/joe40.raw"
-];
-const sethSoundDirectories = [
-"@os2022bgsxobj/sounds/mechanic/seth/seth1.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth2.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth3.raw", 
-"@os2022bgsxobj/sounds/mechanic/seth/seth4.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth5.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth6.raw", 
-"@os2022bgsxobj/sounds/mechanic/seth/seth7.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth8.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth9.raw", 
-"@os2022bgsxobj/sounds/mechanic/seth/seth10.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth11.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth12.raw", 
-"@os2022bgsxobj/sounds/mechanic/seth/seth13.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth14.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth15.raw", 
-"@os2022bgsxobj/sounds/mechanic/seth/seth16.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth17.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth18.raw", 
-"@os2022bgsxobj/sounds/mechanic/seth/seth19.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth20.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth21.raw", 
-"@os2022bgsxobj/sounds/mechanic/seth/seth22.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth23.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth24.raw", 
-"@os2022bgsxobj/sounds/mechanic/seth/seth25.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth26.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth27.raw", 
-"@os2022bgsxobj/sounds/mechanic/seth/seth28.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth29.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth30.raw",
-"@os2022bgsxobj/sounds/mechanic/seth/seth31.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth32.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth33.raw",
-"@os2022bgsxobj/sounds/mechanic/seth/seth34.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth35.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth36.raw",
-"@os2022bgsxobj/sounds/mechanic/seth/seth37.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth38.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth39.raw",
-"@os2022bgsxobj/sounds/mechanic/joe/seth40.raw"
-];
-const hubSoundDirectories = [
-  "@os2022bgsxobj/sounds/mechanic/hub/hub1.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub2.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub3.raw", 
-  "@os2022bgsxobj/sounds/mechanic/hub/hub4.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub5.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub6.raw", 
-  "@os2022bgsxobj/sounds/mechanic/hub/hub7.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub8.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub9.raw", 
-  "@os2022bgsxobj/sounds/mechanic/hub/hub10.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub11.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub12.raw", 
-  "@os2022bgsxobj/sounds/mechanic/hub/hub13.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub14.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub15.raw", 
-  "@os2022bgsxobj/sounds/mechanic/hub/hub16.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub17.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub18.raw", 
-  "@os2022bgsxobj/sounds/mechanic/hub/hub19.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub20.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub21.raw", 
-  "@os2022bgsxobj/sounds/mechanic/hub/hub22.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub23.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub24.raw", 
-  "@os2022bgsxobj/sounds/mechanic/hub/hub25.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub26.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub27.raw", 
-  "@os2022bgsxobj/sounds/mechanic/hub/hub28.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub29.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub30.raw",
-  "@os2022bgsxobj/sounds/mechanic/hub/hub31.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub32.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub33.raw",
-  "@os2022bgsxobj/sounds/mechanic/hub/hub34.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub35.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub36.raw",
-  "@os2022bgsxobj/sounds/mechanic/hub/hub37.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub38.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub39.raw",
-  "@os2022bgsxobj/sounds/mechanic/joe/hub40.raw"
-];
-const someSoundDirectories = [
-  "@os2022bgsxobj/sounds/mechanic/some/some1.raw", "@os2022bgsxobj/sounds/mechanic/some/some2.raw", "@os2022bgsxobj/sounds/mechanic/some/some3.raw", 
-  "@os2022bgsxobj/sounds/mechanic/some/some4.raw", "@os2022bgsxobj/sounds/mechanic/some/some5.raw", "@os2022bgsxobj/sounds/mechanic/some/some6.raw", 
-  "@os2022bgsxobj/sounds/mechanic/some/some7.raw", "@os2022bgsxobj/sounds/mechanic/some/some8.raw", "@os2022bgsxobj/sounds/mechanic/some/some9.raw", 
-  "@os2022bgsxobj/sounds/mechanic/some/some10.raw", "@os2022bgsxobj/sounds/mechanic/some/some11.raw", "@os2022bgsxobj/sounds/mechanic/some/some12.raw", 
-  "@os2022bgsxobj/sounds/mechanic/some/some13.raw", "@os2022bgsxobj/sounds/mechanic/some/some14.raw", "@os2022bgsxobj/sounds/mechanic/some/some15.raw", 
-  "@os2022bgsxobj/sounds/mechanic/some/some16.raw", "@os2022bgsxobj/sounds/mechanic/some/some17.raw", "@os2022bgsxobj/sounds/mechanic/some/some18.raw", 
-  "@os2022bgsxobj/sounds/mechanic/some/some19.raw", "@os2022bgsxobj/sounds/mechanic/some/some20.raw", "@os2022bgsxobj/sounds/mechanic/some/some21.raw", 
-  "@os2022bgsxobj/sounds/mechanic/some/some22.raw", "@os2022bgsxobj/sounds/mechanic/some/some23.raw", "@os2022bgsxobj/sounds/mechanic/some/some24.raw", 
-  "@os2022bgsxobj/sounds/mechanic/some/some25.raw", "@os2022bgsxobj/sounds/mechanic/some/some26.raw", "@os2022bgsxobj/sounds/mechanic/some/some27.raw", 
-  "@os2022bgsxobj/sounds/mechanic/some/some28.raw", "@os2022bgsxobj/sounds/mechanic/some/some29.raw", "@os2022bgsxobj/sounds/mechanic/some/some30.raw",
-  "@os2022bgsxobj/sounds/mechanic/some/some31.raw", "@os2022bgsxobj/sounds/mechanic/some/some32.raw", "@os2022bgsxobj/sounds/mechanic/some/some33.raw",
-  "@os2022bgsxobj/sounds/mechanic/some/some34.raw", "@os2022bgsxobj/sounds/mechanic/some/some35.raw", "@os2022bgsxobj/sounds/mechanic/some/some36.raw",
-  "@os2022bgsxobj/sounds/mechanic/some/some37.raw", "@os2022bgsxobj/sounds/mechanic/some/some38.raw", "@os2022bgsxobj/sounds/mechanic/some/some39.raw",
-  "@os2022bgsxobj/sounds/mechanic/joe/some40.raw"
-];
-
-const allDirectories = [
-  joeSoundDirectories,
-  sethSoundDirectories,
-  hubSoundDirectories,
-  someSoundDirectories
-];
-
-// Change list to boo or cheer specific riders when they pass by the crowd
-const booRiderNames = [
-  "brayden tharp",
-  "alexis leclair",
-	"rogan mcintosh",
-	"roborider",
-  "spencer turley",
-  "larry reyes jr",
-  "jr reyes",
-  "tyler lang",
-  "rasmus balzer"
-];
-const cheerRiderNames = [
-  "cade matherly",
-	"alexis leclair",
-  "jakob hubbard",
-  "braden carter",
-	"seth garrett",
-  "greg conrad",
-  "tanner rogers",
-  "colton hansen",
-  "maxime vanderbeek",
-  "brandon larsen"
-];
-var slots_to_cheer = [];
-var slots_to_boo = [];
-
-// An array of objects to hold each individual crowd member that's not in qualifying but in the race
-const race_event_crowd = [
-  {coords: [96.465622,0.000000,228.782822], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/blue.png"},
-  {coords: [56.668068,0.000000,339.100342], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/tw1.png"},
-  {coords: [658.408813,0.000000,236.778976], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [576.670959,0.000000,102.198685], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [346.144348,0.000000,102.198654], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [238.543945,0.000000,118.482399], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [123.759445,0.000000,218.579391], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [498.604431,0.000000,593.903625], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [86.059341,0.000000,498.690765], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [354.952698,0.000000,580.194153], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [645.520081,0.000000,519.914612], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [617.976440,0.000000,140.618988], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [252.094025,0.000000,118.097397], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [81.114662,0.000000,294.993530], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [37.234299,0.000000,336.178040], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [519.602844,0.000000,579.711304], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [649.712891,0.000000,165.593582], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [331.860901,0.000000,83.695984], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [47.090256,0.000000,306.453827], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [295.656219,0.000000,575.887817], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [647.577698,0.000000,334.255920], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [452.493347,0.000000,105.581314], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [156.545547,0.000000,216.354004], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [75.966843,0.000000,491.747192], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [293.396484,0.000000,105.583801], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [554.638733,0.000000,109.628006], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [595.028809,0.000000,116.333069], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [607.321411,0.000000,132.776443], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [659.168640,0.000000,332.240295], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [647.035706,0.000000,374.067139], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [660.445862,0.000000,503.379181], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [367.019623,0.000000,577.454163], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [338.283600,0.000000,594.695740], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [312.740509,0.000000,581.924194], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [159.162476,0.000000,569.791504], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [116.697067,0.000000,545.525696], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [43.899223,0.000000,322.662537], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [140.963089,0.000000,233.900238], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [215.996094,0.000000,133.324036], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [231.641388,0.000000,143.541306], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [650.867004,0.000000,202.290741], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [620.161255,0.000000,132.784134], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [606.727722,0.000000,109.642570], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [660.052185,0.000000,466.246521], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [305.507935,0.000000,105.902184], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [239.582687,0.000000,130.172623], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [70.060242,0.000000,307.828918], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [32.064861,0.000000,324.591583], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [284.099060,0.000000,572.637756], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [308.030731,0.000000,596.343811], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [460.020172,0.000000,589.077698], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [616.705322,0.000000,577.337280], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [652.121460,0.000000,190.968887], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [567.231567,0.000000,112.287567], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [464.618408,0.000000,104.724220], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [314.676605,0.000000,84.066147], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
-  {coords: [330.204376,0.000000,95.573814], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [441.137360,0.000000,97.952408], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [585.292480,0.000000,108.225021], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [637.671509,0.000000,162.071487], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [661.829041,0.000000,158.797791], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [659.232544,0.000000,211.628311], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [658.329529,0.000000,344.268921], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [657.765320,0.000000,491.471863], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [649.863159,0.000000,510.888123], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [657.087830,0.000000,532.223511], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [518.124695,0.000000,597.359497], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [474.099274,0.000000,581.668396], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [459.537018,0.000000,602.890869], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [356.924133,0.000000,590.473389], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [323.848633,0.000000,584.716187], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [316.172424,0.000000,611.470154], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [26.169115,0.000000,346.528107], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [59.244617,0.000000,307.921234], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [201.141861,0.000000,145.591797], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [281.967773,0.000000,111.274704], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [477.370392,0.000000,593.874146], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [140.316360,0.000000,558.312500], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [174.859375,0.000000,583.824707], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [485.520752,0.000000,587.662170], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [507.420563,0.000000,583.146729], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [632.046082,0.000000,559.666687], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [654.848511,0.000000,479.292664], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [647.623596,0.000000,383.791748], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [644.462830,0.000000,346.990997], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [652.138916,0.000000,243.136017], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [658.460510,0.000000,170.889160], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [648.526794,0.000000,149.215118], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [623.691956,0.000000,145.828537], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [594.793640,0.000000,125.960625], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [577.183655,0.000000,109.027832], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [560.025330,0.000000,101.803154], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [458.428253,0.000000,99.093887], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [359.540405,0.000000,98.416565], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [349.606476,0.000000,107.447426], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [299.033722,0.000000,98.642303], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [259.749512,0.000000,105.866989], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [274.424622,0.000000,91.191841], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [251.847488,0.000000,126.637962], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [132.414490,0.000000,246.296814], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [71.004639,0.000000,300.030029], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [33.752365,0.000000,344.958588], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [36.235847,0.000000,314.931000], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [64.457230,0.000000,481.776031], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [149.121429,0.000000,577.954590], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [211.977402,0.000000,145.988495], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [452.217438,0.000000,96.121719], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [352.990906,0.000000,101.314461], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [344.072937,0.000000,109.667999], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [330.413757,0.000000,109.667999], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [340.573486,0.000000,98.266533], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [310.658905,0.000000,108.652000], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [299.708984,0.000000,109.667969], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [273.293793,0.000000,110.571045], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [262.795471,0.000000,121.182297], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [241.347229,0.000000,137.550705], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [212.787186,0.000000,163.062851], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [131.170822,0.000000,229.552551], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [151.264465,0.000000,224.359802], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [123.381714,0.000000,255.741928], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [72.244492,0.000000,292.768372], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [64.229607,0.000000,315.684143], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [49.554462,0.000000,331.826782], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [52.263718,0.000000,317.490295], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [255.387238,0.000000,550.106812], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [196.122223,0.000000,592.439148], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [304.605316,0.000000,587.584839], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [348.856476,0.000000,581.827820], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [470.434296,0.000000,593.229431], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [524.732239,0.000000,587.810364], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [605.332825,0.000000,577.876160], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [645.520081,0.000000,569.409668], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [642.698242,0.000000,534.302063], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [659.292725,0.000000,520.078369], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [644.279175,0.000000,485.196686], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [646.537231,0.000000,464.312958], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [659.970825,0.000000,387.663635], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [647.779175,0.000000,365.763794], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [653.084778,0.000000,213.255539], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [652.746460,0.000000,180.744598], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [643.038208,0.000000,157.264374], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [603.076477,0.000000,119.334846], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [586.933716,0.000000,122.947197], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [547.198303,0.000000,110.868401], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [542.570007,0.000000,95.854607], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [279.621979,0.000000,582.348022], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [319.533112,0.000000,576.121887], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [350.025208,0.000000,577.718323], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [493.705200,0.000000,601.824524], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [514.139648,0.000000,589.052979], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [612.480652,0.000000,571.013245], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [625.092529,0.000000,571.013245], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [646.006165,0.000000,551.855957], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [648.560425,0.000000,526.312805], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [649.677979,0.000000,531.421448], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [646.325623,0.000000,390.934357], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [657.660339,0.000000,366.508789], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [654.946350,0.000000,350.225067], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [660.534058,0.000000,245.498337], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [660.054993,0.000000,202.075058], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [663.088257,0.000000,177.010880], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [644.409912,0.000000,176.372284], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [638.662659,0.000000,148.753815], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [587.416870,0.000000,116.665298], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [553.093262,0.000000,100.381569], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [447.727875,0.000000,98.944763], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [350.025513,0.000000,96.390434], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [292.713165,0.000000,110.758438], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [322.247375,0.000000,98.625458], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [259.187836,0.000000,115.228500], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [233.006165,0.000000,125.605423], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [134.186279,0.000000,238.793198], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [51.490459,0.000000,325.639771], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [59.791973,0.000000,316.220764], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [20.838722,0.000000,330.588776], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [72.882812,0.000000,483.528198], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [569.638794,0.000000,106.190018], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [307.505371,0.000000,99.643219], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [224.195801,0.000000,140.056274], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [149.691238,0.000000,220.656647], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [129.823395,0.000000,233.751373], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [76.315590,0.000000,300.128113], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [63.898174,0.000000,302.498505], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [46.852432,0.000000,315.367340], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [43.578747,0.000000,330.042480], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [62.273525,0.000000,475.254852], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [343.008301,0.000000,584.531494], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [459.069885,0.000000,581.657898], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [520.453186,0.000000,588.283264], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [509.198273,0.000000,594.748901], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [493.553131,0.000000,583.813232], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [481.739441,0.000000,575.751221], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [600.994690,0.000000,573.586121], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [622.781616,0.000000,581.713867], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [626.281128,0.000000,564.781006], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [651.341736,0.000000,542.994202], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [658.115112,0.000000,514.772583], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [653.373901,0.000000,519.626648], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [653.938538,0.000000,470.070099], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [652.809692,0.000000,385.970306], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [654.502930,0.000000,373.440002], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [652.245117,0.000000,345.670227], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [661.049927,0.000000,241.815445], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [646.600586,0.000000,226.350113], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [648.519531,0.000000,182.776260], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [650.551575,0.000000,157.941422], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [631.925476,0.000000,147.668823], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [600.656128,0.000000,123.059753], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [560.581360,0.000000,113.351631], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [463.961609,0.000000,93.893257], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [443.416412,0.000000,92.312859], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [328.160156,0.000000,105.407600], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [79.948776,9.000000,254.271149], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [84.613922,9.000000,249.606003], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [102.927162,9.000000,231.292816], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [107.135788,9.000000,227.084198], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [110.317825,9.000000,223.902176], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [78.797035,7.750000,259.587311], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [82.999611,7.750000,255.384750], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [86.304199,7.750000,252.080185], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [96.528488,7.750000,241.855911], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [100.177345,7.750000,238.207062], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [108.618484,7.750000,229.765945], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [79.739441,6.750000,262.809357], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [89.836288,6.750000,252.712524], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [94.846909,6.750000,247.701920], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [99.147598,6.750000,243.401245], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [102.021729,6.750000,240.527130], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [106.806061,6.750000,235.742798], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [111.216850,6.750000,231.332031], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [74.791588,5.500000,271.921631], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [77.946548,5.500000,268.766693], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [82.726135,5.500000,263.987122], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [88.149132,5.500000,258.564117], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [91.199432,5.500000,255.513840], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [96.215240,5.500000,250.498032], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [99.933083,5.500000,246.780197], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [104.744865,5.500000,241.968430], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [110.249596,5.500000,236.463715], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [113.631775,5.500000,233.081543], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [79.452934,4.250000,271.424744], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [82.694626,4.250000,268.183044], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [85.666969,4.250000,265.210724], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [96.192192,4.250000,254.685516], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [100.325020,4.250000,250.552704], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [103.235893,4.250000,247.641830], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [106.167686,4.250000,244.710052], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [109.030579,4.250000,241.847168], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [113.944817,4.250000,236.932938], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [117.085770,4.250000,233.791992], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [120.980080,4.250000,229.897690], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [82.701813,3.000000,272.340302], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [85.815979,3.000000,269.226135], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [92.913315,3.000000,262.128815], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [95.765862,3.000000,259.276276], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [98.635475,3.000000,256.406677], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [103.070938,3.000000,251.971222], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [106.266319,3.000000,248.775848], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [114.654068,3.000000,240.388123], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [119.426559,3.000000,235.615646], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [122.323799,3.000000,232.718414], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [86.794830,1.750000,272.411743], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [89.715950,1.750000,269.490631], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [92.581665,1.750000,266.624908], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [95.522530,1.750000,263.684052], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [99.166695,1.750000,260.039917], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [102.312553,1.750000,256.894043], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [105.714844,1.750000,253.491776], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [115.876556,1.750000,243.330078], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [118.802307,1.750000,240.404327], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [122.033363,1.750000,237.173279], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [89.551605,0.500000,273.819397], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [92.725365,0.500000,270.645660], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [97.867592,0.500000,265.503448], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [102.619293,0.500000,260.751740], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [109.260490,0.500000,254.110565], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [116.534355,0.500000,246.836716], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [119.687744,0.500000,243.683334], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [123.390556,0.500000,239.980530], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [126.708580,0.500000,236.662521], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [377.317688,9.000000,79.969872], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [381.578827,9.000000,79.969872], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [385.897278,9.000000,79.969872], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [401.196045,9.000000,79.969872], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [408.094604,9.000000,79.969872], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [414.672394,9.000000,79.969872], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [420.090302,9.000000,79.969872], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [425.723907,9.000000,79.969872], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [431.690979,9.000000,79.969872], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [376.968933,7.750000,82.914581], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [382.518616,7.750000,82.914581], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [388.510132,7.750000,82.914581], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [395.851929,7.750000,82.914581], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [403.694336,7.750000,82.914581], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [417.349396,7.750000,82.914581], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [429.328918,7.750000,82.914581], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [433.440613,7.750000,82.914581], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [376.700531,6.750000,85.859283], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [380.868256,6.750000,85.859283], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [385.269348,6.750000,85.859283], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [393.511322,6.750000,85.859283], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [397.512268,6.750000,85.859283], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [401.523071,6.750000,85.859283], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [405.698639,6.750000,85.859283], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [420.619598,6.750000,85.859283], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [425.814240,6.750000,85.859283], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [433.271973,6.750000,85.859283], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [375.134918,5.500000,88.803993], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [379.952148,5.500000,88.803993], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [384.435272,5.500000,88.803993], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [393.119385,5.500000,88.803993], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [397.810425,5.500000,88.803993], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [405.243958,5.500000,88.803993], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [409.318542,5.500000,88.803993], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [414.749146,5.500000,88.803993], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [421.090302,5.500000,88.803993], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [427.278656,5.500000,88.803993], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [433.550598,5.500000,88.803993], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [371.941437,4.250000,91.748695], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [378.470123,4.250000,91.748695], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [383.726898,4.250000,91.748695], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [389.155426,4.250000,91.748695], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [394.865204,4.250000,91.748695], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [403.506317,4.250000,91.748695], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [408.125916,4.250000,91.748695], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [413.675629,4.250000,91.748695], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [420.361938,4.250000,91.748695], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [424.820374,4.250000,91.748695], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [429.345276,4.250000,91.748695], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [433.348724,4.250000,91.748695], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [370.326538,3.000000,94.693405], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [374.816925,3.000000,94.693405], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [379.933685,3.000000,94.693405], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [384.482635,3.000000,94.693405], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [388.606873,3.000000,94.693405], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [393.443237,3.000000,94.693405], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [403.964508,3.000000,94.693405], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [408.333405,3.000000,94.693405], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [412.406921,3.000000,94.693405], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [417.902069,3.000000,94.693405], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [429.722351,3.000000,94.693405], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [434.137115,3.000000,94.693405], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [370.389069,1.750000,97.638107], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [374.963531,1.750000,97.638107], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [379.846741,1.750000,97.638107], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [387.171509,1.750000,97.638107], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [394.517059,1.750000,97.638107], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [400.698029,1.750000,97.638107], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [408.582367,1.750000,97.638107], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [414.007538,1.750000,97.638107], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [419.966675,1.750000,97.638107], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [433.574707,1.750000,97.638107], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [375.491089,0.500000,100.582817], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [380.425354,0.500000,100.582817], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [390.171661,0.500000,100.582817], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [397.084076,0.500000,100.582817], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [404.086548,0.500000,100.582817], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [408.101837,0.500000,100.582817], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [412.207184,0.500000,100.582817], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [416.415802,0.500000,100.582817], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [420.453766,0.500000,100.582817], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [426.660767,0.500000,100.582817], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [432.161865,0.500000,100.582817], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [475.447357,9.000000,79.331276], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [479.464355,9.000000,79.331276], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [483.887238,9.000000,79.331276], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [489.095459,9.000000,79.331276], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [499.577728,9.000000,79.331276], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [505.705963,9.000000,79.331276], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [511.795074,9.000000,79.331276], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [517.792664,9.000000,79.331276], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [523.284973,9.000000,79.331276], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [529.547607,9.000000,79.331276], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [533.942932,9.000000,79.331276], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [468.553192,7.750000,82.275986], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [473.050140,7.750000,82.275986], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [479.152954,7.750000,82.275986], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [488.420532,7.750000,82.275986], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [492.828583,7.750000,82.275986], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [500.172699,7.750000,82.275986], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [509.029602,7.750000,82.275986], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [514.182068,7.750000,82.275986], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [518.872131,7.750000,82.275986], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [523.142700,7.750000,82.275986], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [530.889221,7.750000,82.275986], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [474.189423,6.750000,85.220688], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [478.238251,6.750000,85.220688], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [482.547546,6.750000,85.220688], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [486.887146,6.750000,85.220688], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [500.509186,6.750000,85.220688], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [505.107574,6.750000,85.220688], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [509.736237,6.750000,85.220688], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [514.709778,6.750000,85.220688], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [520.020752,6.750000,85.220688], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [525.407349,6.750000,85.220688], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [532.274658,6.750000,85.220688], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [474.837982,5.500000,88.165398], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [480.015442,5.500000,88.165398], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [486.085876,5.500000,88.165398], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [490.413483,5.500000,88.165398], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [495.362457,5.500000,88.165398], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [499.661011,5.500000,88.165398], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [506.228180,5.500000,88.165398], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [510.684509,5.500000,88.165398], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [516.849060,5.500000,88.165398], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [524.512878,5.500000,88.165398], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [470.445038,4.250000,91.110100], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [477.101349,4.250000,91.110100], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [481.502106,4.250000,91.110100], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [491.885895,4.250000,91.110100], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [496.181305,4.250000,91.110100], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [500.348541,4.250000,91.110100], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [504.395294,4.250000,91.110100], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [508.494904,4.250000,91.110100], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [512.503662,4.250000,91.110100], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [524.040039,4.250000,91.110100], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [529.115417,4.250000,91.110100], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [533.421631,4.250000,91.110100], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [473.968536,3.000000,94.054810], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [478.208130,3.000000,94.054810], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [490.842499,3.000000,94.054810], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [494.972748,3.000000,94.054810], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [499.329895,3.000000,94.054810], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [503.466980,3.000000,94.054810], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [509.140686,3.000000,94.054810], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [513.200623,3.000000,94.054810], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [517.240234,3.000000,94.054810], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [521.842346,3.000000,94.054810], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [527.338623,3.000000,94.054810], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [532.958008,3.000000,94.054810], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [470.997620,1.750000,96.999512], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [478.860199,1.750000,96.999512], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [485.770477,1.750000,96.999512], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [492.195190,1.750000,96.999512], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [496.371490,1.750000,96.999512], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [501.838898,1.750000,96.999512], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [506.317932,1.750000,96.999512], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [511.924896,1.750000,96.999512], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [525.279053,1.750000,96.999512], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [529.492004,1.750000,96.999512], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [471.230438,0.500000,99.944221], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [475.373993,0.500000,99.944221], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [479.795227,0.500000,99.944221], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [492.963837,0.500000,99.944221], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [497.052917,0.500000,99.944221], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [501.961609,0.500000,99.944221], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [506.445953,0.500000,99.944221], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [511.786957,0.500000,99.944221], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [516.185852,0.500000,99.944221], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [520.901123,0.500000,99.944221], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [526.420288,0.500000,99.944221], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [147.926926,9.000000,190.443726], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [151.272934,9.000000,187.097717], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [154.655914,9.000000,183.714752], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [162.943726,9.000000,175.426956], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [165.823883,9.000000,172.546799], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [168.691040,9.000000,169.679657], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [172.644897,9.000000,165.725815], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [179.148987,9.000000,159.221741], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [184.521637,9.000000,153.849091], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [187.875214,9.000000,150.495529], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [148.335342,7.750000,194.199738], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [156.946045,7.750000,185.589050], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [164.867294,7.750000,177.667816], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [173.462158,7.750000,169.072983], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [177.534988,7.750000,165.000168], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [181.256561,7.750000,161.278610], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [187.895432,7.750000,154.639740], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [192.130753,7.750000,150.404434], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [150.121262,6.750000,196.578262], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [154.787064,6.750000,191.912476], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [157.770294,6.750000,188.929260], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [161.224548,6.750000,185.475006], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [165.266907,6.750000,181.432663], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [168.502243,6.750000,178.197327], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [172.470993,6.750000,174.228577], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [178.127563,6.750000,168.572037], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [184.452850,6.750000,162.246750], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [188.205933,6.750000,158.493683], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [191.500977,6.750000,155.198639], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [194.414246,6.750000,152.285385], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [155.964523,5.500000,194.899460], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [161.330490,5.500000,189.533493], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [166.928818,5.500000,183.935181], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [169.972397,5.500000,180.891617], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [173.742462,5.500000,177.121567], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [176.638504,5.500000,174.225525], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [180.481247,5.500000,170.382782], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [184.600037,5.500000,166.264008], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [193.513321,5.500000,157.350754], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [158.598160,4.250000,196.430267], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [161.734055,4.250000,193.294373], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [166.170227,4.250000,188.858215], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [170.410370,4.250000,184.618088], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [173.553696,4.250000,181.474762], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [176.707184,4.250000,178.321289], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [179.553268,4.250000,175.475204], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [183.958740,4.250000,171.069748], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [187.400665,4.250000,167.627838], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [190.982727,4.250000,164.045776], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [195.245117,4.250000,159.783386], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [198.397629,4.250000,156.630890], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [160.340546,3.000000,198.852325], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [163.178207,3.000000,196.014679], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [170.884445,3.000000,188.308441], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [175.853851,3.000000,183.339050], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [179.330353,3.000000,179.862564], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [182.846436,3.000000,176.346481], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [186.134521,3.000000,173.058411], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [189.009109,3.000000,170.183823], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [191.849106,3.000000,167.343826], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [195.625885,3.000000,163.567062], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [167.519684,1.750000,195.837631], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [173.029572,1.750000,190.327759], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [177.786102,1.750000,185.571243], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [181.486115,1.750000,181.871231], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [184.387482,1.750000,178.969879], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [191.826797,1.750000,171.530579], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [194.777786,1.750000,168.579590], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [198.481308,1.750000,164.876083], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [169.469162,0.500000,198.052612], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [172.471359,0.500000,195.050400], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [178.817490,0.500000,188.704285], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [181.886490,0.500000,185.635300], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [186.828934,0.500000,180.692871], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [194.227646,0.500000,173.294174], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [675.011902,9.000000,266.498260], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [675.069946,9.000000,280.614319], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [675.090027,9.000000,285.511200], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [675.107117,9.000000,289.659027], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [675.133240,9.000000,296.027161], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [675.187805,9.000000,309.301361], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [675.210388,9.000000,314.799622], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [672.000549,7.750000,250.285843], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [672.017822,7.750000,254.486526], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [672.038147,7.750000,259.425842], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [672.064392,7.750000,265.815002], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [672.119995,7.750000,279.348145], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [672.163391,7.750000,289.915314], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [672.193115,7.750000,297.139740], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [672.211182,7.750000,301.535828], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [672.231628,7.750000,306.512024], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [672.248657,7.750000,310.659485], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [672.267883,7.750000,315.338928], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [669.069824,6.750000,253.696426], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [669.099670,6.750000,260.947754], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [669.126282,6.750000,267.424744], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [669.166809,6.750000,277.286346], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [669.197876,6.750000,284.847748], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [669.221619,6.750000,290.625092], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [669.244812,6.750000,296.268433], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [669.265625,6.750000,301.338898], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [669.283447,6.750000,305.682922], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [666.109924,5.500000,249.996918], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [666.126526,5.500000,254.043076], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [666.145325,5.500000,258.615784], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [666.181641,5.500000,267.455963], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [666.226562,5.500000,278.389435], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [666.245483,5.500000,282.993774], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [666.269836,5.500000,288.920288], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [666.286865,5.500000,293.064484], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [666.306335,5.500000,297.792969], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [666.336121,5.500000,305.048920], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [666.364441,5.500000,311.929230], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [663.166260,4.250000,250.264038], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [663.200134,4.250000,258.502441], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [663.216858,4.250000,262.576355], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [663.233521,4.250000,266.626831], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [663.286255,4.250000,279.465698], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [663.303711,4.250000,283.715179], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [663.320190,4.250000,287.717987], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [663.339539,4.250000,292.425415], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [663.361755,4.250000,297.829529], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [663.395508,4.250000,306.041473], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [663.418335,4.250000,311.606934], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [660.226196,3.000000,251.399384], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [660.248413,3.000000,256.800446], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [660.299683,3.000000,269.283875], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [660.330261,3.000000,276.712585], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [660.355835,3.000000,282.937836], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [660.376343,3.000000,287.940430], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [660.395020,3.000000,292.471130], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [660.415649,3.000000,297.504944], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [660.452209,3.000000,306.396210], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [657.283691,1.750000,251.931259], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [657.339783,1.750000,265.589508], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [657.357910,1.750000,270.005219], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [657.393860,1.750000,278.752380], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [657.426270,1.750000,286.639984], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [657.448730,1.750000,292.092285], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [657.509888,1.750000,306.975983], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [654.335938,0.500000,251.205002], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [654.400452,0.500000,266.905792], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [654.426147,0.500000,273.158722], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [654.463440,0.500000,282.223358], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [654.479980,0.500000,286.258179], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [654.527527,0.500000,297.826813], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [654.595520,0.500000,314.366028], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [260.376648,9.000000,572.389099], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [256.777252,9.000000,576.802490], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [253.829315,9.000000,580.417114], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [250.783157,9.000000,584.152161], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [242.531784,9.000000,594.269592], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [234.996689,9.000000,603.508789], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [230.193405,9.000000,609.398315], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [258.851135,7.750000,569.600403], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [253.970535,7.750000,575.584778], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [242.862808,7.750000,589.204529], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [240.303528,7.750000,592.342590], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [237.166443,7.750000,596.189148], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [234.393524,7.750000,599.589172], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [227.427139,7.750000,608.130981], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [261.736267,6.750000,561.403564], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [257.096893,6.750000,567.092163], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [252.130234,6.750000,573.182068], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [244.803070,6.750000,582.166260], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [240.576385,6.750000,587.348816], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [237.502304,6.750000,591.118103], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [234.732849,6.750000,594.513916], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [231.593506,6.750000,598.363220], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [223.827682,6.750000,607.885315], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [220.836349,6.750000,611.553101], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [257.480957,5.500000,561.962036], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [252.639664,5.500000,567.898193], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [249.535751,5.500000,571.704102], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [245.638046,5.500000,576.483276], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [241.705536,5.500000,581.305115], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [234.188751,5.500000,590.521851], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [228.693634,5.500000,597.259705], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [225.887573,5.500000,600.700378], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [222.494919,5.500000,604.860229], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [219.323669,5.500000,608.748657], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [257.060974,4.250000,557.817810], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [253.752716,4.250000,561.874268], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [251.001862,4.250000,565.247192], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [247.241714,4.250000,569.857727], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [242.494659,4.250000,575.678345], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [237.711685,4.250000,581.542969], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [232.667480,4.250000,587.727966], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [229.927948,4.250000,591.087036], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [227.397491,4.250000,594.189758], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [224.711517,4.250000,597.483154], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [221.592102,4.250000,601.308044], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [218.347565,4.250000,605.286316], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [254.599396,3.000000,556.176880], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [251.984726,3.000000,559.382874], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [249.441925,3.000000,562.500732], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [246.849304,3.000000,565.679688], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [244.270767,3.000000,568.841370], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [241.601318,3.000000,572.114502], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [238.918900,3.000000,575.403564], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [235.977264,3.000000,579.010437], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [232.315552,3.000000,583.500244], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [229.778900,3.000000,586.610596], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [226.835983,3.000000,590.219055], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [223.832260,3.000000,593.902100], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [221.165680,3.000000,597.171692], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [216.324539,3.000000,603.107666], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [252.631653,1.750000,553.930420], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [250.022385,1.750000,557.129761], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [241.780121,1.750000,567.236084], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [239.185410,1.750000,570.417542], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [236.628937,1.750000,573.552185], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [233.488998,1.750000,577.402222], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [230.529556,1.750000,581.030945], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [227.968262,1.750000,584.171509], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [225.321808,1.750000,587.416443], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [222.361359,1.750000,591.046387], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [219.194427,1.750000,594.929565], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [216.503876,1.750000,598.228577], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [248.557892,0.500000,554.266296], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [242.216736,0.500000,562.041504], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [239.438873,0.500000,565.447571], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [236.406876,0.500000,569.165283], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [227.517105,0.500000,580.065491], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [219.543091,0.500000,589.842834], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [443.256409,9.000000,604.066101], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [437.919067,9.000000,604.107422], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [414.400482,9.000000,604.289795], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [410.253967,9.000000,604.321960], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [406.102753,9.000000,604.354126], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [401.744568,9.000000,604.387878], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [397.630341,9.000000,604.419800], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [388.633026,9.000000,604.489563], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [383.326416,9.000000,604.530701], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [445.413300,7.750000,601.104553], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [436.764343,7.750000,601.171631], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [422.542938,7.750000,601.281860], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [416.657990,7.750000,601.327515], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [410.101196,7.750000,601.378296], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [405.433350,7.750000,601.414490], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [398.540100,7.750000,601.467957], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [389.366180,7.750000,601.539062], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [384.602966,7.750000,601.575989], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [445.872437,6.750000,598.156189], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [441.593964,6.750000,598.189392], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [436.701630,6.750000,598.227295], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [432.284302,6.750000,598.261536], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [426.679626,6.750000,598.304993], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [418.004059,6.750000,598.372253], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [413.693268,6.750000,598.405701], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [402.491180,6.750000,598.492554], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [398.479980,6.750000,598.523621], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [394.473450,6.750000,598.554688], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [389.419006,6.750000,598.593872], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [444.919861,5.500000,595.218811], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [437.653564,5.500000,595.275146], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [431.915344,5.500000,595.319641], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [427.625549,5.500000,595.352844], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [422.552032,5.500000,595.392212], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [417.291473,5.500000,595.432983], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [412.168488,5.500000,595.472717], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [407.730072,5.500000,595.507141], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [401.918243,5.500000,595.552185], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [393.986145,5.500000,595.613647], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [389.206940,5.500000,595.650696], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [385.085815,5.500000,595.682678], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [380.847015,5.500000,595.715515], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [444.402069,4.250000,592.278015], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [436.519501,4.250000,592.339111], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [432.228333,4.250000,592.372375], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [425.196533,4.250000,592.426880], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [420.189270,4.250000,592.465759], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [413.820496,4.250000,592.515076], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [406.830658,4.250000,592.569275], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [397.661865,4.250000,592.640381], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [391.827698,4.250000,592.685608], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [385.997040,4.250000,592.730835], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [441.971893,3.000000,589.352051], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [434.661438,3.000000,589.408752], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [429.495697,3.000000,589.448792], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [423.225586,3.000000,589.497375], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [418.076111,3.000000,589.537292], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [411.638275,3.000000,589.587219], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [405.162689,3.000000,589.637451], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [400.408325,3.000000,589.674316], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [395.966553,3.000000,589.708740], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [391.355896,3.000000,589.744446], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [385.400909,3.000000,589.790649], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [441.398254,1.750000,586.411682], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [437.240448,1.750000,586.443970], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [432.487579,1.750000,586.480774], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [427.610229,1.750000,586.518616], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [416.171783,1.750000,586.607300], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [411.380890,1.750000,586.644409], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [404.982086,1.750000,586.694031], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [390.603790,1.750000,586.805481], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [441.423035,0.500000,583.466736], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [437.056396,0.500000,583.500549], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [431.542358,0.500000,583.543335], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [418.632385,0.500000,583.643433], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [405.394226,0.500000,583.746033], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [401.143555,0.500000,583.778992], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [391.553955,0.500000,583.853333], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [584.120056,9.000000,603.469360], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [579.987671,9.000000,603.501404], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [568.526001,9.000000,603.590271], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [563.671997,9.000000,603.627869], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [559.358276,9.000000,603.661316], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [553.887085,9.000000,603.703735], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [547.792664,9.000000,603.750977], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [540.762695,9.000000,603.805481], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [597.420898,7.750000,600.421448], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [592.126099,7.750000,600.462463], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [587.145081,7.750000,600.501099], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [580.152893,7.750000,600.555298], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [574.254761,7.750000,600.601074], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [566.029846,7.750000,600.664795], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [561.370300,7.750000,600.700928], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [548.699768,7.750000,600.799194], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [543.473511,7.750000,600.839661], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [539.378601,7.750000,600.871460], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [533.305908,7.750000,600.918518], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [589.427490,6.750000,597.538635], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [571.555115,6.750000,597.677185], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [567.344849,6.750000,597.709839], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [562.243042,6.750000,597.749390], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [557.999451,6.750000,597.782288], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [553.753906,6.750000,597.815186], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [549.600220,6.750000,597.847412], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [544.102051,6.750000,597.890015], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [539.102600,6.750000,597.928772], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [532.186462,6.750000,597.982422], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [597.375488,5.500000,594.532227], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [591.035400,5.500000,594.581360], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [586.334412,5.500000,594.617798], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [578.386169,5.500000,594.679443], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [571.437012,5.500000,594.733276], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [566.221069,5.500000,594.773743], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [561.778503,5.500000,594.808167], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [556.388672,5.500000,594.849976], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [551.904175,5.500000,594.884766], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [547.760254,5.500000,594.916870], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [543.512939,5.500000,594.949768], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [539.377686,5.500000,594.981873], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [534.552917,5.500000,595.019287], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [593.767395,4.250000,591.615356], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [589.101685,4.250000,591.651550], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [581.189331,4.250000,591.712891], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [574.925964,4.250000,591.761475], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [570.138916,4.250000,591.798584], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [565.657837,4.250000,591.833313], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [561.504272,4.250000,591.865540], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [557.452759,4.250000,591.896912], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [550.352905,4.250000,591.951965], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [546.041443,4.250000,591.985413], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [541.458069,4.250000,592.020935], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [536.405579,4.250000,592.060120], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [532.352051,4.250000,592.091553], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [593.862244,3.000000,588.669861], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [589.203979,3.000000,588.705994], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [584.245544,3.000000,588.744385], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [578.565979,3.000000,588.788452], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [570.234863,3.000000,588.853027], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [566.100037,3.000000,588.885071], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [559.554565,3.000000,588.935852], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [552.287903,3.000000,588.992188], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [545.996399,3.000000,589.040955], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [540.983154,3.000000,589.079834], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [532.383118,3.000000,589.146484], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [590.494690,1.750000,585.751160], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [586.067627,1.750000,585.785461], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [582.022217,1.750000,585.816833], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [577.995483,1.750000,585.848083], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [573.246216,1.750000,585.884888], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [568.473450,1.750000,585.921875], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [564.052612,1.750000,585.956177], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [559.620361,1.750000,585.990540], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [554.061462,1.750000,586.033630], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [549.414612,1.750000,586.069641], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [544.139404,1.750000,586.110535], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [583.456360,0.500000,582.860962], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [570.872375,0.500000,582.958496], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [559.057617,0.500000,583.050110], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [554.015381,0.500000,583.089172], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [673.569458,9.000000,407.343811], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [673.601746,9.000000,415.200043], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [673.624451,9.000000,420.723389], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [673.646912,9.000000,426.197449], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [673.664062,9.000000,430.357574], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [673.681763,9.000000,434.674377], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [673.722290,9.000000,444.531891], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [673.751465,9.000000,451.631805], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [670.595398,7.750000,400.207794], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [670.612915,7.750000,404.466217], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [670.629456,7.750000,408.491577], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [670.692322,7.750000,423.786011], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [670.712036,7.750000,428.592407], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [670.735291,7.750000,434.247314], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [670.752075,7.750000,438.332031], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [670.770569,7.750000,442.837067], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [670.801270,7.750000,450.301453], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [667.624573,6.750000,393.848389], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [667.663269,6.750000,403.276031], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [667.683350,6.750000,408.162201], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [667.702026,6.750000,412.704437], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [667.721375,6.750000,417.412964], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [667.770325,6.750000,429.328644], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [667.789490,6.750000,433.985962], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [667.806396,6.750000,438.102905], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [667.832397,6.750000,444.427887], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [667.851074,6.750000,448.972748], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [667.874756,6.750000,454.736145], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [664.676575,5.500000,393.065338], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [664.721741,5.500000,404.046509], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [664.739380,5.500000,408.342621], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [664.756653,5.500000,412.551361], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [664.780212,5.500000,418.274109], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [664.810486,5.500000,425.644989], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [664.836487,5.500000,431.980927], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [664.855957,5.500000,436.719421], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [664.876221,5.500000,441.648621], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [664.901062,5.500000,447.681671], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [664.918701,5.500000,451.978943], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [664.937805,5.500000,456.625275], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [661.735107,4.250000,393.853455], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [661.752319,4.250000,398.044037], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
-  {coords: [661.773682,4.250000,403.248657], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [661.791809,4.250000,407.660126], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [661.820801,4.250000,414.709625], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [661.838440,4.250000,419.000854], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [661.862671,4.250000,424.903687], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [661.880737,4.250000,429.294952], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [661.901489,4.250000,434.349579], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
-  {coords: [661.922791,4.250000,439.531769], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [661.946167,4.250000,445.215240], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [661.963928,4.250000,449.530579], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [661.990540,4.250000,456.005890], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [658.791382,3.000000,394.095825], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [658.821350,3.000000,401.399017], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [658.841614,3.000000,406.323883], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [658.861145,3.000000,411.083191], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [658.896057,3.000000,419.569977], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [658.916870,3.000000,424.634796], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [658.933533,3.000000,428.695435], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [658.957581,3.000000,434.545319], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [658.989441,3.000000,442.299835], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [659.020325,3.000000,449.806152], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [659.050415,3.000000,457.130249], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [655.863770,1.750000,398.267975], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [655.901794,1.750000,407.520599], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
-  {coords: [655.926636,1.750000,413.557800], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
-  {coords: [655.960815,1.750000,421.886230], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [655.978394,1.750000,426.160187], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [656.000549,1.750000,431.554932], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [656.020752,1.750000,436.468018], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [656.037781,1.750000,440.608124], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [656.067688,1.750000,447.889282], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [652.916748,0.500000,397.712006], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
-  {coords: [652.954956,0.500000,407.006348], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [652.975098,0.500000,411.903870], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [652.992981,0.500000,416.265106], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [653.015442,0.500000,421.730103], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
-  {coords: [653.032837,0.500000,425.962372], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
-  {coords: [653.054565,0.500000,431.240204], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [653.079651,0.500000,437.343750], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [653.100098,0.500000,442.326904], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
-  {coords: [653.130432,0.500000,449.713470], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
-  {coords: [404.335052,11.500000,78.787910], size: 5.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/liz.png"},
-  {coords: [139.739334,0.000000,206.723022], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [131.677292,0.000000,220.372620], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [60.445236,0.000000,488.249969], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [334.554779,0.000000,583.717407], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [321.783203,0.000000,594.892517], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [476.798004,0.000000,588.826050], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [530.278870,0.000000,576.373779], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [609.302979,0.000000,584.356018], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [652.885925,0.000000,485.855347], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [668.850342,0.000000,484.099243], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [652.247375,0.000000,340.099915], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [652.885986,0.000000,235.373260], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [655.599976,0.000000,224.517441], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [646.180969,0.000000,208.712677], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [649.693054,0.000000,171.675156], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [622.074524,0.000000,123.462540], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [264.630798,0.000000,112.925995], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
-  {coords: [205.149200,0.000000,152.387192], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [232.608047,0.000000,120.617950], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [245.379608,0.000000,116.786484], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [322.647522,0.000000,92.041595], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [315.303864,0.000000,102.258835], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [646.845520,0.000000,328.607361], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [649.187927,0.000000,537.171692], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [478.122498,0.000000,599.820923], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [467.585968,0.000000,583.217896], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [346.415802,0.000000,590.721191], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
-  {coords: [256.576111,0.000000,121.522530], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [249.871048,0.000000,109.229904], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [306.225616,0.000000,93.425102], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [458.207153,0.000000,92.626869], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [656.166321,0.000000,155.367142], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [660.476746,0.000000,194.799316], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [359.263550,0.000000,602.308655], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [363.757660,0.000000,587.069580], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [298.925842,0.000000,582.102600], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [183.044174,0.000000,589.399231], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [135.181763,0.000000,548.168335], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
-  {coords: [141.051834,0.000000,549.974609], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [502.737488,0.000000,579.324402], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [637.974548,0.000000,553.586609], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [661.454712,0.000000,483.823395], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [667.324585,0.000000,471.631775], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [665.744141,0.000000,382.452087], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [662.357666,0.000000,230.282166], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [641.135193,0.000000,170.001221], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [649.037170,0.000000,140.199387], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [336.569702,0.000000,87.820404], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
-  {coords: [20.941399,0.000000,353.553284], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [170.402039,0.000000,578.421631], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [330.022369,0.000000,593.096741], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [512.897217,0.000000,580.453491], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [655.584778,0.000000,551.329041], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [651.972412,0.000000,500.982056], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [667.456909,0.000000,373.826080], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [645.105469,0.000000,359.771759], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [657.508911,0.000000,321.747162], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [644.701050,0.000000,219.010742], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [635.245178,0.000000,121.973404], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [277.508606,0.000000,104.335869], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
-  {coords: [264.657196,0.000000,108.326973], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [55.203720,0.000000,301.337097], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [68.134903,0.000000,494.027924], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [145.722107,0.000000,554.692810], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [187.868240,0.000000,593.805725], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [166.954819,0.000000,586.142822], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [327.876404,0.000000,603.544128], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [484.168304,0.000000,581.194031], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [645.090027,0.000000,426.817688], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [643.653015,0.000000,194.056152], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
-  {coords: [242.066406,0.000000,111.977554], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [339.373901,0.000000,93.464310], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [598.738586,0.000000,129.591293], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [641.204102,0.000000,179.719635], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [654.933533,0.000000,175.409256], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [646.606445,0.000000,354.446411], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [652.078857,0.000000,496.303986], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [633.678406,0.000000,554.101501], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [343.336517,0.000000,578.710510], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [287.683899,0.000000,583.677612], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [192.859924,0.000000,596.885376], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [147.479889,0.000000,565.728943], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
-  {coords: [634.212463,0.000000,142.358826], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [218.341599,0.000000,150.712357], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [22.597816,0.000000,358.647766], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-  {coords: [151.739014,0.000000,560.938904], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
-];
-
-// ADD POSITIONS FOR MECHANICS X Y Z
-// How this works is every slot number will be signed a unique mechanic position
-const mechanicPositions = [
-[0, 0, 0], [1, 0, 1], 
-[265, 6, 436], [265, 6, 436], 
-[4, 0, 4], [5, 0, 5], 
-[6, 0, 6], [7, 0, 7], 
-[8, 0, 8], [9, 0, 9], 
-[10, 0, 10], [11, 0, 11], 
-[12, 0, 12], [13, 0, 13], 
-[14, 0, 14], [15, 0, 15], 
-[16, 0, 16], [17, 0, 17], 
-[18, 0, 18], [19, 0, 19], 
-[20, 0, 20], [21, 0, 21]
-];
-const numOfMechanicPositions = mechanicPositions.length;
-
-/*
-############
-CONSTANTS
-############
-*/
 const undefinedTime = 999999999;
+
 const normalLapLength = mx.normal_lap_length;
 const firstLapLength = mx.first_lap_length;
-const holeshotGate = 2;
-const songs_on = false;
 
 // true = track is in stadium, false = track is not in stadium
 /*
@@ -1340,2098 +32,635 @@ the same one sound at their respective camera position on the track.
 */
 const stadium = false;
 
-/* 
-timing gate at which to activate mechanic sounds
-assuming gates are ordered numerically and zero indexed.
-ex. 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, etc.
-*/
-const mechanicGate = 43;
-const lapToActivateMechanics = 1;
-/* this is the number of times the rider needs pass the mechanic gate above
-before activating mechanics. Ex. 1 means the first time the rider passes the mechanic gate*/
+// Coordinates of each bleacher
+const bleacherSoundPositions = [
+  [401.438477, 0.000000, 89.981873],
+  [501.216370, 0.000000, 89.343277],
+  [175.382095, 0.000000, 177.147705],
+  [96.677391, 0.000000, 251.701660],
+  [665.066406, 0.000000, 282.699982],
+  [237.951218, 0.000000, 584.044800],
+  [413.560547, 0.000000, 594.283997],
+  [564.827332, 0.000000, 593.606628],
+  [663.629700, 0.000000, 424.943176]
+];
+const numOfBleachers = bleacherSoundPositions.length;
 
-// if inside a stadium, you only need one sound that updates at the camera position of every rider
-if (stadium) {
-	crowdConstants = mx.add_sound("@os2022bgsxobj/sounds/crowd/constant.raw");
-	mx.set_sound_freq(crowdConstants, 44100);
-	mx.set_sound_vol(crowdConstants, crowd_constant_base_vol);
-	mx.set_sound_loop(crowdConstants, 1);
-}
-
-// initialize arrays
-initializeBalesToPushArrays();
-initializeMechanicSounds();
 determineMainEvent();
-initializeCrowdSounds();
+
+// An array of objects to hold each crowd member property and the individual coordinates of each member
+const race_event_crowd = [
+{coords: [[96.465622,0.000000,228.782822]], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/blue.png"},
+{coords: [[56.668068,0.000000,339.100342]], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/tw1.png"},
+{coords: [[658.408813,0.000000,236.778976],[576.670959,0.000000,102.198685],[346.144348,0.000000,102.198654],[238.543945,0.000000,118.482399],[123.759445,0.000000,218.579391],[498.604431,0.000000,593.903625],[86.059341,0.000000,498.690765],[354.952698,0.000000,580.194153],[96.528488,7.750000,241.855911],[109.030579,4.250000,241.847168],[113.944817,4.250000,236.932938],[92.913315,3.000000,262.128815],[86.794830,1.750000,272.411743],[99.166695,1.750000,260.039917],[92.725365,0.500000,270.645660],[433.271973,6.750000,85.859283],[378.470123,4.250000,91.748695],[434.137115,3.000000,94.693405],[397.084076,0.500000,100.582817],[473.968536,3.000000,94.054810],[520.901123,0.500000,99.944221],[184.600037,5.500000,166.264008],[672.119995,7.750000,279.348145],[669.244812,6.750000,296.268433],[666.226562,5.500000,278.389435],[660.452209,3.000000,306.396210],[257.480957,5.500000,561.962036],[253.752716,4.250000,561.874268],[247.241714,4.250000,569.857727],[239.185410,1.750000,570.417542],[401.918243,5.500000,595.552185],[380.847015,5.500000,595.715515],[413.820496,4.250000,592.515076],[385.997040,4.250000,592.730835],[416.171783,1.750000,586.607300],[581.189331,4.250000,591.712891],[559.554565,3.000000,588.935852],[670.712036,7.750000,428.592407],[667.702026,6.750000,412.704437],[664.756653,5.500000,412.551361],[664.855957,5.500000,436.719421],[664.876221,5.500000,441.648621],[652.975098,0.500000,411.903870],[653.032837,0.500000,425.962372]], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan2.png"},
+{coords: [[645.520081,0.000000,519.914612],[617.976440,0.000000,140.618988],[89.715950,1.750000,269.490631],[376.968933,7.750000,82.914581],[393.119385,5.500000,88.803993],[520.020752,6.750000,85.220688],[496.181305,4.250000,91.110100],[529.115417,4.250000,91.110100],[509.140686,3.000000,94.054810],[475.373993,0.500000,99.944221],[173.553696,4.250000,181.474762],[170.884445,3.000000,188.308441],[242.862808,7.750000,589.204529],[257.096893,6.750000,567.092163],[252.130234,6.750000,573.182068],[232.315552,3.000000,583.500244],[233.488998,1.750000,577.402222],[413.693268,6.750000,598.405701],[389.419006,6.750000,598.593872],[444.919861,5.500000,595.218811],[407.730072,5.500000,595.507141],[434.661438,3.000000,589.408752],[423.225586,3.000000,589.497375],[441.423035,0.500000,583.466736],[590.494690,1.750000,585.751160],[544.139404,1.750000,586.110535],[673.601746,9.000000,415.200043],[670.629456,7.750000,408.491577],[667.721375,6.750000,417.412964],[664.810486,5.500000,425.644989],[661.862671,4.250000,424.903687],[658.821350,3.000000,401.399017],[655.978394,1.750000,426.160187],[634.212463,0.000000,142.358826],[218.341599,0.000000,150.712357],[22.597816,0.000000,358.647766],[151.739014,0.000000,560.938904]], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/rogan.png"},
+{coords: [[252.094025,0.000000,118.097397],[81.114662,0.000000,294.993530],[37.234299,0.000000,336.178040],[519.602844,0.000000,579.711304],[649.712891,0.000000,165.593582],[331.860901,0.000000,83.695984],[156.545547,0.000000,216.354004],[75.966843,0.000000,491.747192],[86.304199,7.750000,252.080185],[79.452934,4.250000,271.424744],[114.654068,3.000000,240.388123],[118.802307,1.750000,240.404327],[376.700531,6.750000,85.859283],[405.698639,6.750000,85.859283],[420.619598,6.750000,85.859283],[370.389069,1.750000,97.638107],[375.491089,0.500000,100.582817],[426.660767,0.500000,100.582817],[479.152954,7.750000,82.275986],[505.107574,6.750000,85.220688],[470.445038,4.250000,91.110100],[479.795227,0.500000,99.944221],[165.266907,6.750000,181.432663],[169.972397,5.500000,180.891617],[187.400665,4.250000,167.627838],[172.471359,0.500000,195.050400],[675.090027,9.000000,285.511200],[666.286865,5.500000,293.064484],[660.226196,3.000000,251.399384],[231.593506,6.750000,598.363220],[249.535751,5.500000,571.704102],[250.022385,1.750000,557.129761],[388.633026,9.000000,604.489563],[405.162689,3.000000,589.637451],[437.240448,1.750000,586.443970],[559.358276,9.000000,603.661316],[551.904175,5.500000,594.884766],[550.352905,4.250000,591.951965],[670.692322,7.750000,423.786011],[667.789490,6.750000,433.985962],[667.832397,6.750000,444.427887],[661.773682,4.250000,403.248657],[653.100098,0.500000,442.326904]], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g6.png"},
+{coords: [[47.090256,0.000000,306.453827],[295.656219,0.000000,575.887817],[647.577698,0.000000,334.255920],[452.493347,0.000000,105.581314],[94.846909,6.750000,247.701920],[104.744865,5.500000,241.968430],[85.666969,4.250000,265.210724],[103.235893,4.250000,247.641830],[377.317688,9.000000,79.969872],[385.897278,9.000000,79.969872],[408.094604,9.000000,79.969872],[403.694336,7.750000,82.914581],[414.749146,5.500000,88.803993],[408.125916,4.250000,91.748695],[417.902069,3.000000,94.693405],[419.966675,1.750000,97.638107],[530.889221,7.750000,82.275986],[478.238251,6.750000,85.220688],[490.413483,5.500000,88.165398],[510.684509,5.500000,88.165398],[501.961609,0.500000,99.944221],[181.256561,7.750000,161.278610],[150.121262,6.750000,196.578262],[172.470993,6.750000,174.228577],[191.500977,6.750000,155.198639],[160.340546,3.000000,198.852325],[663.320190,4.250000,287.717987],[663.395508,4.250000,306.041473],[660.415649,3.000000,297.504944],[258.851135,7.750000,569.600403],[244.803070,6.750000,582.166260],[228.693634,5.500000,597.259705],[218.347565,4.250000,605.286316],[251.984726,3.000000,559.382874],[406.102753,9.000000,604.354126],[397.630341,9.000000,604.419800],[437.653564,5.500000,595.275146],[406.830658,4.250000,592.569275],[597.420898,7.750000,600.421448],[589.427490,6.750000,597.538635],[670.735291,7.750000,434.247314],[667.851074,6.750000,448.972748],[658.916870,3.000000,424.634796],[655.901794,1.750000,407.520599]], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g5.png"},
+{coords: [[293.396484,0.000000,105.583801],[554.638733,0.000000,109.628006],[595.028809,0.000000,116.333069],[607.321411,0.000000,132.776443],[659.168640,0.000000,332.240295],[647.035706,0.000000,374.067139],[660.445862,0.000000,503.379181],[367.019623,0.000000,577.454163],[338.283600,0.000000,594.695740],[312.740509,0.000000,581.924194],[159.162476,0.000000,569.791504],[116.697067,0.000000,545.525696],[43.899223,0.000000,322.662537],[140.963089,0.000000,233.900238],[215.996094,0.000000,133.324036],[107.135788,9.000000,227.084198],[102.021729,6.750000,240.527130],[111.216850,6.750000,231.332031],[120.980080,4.250000,229.897690],[119.426559,3.000000,235.615646],[388.606873,3.000000,94.693405],[416.415802,0.500000,100.582817],[486.887146,6.750000,85.220688],[525.407349,6.750000,85.220688],[486.085876,5.500000,88.165398],[491.885895,4.250000,91.110100],[503.466980,3.000000,94.054810],[485.770477,1.750000,96.999512],[165.823883,9.000000,172.546799],[157.770294,6.750000,188.929260],[178.127563,6.750000,168.572037],[166.928818,5.500000,183.935181],[669.265625,6.750000,301.338898],[666.269836,5.500000,288.920288],[663.303711,4.250000,283.715179],[660.330261,3.000000,276.712585],[657.283691,1.750000,251.931259],[657.393860,1.750000,278.752380],[234.996689,9.000000,603.508789],[237.502304,6.750000,591.118103],[252.639664,5.500000,567.898193],[254.599396,3.000000,556.176880],[241.601318,3.000000,572.114502],[398.540100,7.750000,601.467957],[422.552032,5.500000,595.392212],[444.402069,4.250000,592.278015],[432.228333,4.250000,592.372375],[432.487579,1.750000,586.480774],[401.143555,0.500000,583.778992],[391.553955,0.500000,583.853333],[584.120056,9.000000,603.469360],[571.555115,6.750000,597.677185],[593.767395,4.250000,591.615356],[589.101685,4.250000,591.651550],[584.245544,3.000000,588.744385],[532.383118,3.000000,589.146484],[570.872375,0.500000,582.958496],[673.569458,9.000000,407.343811],[673.664062,9.000000,430.357574],[673.722290,9.000000,444.531891],[670.770569,7.750000,442.837067],[667.683350,6.750000,408.162201],[661.838440,4.250000,419.000854],[661.990540,4.250000,456.005890],[655.960815,1.750000,421.886230],[653.015442,0.500000,421.730103]], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g1.png"},
+{coords: [[231.641388,0.000000,143.541306],[650.867004,0.000000,202.290741],[330.204376,0.000000,95.573814],[441.137360,0.000000,97.952408],[585.292480,0.000000,108.225021],[637.671509,0.000000,162.071487],[661.829041,0.000000,158.797791],[659.232544,0.000000,211.628311],[658.329529,0.000000,344.268921],[657.765320,0.000000,491.471863],[649.863159,0.000000,510.888123],[657.087830,0.000000,532.223511],[518.124695,0.000000,597.359497],[474.099274,0.000000,581.668396],[459.537018,0.000000,602.890869],[356.924133,0.000000,590.473389],[323.848633,0.000000,584.716187],[316.172424,0.000000,611.470154],[26.169115,0.000000,346.528107],[59.244617,0.000000,307.921234],[201.141861,0.000000,145.591797],[281.967773,0.000000,111.274704],[100.177345,7.750000,238.207062],[108.618484,7.750000,229.765945],[95.765862,3.000000,259.276276],[123.390556,0.500000,239.980530],[126.708580,0.500000,236.662521],[393.511322,6.750000,85.859283],[397.810425,5.500000,88.803993],[403.506317,4.250000,91.748695],[403.964508,3.000000,94.693405],[390.171661,0.500000,100.582817],[432.161865,0.500000,100.582817],[481.502106,4.250000,91.110100],[470.997620,1.750000,96.999512],[516.185852,0.500000,99.944221],[162.943726,9.000000,175.426956],[187.895432,7.750000,154.639740],[168.502243,6.750000,178.197327],[155.964523,5.500000,194.899460],[173.029572,1.750000,190.327759],[181.886490,0.500000,185.635300],[672.000549,7.750000,250.285843],[660.248413,3.000000,256.800446],[657.339783,1.750000,265.589508],[234.732849,6.750000,594.513916],[232.667480,4.250000,587.727966],[229.778900,3.000000,586.610596],[223.832260,3.000000,593.902100],[216.324539,3.000000,603.107666],[227.968262,1.750000,584.171509],[401.744568,9.000000,604.387878],[436.764343,7.750000,601.171631],[422.542938,7.750000,601.281860],[389.366180,7.750000,601.539062],[425.196533,4.250000,592.426880],[411.638275,3.000000,589.587219],[385.400909,3.000000,589.790649],[579.987671,9.000000,603.501404],[592.126099,7.750000,600.462463],[561.370300,7.750000,600.700928],[571.437012,5.500000,594.733276],[547.760254,5.500000,594.916870],[561.504272,4.250000,591.865540],[570.234863,3.000000,588.853027],[583.456360,0.500000,582.860962],[559.057617,0.500000,583.050110],[554.015381,0.500000,583.089172],[661.820801,4.250000,414.709625],[661.901489,4.250000,434.349579]], size: 9.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/g2.png"},
+{coords: [[620.161255,0.000000,132.784134],[606.727722,0.000000,109.642570],[660.052185,0.000000,466.246521],[305.507935,0.000000,105.902184],[239.582687,0.000000,130.172623],[70.060242,0.000000,307.828918],[32.064861,0.000000,324.591583],[284.099060,0.000000,572.637756],[308.030731,0.000000,596.343811],[460.020172,0.000000,589.077698],[616.705322,0.000000,577.337280],[652.121460,0.000000,190.968887],[567.231567,0.000000,112.287567],[464.618408,0.000000,104.724220],[314.676605,0.000000,84.066147]], size: 7.000000, aspect: 2.000000, png: "@os2022bgsxobj/billboards/crowd/g3.png"},
+{coords: [[477.370392,0.000000,593.874146],[140.316360,0.000000,558.312500],[174.859375,0.000000,583.824707],[485.520752,0.000000,587.662170],[507.420563,0.000000,583.146729],[632.046082,0.000000,559.666687],[654.848511,0.000000,479.292664],[647.623596,0.000000,383.791748],[644.462830,0.000000,346.990997],[652.138916,0.000000,243.136017],[658.460510,0.000000,170.889160],[648.526794,0.000000,149.215118],[623.691956,0.000000,145.828537],[594.793640,0.000000,125.960625],[577.183655,0.000000,109.027832],[560.025330,0.000000,101.803154],[458.428253,0.000000,99.093887],[359.540405,0.000000,98.416565],[349.606476,0.000000,107.447426],[299.033722,0.000000,98.642303],[259.749512,0.000000,105.866989],[274.424622,0.000000,91.191841],[251.847488,0.000000,126.637962],[132.414490,0.000000,246.296814],[71.004639,0.000000,300.030029],[33.752365,0.000000,344.958588],[36.235847,0.000000,314.931000],[64.457230,0.000000,481.776031],[149.121429,0.000000,577.954590],[211.977402,0.000000,145.988495],[74.791588,5.500000,271.921631],[113.631775,5.500000,233.081543],[401.196045,9.000000,79.969872],[427.278656,5.500000,88.803993],[394.865204,4.250000,91.748695],[379.933685,3.000000,94.693405],[412.406921,3.000000,94.693405],[408.101837,0.500000,100.582817],[529.547607,9.000000,79.331276],[468.553192,7.750000,82.275986],[499.661011,5.500000,88.165398],[477.101349,4.250000,91.110100],[533.421631,4.250000,91.110100],[506.317932,1.750000,96.999512],[168.691040,9.000000,169.679657],[154.787064,6.750000,191.912476],[188.205933,6.750000,158.493683],[176.707184,4.250000,178.321289],[675.069946,9.000000,280.614319],[672.064392,7.750000,265.815002],[672.211182,7.750000,301.535828],[669.126282,6.750000,267.424744],[660.395020,3.000000,292.471130],[654.426147,0.500000,273.158722],[240.303528,7.750000,592.342590],[223.827682,6.750000,607.885315],[225.887573,5.500000,600.700378],[249.441925,3.000000,562.500732],[221.165680,3.000000,597.171692],[236.628937,1.750000,573.552185],[242.216736,0.500000,562.041504],[236.406876,0.500000,569.165283],[418.004059,6.750000,598.372253],[436.519501,4.250000,592.339111],[411.380890,1.750000,586.644409],[553.887085,9.000000,603.703735],[553.753906,6.750000,597.815186],[543.512939,5.500000,594.949768],[539.377686,5.500000,594.981873],[565.657837,4.250000,591.833313],[664.676575,5.500000,393.065338],[661.791809,4.250000,407.660126],[653.079651,0.500000,437.343750],[653.130432,0.500000,449.713470]], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/dude.png"},
+{coords: [[452.217438,0.000000,96.121719],[352.990906,0.000000,101.314461],[344.072937,0.000000,109.667999],[330.413757,0.000000,109.667999],[340.573486,0.000000,98.266533],[310.658905,0.000000,108.652000],[299.708984,0.000000,109.667969],[273.293793,0.000000,110.571045],[262.795471,0.000000,121.182297],[241.347229,0.000000,137.550705],[212.787186,0.000000,163.062851],[131.170822,0.000000,229.552551],[151.264465,0.000000,224.359802],[123.381714,0.000000,255.741928],[72.244492,0.000000,292.768372],[64.229607,0.000000,315.684143],[49.554462,0.000000,331.826782],[52.263718,0.000000,317.490295],[255.387238,0.000000,550.106812],[196.122223,0.000000,592.439148],[304.605316,0.000000,587.584839],[348.856476,0.000000,581.827820],[470.434296,0.000000,593.229431],[524.732239,0.000000,587.810364],[605.332825,0.000000,577.876160],[645.520081,0.000000,569.409668],[642.698242,0.000000,534.302063],[659.292725,0.000000,520.078369],[644.279175,0.000000,485.196686],[646.537231,0.000000,464.312958],[659.970825,0.000000,387.663635],[647.779175,0.000000,365.763794],[653.084778,0.000000,213.255539],[652.746460,0.000000,180.744598],[643.038208,0.000000,157.264374],[603.076477,0.000000,119.334846],[586.933716,0.000000,122.947197],[547.198303,0.000000,110.868401],[542.570007,0.000000,95.854607],[110.317825,9.000000,223.902176],[106.167686,4.250000,244.710052],[98.635475,3.000000,256.406677],[95.522530,1.750000,263.684052],[109.260490,0.500000,254.110565],[381.578827,9.000000,79.969872],[388.510132,7.750000,82.914581],[429.328918,7.750000,82.914581],[397.512268,6.750000,85.859283],[375.134918,5.500000,88.803993],[371.941437,4.250000,91.748695],[370.326538,3.000000,94.693405],[404.086548,0.500000,100.582817],[504.395294,4.250000,91.110100],[501.838898,1.750000,96.999512],[511.786957,0.500000,99.944221],[186.828934,0.500000,180.692871],[672.248657,7.750000,310.659485],[220.836349,6.750000,611.553101],[230.529556,1.750000,581.030945],[405.433350,7.750000,601.414490],[441.593964,6.750000,598.189392],[417.291473,5.500000,595.432983],[429.495697,3.000000,589.448792],[391.355896,3.000000,589.744446],[578.386169,5.500000,594.679443],[541.458069,4.250000,592.020935],[532.352051,4.250000,592.091553],[566.100037,3.000000,588.885071],[577.995483,1.750000,585.848083],[564.052612,1.750000,585.956177],[658.861145,3.000000,411.083191],[652.916748,0.500000,397.712006]], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/9.png"},
+{coords: [[279.621979,0.000000,582.348022],[319.533112,0.000000,576.121887],[350.025208,0.000000,577.718323],[493.705200,0.000000,601.824524],[514.139648,0.000000,589.052979],[612.480652,0.000000,571.013245],[625.092529,0.000000,571.013245],[646.006165,0.000000,551.855957],[648.560425,0.000000,526.312805],[649.677979,0.000000,531.421448],[646.325623,0.000000,390.934357],[657.660339,0.000000,366.508789],[654.946350,0.000000,350.225067],[660.534058,0.000000,245.498337],[660.054993,0.000000,202.075058],[663.088257,0.000000,177.010880],[644.409912,0.000000,176.372284],[638.662659,0.000000,148.753815],[587.416870,0.000000,116.665298],[553.093262,0.000000,100.381569],[447.727875,0.000000,98.944763],[350.025513,0.000000,96.390434],[292.713165,0.000000,110.758438],[322.247375,0.000000,98.625458],[259.187836,0.000000,115.228500],[233.006165,0.000000,125.605423],[134.186279,0.000000,238.793198],[51.490459,0.000000,325.639771],[59.791973,0.000000,316.220764],[20.838722,0.000000,330.588776],[72.882812,0.000000,483.528198],[78.797035,7.750000,259.587311],[82.999611,7.750000,255.384750],[106.806061,6.750000,235.742798],[89.551605,0.500000,273.819397],[97.867592,0.500000,265.503448],[425.723907,9.000000,79.969872],[429.345276,4.250000,91.748695],[379.846741,1.750000,97.638107],[420.453766,0.500000,100.582817],[523.284973,9.000000,79.331276],[509.029602,7.750000,82.275986],[514.182068,7.750000,82.275986],[524.512878,5.500000,88.165398],[508.494904,4.250000,91.110100],[496.371490,1.750000,96.999512],[184.452850,6.750000,162.246750],[193.513321,5.500000,157.350754],[191.849106,3.000000,167.343826],[178.817490,0.500000,188.704285],[672.231628,7.750000,306.512024],[669.283447,6.750000,305.682922],[666.245483,5.500000,282.993774],[663.233521,4.250000,266.626831],[256.777252,9.000000,576.802490],[250.783157,9.000000,584.152161],[230.193405,9.000000,609.398315],[240.576385,6.750000,587.348816],[251.001862,4.250000,565.247192],[222.361359,1.750000,591.046387],[437.919067,9.000000,604.107422],[416.657990,7.750000,601.327515],[402.491180,6.750000,598.492554],[394.473450,6.750000,598.554688],[412.168488,5.500000,595.472717],[397.661865,4.250000,592.640381],[404.982086,1.750000,586.694031],[533.305908,7.750000,600.918518],[549.600220,6.750000,597.847412],[586.334412,5.500000,594.617798],[546.041443,4.250000,591.985413],[568.473450,1.750000,585.921875],[667.624573,6.750000,393.848389],[664.918701,5.500000,451.978943],[659.020325,3.000000,449.806152],[655.926636,1.750000,413.557800]], size: 7.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/8.png"},
+{coords: [[569.638794,0.000000,106.190018],[307.505371,0.000000,99.643219],[224.195801,0.000000,140.056274],[149.691238,0.000000,220.656647],[129.823395,0.000000,233.751373],[76.315590,0.000000,300.128113],[63.898174,0.000000,302.498505],[46.852432,0.000000,315.367340],[43.578747,0.000000,330.042480],[62.273525,0.000000,475.254852],[343.008301,0.000000,584.531494],[459.069885,0.000000,581.657898],[520.453186,0.000000,588.283264],[509.198273,0.000000,594.748901],[493.553131,0.000000,583.813232],[481.739441,0.000000,575.751221],[600.994690,0.000000,573.586121],[622.781616,0.000000,581.713867],[626.281128,0.000000,564.781006],[651.341736,0.000000,542.994202],[658.115112,0.000000,514.772583],[653.373901,0.000000,519.626648],[653.938538,0.000000,470.070099],[652.809692,0.000000,385.970306],[654.502930,0.000000,373.440002],[652.245117,0.000000,345.670227],[661.049927,0.000000,241.815445],[646.600586,0.000000,226.350113],[648.519531,0.000000,182.776260],[650.551575,0.000000,157.941422],[631.925476,0.000000,147.668823],[600.656128,0.000000,123.059753],[560.581360,0.000000,113.351631],[463.961609,0.000000,93.893257],[443.416412,0.000000,92.312859],[328.160156,0.000000,105.407600],[102.312553,1.750000,256.894043],[102.619293,0.500000,260.751740],[116.534355,0.500000,246.836716],[425.814240,6.750000,85.859283],[405.243958,5.500000,88.803993],[383.726898,4.250000,91.748695],[433.348724,4.250000,91.748695],[393.443237,3.000000,94.693405],[475.447357,9.000000,79.331276],[517.792664,9.000000,79.331276],[533.942932,9.000000,79.331276],[473.050140,7.750000,82.275986],[518.872131,7.750000,82.275986],[480.015442,5.500000,88.165398],[478.208130,3.000000,94.054810],[490.842499,3.000000,94.054810],[492.963837,0.500000,99.944221],[506.445953,0.500000,99.944221],[179.148987,9.000000,159.221741],[156.946045,7.750000,185.589050],[176.638504,5.500000,174.225525],[161.734055,4.250000,193.294373],[179.553268,4.250000,175.475204],[183.958740,4.250000,171.069748],[182.846436,3.000000,176.346481],[194.227646,0.500000,173.294174],[675.210388,9.000000,314.799622],[672.163391,7.750000,289.915314],[666.336121,5.500000,305.048920],[663.339539,4.250000,292.425415],[663.418335,4.250000,311.606934],[660.299683,3.000000,269.283875],[654.479980,0.500000,286.258179],[654.595520,0.500000,314.366028],[252.631653,1.750000,553.930420],[443.256409,9.000000,604.066101],[384.602966,7.750000,601.575989],[436.701630,6.750000,598.227295],[431.915344,5.500000,595.319641],[391.827698,4.250000,592.685608],[400.408325,3.000000,589.674316],[431.542358,0.500000,583.543335],[418.632385,0.500000,583.643433],[580.152893,7.750000,600.555298],[543.473511,7.750000,600.839661],[570.138916,4.250000,591.798584],[593.862244,3.000000,588.669861],[582.022217,1.750000,585.816833],[673.624451,9.000000,420.723389],[670.595398,7.750000,400.207794],[670.752075,7.750000,438.332031],[670.801270,7.750000,450.301453],[667.874756,6.750000,454.736145],[664.780212,5.500000,418.274109],[661.922791,4.250000,439.531769],[658.791382,3.000000,394.095825],[656.000549,1.750000,431.554932],[139.739334,0.000000,206.723022],[131.677292,0.000000,220.372620],[60.445236,0.000000,488.249969],[334.554779,0.000000,583.717407],[321.783203,0.000000,594.892517],[476.798004,0.000000,588.826050],[530.278870,0.000000,576.373779],[609.302979,0.000000,584.356018],[652.885925,0.000000,485.855347],[668.850342,0.000000,484.099243],[652.247375,0.000000,340.099915],[652.885986,0.000000,235.373260],[655.599976,0.000000,224.517441],[646.180969,0.000000,208.712677],[649.693054,0.000000,171.675156],[622.074524,0.000000,123.462540],[264.630798,0.000000,112.925995]], size: 7.500000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/7.png"},
+{coords: [[79.948776,9.000000,254.271149],[91.199432,5.500000,255.513840],[117.085770,4.250000,233.791992],[92.581665,1.750000,266.624908],[420.090302,9.000000,79.969872],[382.518616,7.750000,82.914581],[380.868256,6.750000,85.859283],[385.269348,6.750000,85.859283],[379.952148,5.500000,88.803993],[433.550598,5.500000,88.803993],[429.722351,3.000000,94.693405],[492.828583,7.750000,82.275986],[500.509186,6.750000,85.220688],[172.644897,9.000000,165.725815],[148.335342,7.750000,194.199738],[170.410370,4.250000,184.618088],[190.982727,4.250000,164.045776],[167.519684,1.750000,195.837631],[669.166809,6.750000,277.286346],[669.221619,6.750000,290.625092],[666.109924,5.500000,249.996918],[666.126526,5.500000,254.043076],[663.166260,4.250000,250.264038],[663.361755,4.250000,297.829529],[660.355835,3.000000,282.937836],[245.638046,5.500000,576.483276],[234.188751,5.500000,590.521851],[242.494659,4.250000,575.678345],[221.592102,4.250000,601.308044],[238.918900,3.000000,575.403564],[235.977264,3.000000,579.010437],[225.321808,1.750000,587.416443],[219.194427,1.750000,594.929565],[216.503876,1.750000,598.228577],[239.438873,0.500000,565.447571],[383.326416,9.000000,604.530701],[445.872437,6.750000,598.156189],[427.625549,5.500000,595.352844],[568.526001,9.000000,603.590271],[574.254761,7.750000,600.601074],[539.378601,7.750000,600.871460],[562.243042,6.750000,597.749390],[664.721741,5.500000,404.046509],[661.880737,4.250000,429.294952],[658.841614,3.000000,406.323883],[658.896057,3.000000,419.569977],[658.989441,3.000000,442.299835],[656.020752,1.750000,436.468018],[20.941399,0.000000,353.553284],[170.402039,0.000000,578.421631],[330.022369,0.000000,593.096741],[512.897217,0.000000,580.453491],[655.584778,0.000000,551.329041],[651.972412,0.000000,500.982056],[667.456909,0.000000,373.826080],[645.105469,0.000000,359.771759],[657.508911,0.000000,321.747162],[644.701050,0.000000,219.010742],[635.245178,0.000000,121.973404],[277.508606,0.000000,104.335869]], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/3.png"},
+{coords: [[84.613922,9.000000,249.606003],[102.927162,9.000000,231.292816],[82.726135,5.500000,263.987122],[99.933083,5.500000,246.780197],[96.192192,4.250000,254.685516],[85.815979,3.000000,269.226135],[119.687744,0.500000,243.683334],[395.851929,7.750000,82.914581],[417.349396,7.750000,82.914581],[413.675629,4.250000,91.748695],[408.582367,1.750000,97.638107],[516.849060,5.500000,88.165398],[512.503662,4.250000,91.110100],[499.329895,3.000000,94.054810],[521.842346,3.000000,94.054810],[527.338623,3.000000,94.054810],[184.521637,9.000000,153.849091],[180.481247,5.500000,170.382782],[163.178207,3.000000,196.014679],[179.330353,3.000000,179.862564],[189.009109,3.000000,170.183823],[195.625885,3.000000,163.567062],[169.469162,0.500000,198.052612],[672.193115,7.750000,297.139740],[666.306335,5.500000,297.792969],[666.364441,5.500000,311.929230],[657.509888,1.750000,306.975983],[260.376648,9.000000,572.389099],[253.970535,7.750000,575.584778],[227.427139,7.750000,608.130981],[222.494919,5.500000,604.860229],[219.323669,5.500000,608.748657],[237.711685,4.250000,581.542969],[241.780121,1.750000,567.236084],[227.517105,0.500000,580.065491],[219.543091,0.500000,589.842834],[410.253967,9.000000,604.321960],[418.076111,3.000000,589.537292],[390.603790,1.750000,586.805481],[405.394226,0.500000,583.746033],[547.792664,9.000000,603.750977],[540.762695,9.000000,603.805481],[539.102600,6.750000,597.928772],[556.388672,5.500000,594.849976],[534.552917,5.500000,595.019287],[578.565979,3.000000,588.788452],[586.067627,1.750000,585.785461],[554.061462,1.750000,586.033630],[667.806396,6.750000,438.102905],[664.836487,5.500000,431.980927],[664.937805,5.500000,456.625275],[661.752319,4.250000,398.044037]], size: 8.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/groupsit.png"},
+{coords: [[79.739441,6.750000,262.809357],[89.836288,6.750000,252.712524],[77.946548,5.500000,268.766693],[96.215240,5.500000,250.498032],[389.155426,4.250000,91.748695],[374.816925,3.000000,94.693405],[517.240234,3.000000,94.054810],[147.926926,9.000000,190.443726],[158.598160,4.250000,196.430267],[675.187805,9.000000,309.301361],[666.181641,5.500000,267.455963],[654.463440,0.500000,282.223358],[654.527527,0.500000,297.826813],[253.829315,9.000000,580.417114],[234.393524,7.750000,599.589172],[261.736267,6.750000,561.403564],[227.397491,4.250000,594.189758],[246.849304,3.000000,565.679688],[244.270767,3.000000,568.841370],[410.101196,7.750000,601.378296],[398.479980,6.750000,598.523621],[437.056396,0.500000,583.500549],[587.145081,7.750000,600.501099],[548.699768,7.750000,600.799194],[566.221069,5.500000,594.773743],[673.751465,9.000000,451.631805],[667.663269,6.750000,403.276031],[664.739380,5.500000,408.342621],[661.946167,4.250000,445.215240],[652.954956,0.500000,407.006348],[653.054565,0.500000,431.240204],[256.576111,0.000000,121.522530],[249.871048,0.000000,109.229904],[306.225616,0.000000,93.425102],[458.207153,0.000000,92.626869],[656.166321,0.000000,155.367142],[660.476746,0.000000,194.799316],[359.263550,0.000000,602.308655],[363.757660,0.000000,587.069580],[298.925842,0.000000,582.102600],[183.044174,0.000000,589.399231],[135.181763,0.000000,548.168335]], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/5.png"},
+{coords: [[99.147598,6.750000,243.401245],[115.876556,1.750000,243.330078],[401.523071,6.750000,85.859283],[384.435272,5.500000,88.803993],[409.318542,5.500000,88.803993],[400.698029,1.750000,97.638107],[414.007538,1.750000,97.638107],[433.574707,1.750000,97.638107],[479.464355,9.000000,79.331276],[483.887238,9.000000,79.331276],[505.705963,9.000000,79.331276],[500.172699,7.750000,82.275986],[482.547546,6.750000,85.220688],[509.736237,6.750000,85.220688],[494.972748,3.000000,94.054810],[478.860199,1.750000,96.999512],[525.279053,1.750000,96.999512],[471.230438,0.500000,99.944221],[192.130753,7.750000,150.404434],[161.330490,5.500000,189.533493],[186.134521,3.000000,173.058411],[177.786102,1.750000,185.571243],[184.387482,1.750000,178.969879],[194.777786,1.750000,168.579590],[198.481308,1.750000,164.876083],[675.011902,9.000000,266.498260],[666.145325,5.500000,258.615784],[663.286255,4.250000,279.465698],[654.400452,0.500000,266.905792],[241.705536,5.500000,581.305115],[224.711517,4.250000,597.483154],[226.835983,3.000000,590.219055],[426.679626,6.750000,598.304993],[544.102051,6.750000,597.890015],[591.035400,5.500000,594.581360],[561.778503,5.500000,594.808167],[557.452759,4.250000,591.896912],[658.933533,3.000000,428.695435],[658.957581,3.000000,434.545319],[656.067688,1.750000,447.889282],[264.657196,0.000000,108.326973],[55.203720,0.000000,301.337097],[68.134903,0.000000,494.027924],[145.722107,0.000000,554.692810],[187.868240,0.000000,593.805725],[166.954819,0.000000,586.142822],[327.876404,0.000000,603.544128],[484.168304,0.000000,581.194031],[645.090027,0.000000,426.817688],[643.653015,0.000000,194.056152]], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/2.png"},
+{coords: [[88.149132,5.500000,258.564117],[82.694626,4.250000,268.183044],[106.266319,3.000000,248.775848],[122.033363,1.750000,237.173279],[433.440613,7.750000,82.914581],[421.090302,5.500000,88.803993],[412.207184,0.500000,100.582817],[499.577728,9.000000,79.331276],[511.795074,9.000000,79.331276],[514.709778,6.750000,85.220688],[532.274658,6.750000,85.220688],[524.040039,4.250000,91.110100],[529.492004,1.750000,96.999512],[526.420288,0.500000,99.944221],[173.462158,7.750000,169.072983],[161.224548,6.750000,185.475006],[672.038147,7.750000,259.425842],[669.069824,6.750000,253.696426],[663.216858,4.250000,262.576355],[237.166443,7.750000,596.189148],[248.557892,0.500000,554.266296],[414.400482,9.000000,604.289795],[445.413300,7.750000,601.104553],[432.284302,6.750000,598.261536],[393.986145,5.500000,595.613647],[420.189270,4.250000,592.465759],[557.999451,6.750000,597.782288],[597.375488,5.500000,594.532227],[545.996399,3.000000,589.040955],[573.246216,1.750000,585.884888],[559.620361,1.750000,585.990540],[549.414612,1.750000,586.069641],[670.612915,7.750000,404.466217],[667.770325,6.750000,429.328644],[664.901062,5.500000,447.681671],[655.863770,1.750000,398.267975],[652.992981,0.500000,416.265106],[242.066406,0.000000,111.977554],[339.373901,0.000000,93.464310],[598.738586,0.000000,129.591293],[641.204102,0.000000,179.719635],[654.933533,0.000000,175.409256],[646.606445,0.000000,354.446411],[652.078857,0.000000,496.303986],[633.678406,0.000000,554.101501],[343.336517,0.000000,578.710510],[287.683899,0.000000,583.677612],[192.859924,0.000000,596.885376],[147.479889,0.000000,565.728943]], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/1.png"},
+{coords: [[110.249596,5.500000,236.463715],[100.325020,4.250000,250.552704],[122.323799,3.000000,232.718414],[105.714844,1.750000,253.491776],[414.672394,9.000000,79.969872],[431.690979,9.000000,79.969872],[420.361938,4.250000,91.748695],[424.820374,4.250000,91.748695],[384.482635,3.000000,94.693405],[374.963531,1.750000,97.638107],[387.171509,1.750000,97.638107],[380.425354,0.500000,100.582817],[488.420532,7.750000,82.275986],[474.837982,5.500000,88.165398],[495.362457,5.500000,88.165398],[506.228180,5.500000,88.165398],[513.200623,3.000000,94.054810],[187.875214,9.000000,150.495529],[164.867294,7.750000,177.667816],[166.170227,4.250000,188.858215],[195.245117,4.250000,159.783386],[175.853851,3.000000,183.339050],[181.486115,1.750000,181.871231],[191.826797,1.750000,171.530579],[675.107117,9.000000,289.659027],[675.133240,9.000000,296.027161],[672.267883,7.750000,315.338928],[669.099670,6.750000,260.947754],[663.200134,4.250000,258.502441],[657.357910,1.750000,270.005219],[657.426270,1.750000,286.639984],[657.448730,1.750000,292.092285],[257.060974,4.250000,557.817810],[229.927948,4.250000,591.087036],[389.206940,5.500000,595.650696],[441.971893,3.000000,589.352051],[441.398254,1.750000,586.411682],[427.610229,1.750000,586.518616],[567.344849,6.750000,597.709839],[589.203979,3.000000,588.705994],[552.287903,3.000000,588.992188],[673.646912,9.000000,426.197449],[673.681763,9.000000,434.674377],[661.735107,4.250000,393.853455],[659.050415,3.000000,457.130249],[141.051834,0.000000,549.974609],[502.737488,0.000000,579.324402],[637.974548,0.000000,553.586609],[661.454712,0.000000,483.823395],[667.324585,0.000000,471.631775],[665.744141,0.000000,382.452087],[662.357666,0.000000,230.282166],[641.135193,0.000000,170.001221],[649.037170,0.000000,140.199387],[336.569702,0.000000,87.820404]], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/4.png"},
+{coords: [[82.701813,3.000000,272.340302],[103.070938,3.000000,251.971222],[408.333405,3.000000,94.693405],[394.517059,1.750000,97.638107],[489.095459,9.000000,79.331276],[523.142700,7.750000,82.275986],[474.189423,6.750000,85.220688],[500.348541,4.250000,91.110100],[532.958008,3.000000,94.054810],[492.195190,1.750000,96.999512],[511.924896,1.750000,96.999512],[497.052917,0.500000,99.944221],[151.272934,9.000000,187.097717],[154.655914,9.000000,183.714752],[177.534988,7.750000,165.000168],[194.414246,6.750000,152.285385],[173.742462,5.500000,177.121567],[198.397629,4.250000,156.630890],[672.017822,7.750000,254.486526],[669.197876,6.750000,284.847748],[660.376343,3.000000,287.940430],[654.335938,0.500000,251.205002],[242.531784,9.000000,594.269592],[385.085815,5.500000,595.682678],[395.966553,3.000000,589.708740],[563.671997,9.000000,603.627869],[566.029846,7.750000,600.664795],[532.186462,6.750000,597.982422],[574.925964,4.250000,591.761475],[536.405579,4.250000,592.060120],[540.983154,3.000000,589.079834],[661.963928,4.250000,449.530579],[656.037781,1.750000,440.608124],[205.149200,0.000000,152.387192],[232.608047,0.000000,120.617950],[245.379608,0.000000,116.786484],[322.647522,0.000000,92.041595],[315.303864,0.000000,102.258835],[646.845520,0.000000,328.607361],[649.187927,0.000000,537.171692],[478.122498,0.000000,599.820923],[467.585968,0.000000,583.217896],[346.415802,0.000000,590.721191]], size: 6.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/6.png"},
+{coords: [[404.335052,11.500000,78.787910]], size: 5.000000, aspect: 1.000000, png: "@os2022bgsxobj/billboards/crowd/liz.png"},
+];
 
 // Add racing event crowd
 if (racingEvent && race_event_crowd != undefined) {
   for (var i = 0; i < race_event_crowd.length; i++) {
-    mx.add_billboard(race_event_crowd[i].coords[0], race_event_crowd[i].coords[1], race_event_crowd[i].coords[2], race_event_crowd[i].size, race_event_crowd[i].aspect, race_event_crowd[i].png);
-  }
-}
-
-
-/*
-#################
-SET UP PYRO
-#################
-*/
-var finish_flames_texture = mx.read_texture("@os2022bgsxobj/js/pyro/finishflames.seq");
-var finish_flames_2_texture = mx.read_texture("@os2022bgsxobj/js/pyro/finishflames2.seq");
-var holeshot_flames_texture = mx.read_texture("@os2022bgsxobj/js/pyro/holeshotflames.seq");
-var start_flames_texture = mx.read_texture("@os2022bgsxobj/js/pyro/holeshotflames.seq");
-
-var start_flame_loop_indexes = {start:1,end:8};
-var holeshot_flame_indexes = {start:9,end:10};
-var finish_flame_indexes = {start:11,end:12};
-var start_shoot_flame_indexes = {start:13,end:20};
-
-// hide flames on start until called upon
-hide_all_flames();
-var show_loop_pyro_val = 0;
-if (mainEvent) {
-  show_loop_pyro_val = 1
-}
-// hides or shows start flames on start of race
-for (var i = start_flame_loop_indexes.start - 1; i < start_flame_loop_indexes.end; i++) {
-  mx.color_billboard(i, 1, 1, 1, show_loop_pyro_val);
-}
-
-if (mainEvent) {
-
-  var trigger_finish_flames = false;
-  var seconds_since_finish_update = 0;
-  var current_finish_frame = 0;
-  // 3rd arg in first line of sequence file
-  var finish_frames_delay = 4;
-  var time_started_finish_flame;
-  var finish_flames_hidden = false;
-
-  var trigger_start_shoot_flames = false;
-  var seconds_since_start_shoot_update = 0;
-  var current_start_shoot_frame = 0;
-  // 3rd arg in first line of sequence file
-  var start_shoot_frames_delay = 4;
-  var time_started_start_flame;
-  var start_flames_hidden = false;
-
-  var trigger_holeshot_flames = false;
-  var seconds_since_holeshot_update = 0;
-  var current_holeshot_frame = 0;
-  // 3rd arg in first line of sequence file
-  var holeshot_frames_delay = 4;
-  var time_started_holeshot_flame;
-  var holeshot_flames_hidden = false;
-
-  var max_frames = 69;
-
-  /*
-  ####################
-  CHANGE EVERY TRACK
-  ####################
-  */
-  var speaker_positions = [
-    [581.5,30,148],
-    [312,30,95],
-    [140,30,216]
-  ];
-  var numOfSpeakers = speaker_positions.length;
-  var main_event_screams = [];
-  if (songs_on) {
-    var time_to_start_songs = 20;
-    var songs = [[]];
-    // song lengths in seconds, 1:1 correlation with song_directories
-    var song_lengths = [];
-    // song files
-    var song_directories = [
-    ];
-    shuffle_songs(song_directories, song_lengths);
-  }
-  var time = g_finish_time / 60;
-  var four_fifty = false;
-  if (time == 20) four_fifty = true;
-
-  for (var i = 0; i < numOfSpeakers; i++){
-    if (four_fifty)
-      main_event_screams[i] = mx.add_sound("@os2022bgsxobj/sounds/crowd/maineventscream2.raw");
-    else
-      main_event_screams[i] = mx.add_sound("@os2022bgsxobj/sounds/crowd/maineventscream.raw");
-    
-    if (songs_on) {
-      if (i < numOfSpeakers - 1)
-        songs.push([]);
-    
-      for (var j = 0; j < song_directories.length; j++){
-        songs[i][j] = mx.add_sound(song_directories[j]);
-        mx.set_sound_freq(songs[i][j], 48000);
-        mx.set_sound_vol(songs[i][j], 1);
-        mx.set_sound_pos(songs[i][j], speaker_positions[i][0], speaker_positions[i][1], speaker_positions[i][2]);
-      }
+    for (var j = 0; j < race_event_crowd[i].coords.length; j++) {
+      mx.add_billboard(race_event_crowd[i].coords[j][0], race_event_crowd[i].coords[j][1], race_event_crowd[i].coords[j][2], race_event_crowd[i].size, race_event_crowd[i].aspect, race_event_crowd[i].png);
     }
-    mx.set_sound_freq(main_event_screams[i], 44100);
-    mx.set_sound_vol(main_event_screams[i], 1);
-    mx.set_sound_pos(main_event_screams[i], speaker_positions[i][0], speaker_positions[i][1], speaker_positions[i][2]);
-  }
-  
-}
-
-function shuffle_songs(directories, lengths) {
-  var currentIndex = directories.length;
-  var randomIndex;
-
-  // While there remain elements to shuffle...
-  while (currentIndex != 0) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // swap elements
-    var temp = directories[currentIndex];
-    directories[currentIndex] = directories[randomIndex];
-    directories[randomIndex] = temp;
-
-    temp = lengths[currentIndex];
-    lengths[currentIndex] = lengths[randomIndex];
-    lengths[randomIndex] = temp;
-    
   }
 }
+
 /*
 ################################################################################
-## Gate Sounds
+## Video screen display
 ##
 ################################################################################
 */
-/*
-####################
-CHANGE EVERY TRACK
-####################
-*/
-var gateSoundPositions = [
-  [149, 0, 517],
-  [166, 0, 534],
-  [183, 0, 551]
-];
 
-var gateSounds = [];
-var gateDropped = false;
+function makeCellMap(font, characters, key) {
+	var i, map;
 
-for (var i = 0; i < gateSoundPositions.length; i++) {
-  gateSounds[i] = mx.add_sound("@os2022bgsxobj/sounds/gate/gatedrop.raw");
-  mx.set_sound_freq(gateSounds[i], 44100);
-  mx.set_sound_vol(gateSounds[i], 0.5);
-  mx.set_sound_pos(gateSounds[i], gateSoundPositions[i][0], gateSoundPositions[i][1], gateSoundPositions[i][2]);
+	map = [];
+
+  // * = 9
+	key = characters.indexOf(key);
+
+  // for 128 characters set up map for all indexes needed equal to the key
+  // i = 33
+  // map[!] = *
+	for (i = 0; i < 128; i++)
+    map[String.fromCharCode(i)] = key;
+
+  // map[characters[i]] = i
+  // i = 0
+  // map[!] = 0;
+  // i = 1
+  // map["] = 1;
+	for (i = 0; i < characters.length; i++)
+    map[characters[i]] = i;
+
+  font.map = map;
 }
 
-function determineMainEvent() {
-  var time = g_finish_time / 60;
-  var laps = g_finish_laps;
-  if ((time == 15 || time == 20) && laps == 1) {
-    mainEvent = true;
-    racingEvent = true;
-  }
-  else if ((time == 6 || time == 5) && laps == 1)
-    racingEvent = true;
-}
-
-function gateSound() {
-  if (!gateDropped) {
-    gateDropTime = mx.get_gate_drop_time();
-  } 
-  if (gateDropTime > 0 && !gateDropped) {
-    for (var i = 0; i < gateSounds.length; i++) 
-      mx.start_sound(gateSounds[i]);
-      
-    gateDropped = true;
-
-    if (mainEvent) {
-      triggerAllFlameSounds();
+function getCellCoords(font, character) {
+    // if character is not in the font map we created, return
+	if (!(character in font.map)) {
+        mx.message("Not in map " + character);
     }
-  }
-  if (mainEvent && ((gateDropped && mx.seconds < gateDropTime) || (!gateDropped && !started_flame_sound && mx.seconds > 0))) {
-    triggerStartFlameSound("notdropped");
-    hide_all_flames();
-    gateDropped = false;
-    started_flame_sound = true;
-  }
+    /* return the coords in our font variable
+    ex. font.coords[font.map[character]];
+    character = ','
+    font.coords[font.map[,]];
+    font.map[,] = 11;
+    font.coords[11] = [360, 0, 40] */
+	return font.coords[font.map[character]];
 }
 
-/* 
-###################################
-        SHOW/HIDE FLAMES
-###################################
-*/
-function hide_all_flames() {
-  hide_start_flames();
-  hide_holeshot_flames();
-  hide_finish_flames(); 
+function drawText(font, x, y, currentScreen) {
+  var i, cellCoords, sx, sy, dx, dy, width, height;
+
+  // starting x and y values set to dx and dy
+	dx = x;
+	dy = y;
+
+  // go through the whole screen 
+	for (i = 0; i < currentScreen.length; i++) {
+    //if character equals newline
+		if (currentScreen[i] == "\n") {
+      // reset the dx to the beginning
+			dx = x;
+      // new y value = old y value + (64 / 512 * 1)
+			dy += font.line_height / font.height * font.yscale;
+			continue;
+		}
+
+    // if character equals a space
+		if (currentScreen[i] == " ") {
+      // get cell coords of a comma
+			cellCoords = getCellCoords(font, ","); /* comma about as wide as space */
+      // cellCoords = [360, 0, 40]
+      // new x value = old x value + (40 / 1024 * 1)
+			dx += cellCoords[2] / font.width * font.xscale;
+			continue;
+		}
+
+    // get cell coordinates of current character of font
+		cellCoords = getCellCoords(font, currentScreen[i]);
+      /* source x is first value / (font width * font xscale + xoffset)
+      ex char = '"', cell coords = [24, 0, 32]
+      sx = (24 / 1024 * 1 + 0) = 0.0234375
+      sy = (0 / 512 * 1 + 0) = 0
+      width = (32 / 1024 * 1) = 0.03125
+      height = (64 / 512 * 1) = 0.125 */
+		sx = cellCoords[0] / font.width * font.xscale + font.xoffset;
+		sy = cellCoords[1] / font.height * font.yscale + font.yoffset;
+		width = cellCoords[2] / font.width * font.xscale;
+		height = font.line_height / font.height * font.yscale;
+		mx.paste_custom_frame(font.tid, 0, sx, sy, dx, dy, width, height);
+      /* add to dx so new character doesn't overlap
+      dx += 0.03125 - (8 / (1024 * 1)) => 0.03125 - 0.0078125 => 0.0234375
+      dx += 0.0234375 */
+		dx += width - (font.overlap / (font.width * font.xscale));
+	}
 }
 
-function hide_start_flames() {
-  for (var i = start_shoot_flame_indexes.start - 1; i < start_shoot_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
-  start_flames_hidden = true;
+var screenTextureID = mx.read_texture("@os2022bgsxobj/statue/other/timingtower/scoringtower.seq");
+
+var screenFont = {
+tid: screenTextureID,
+xoffset: 0,
+yoffset: 0,
+xscale: 1,
+yscale: 1,
+overlap: 8,
+width: 512,
+height: 512,
+line_height: 64,
+coords: [ [ 0, 0, 24 ], [ 24, 0, 32 ], [ 56, 0, 48 ], [ 104, 0, 40 ],
+[ 144, 0, 56 ], [ 200, 0, 48 ], [ 248, 0, 16 ], [ 264, 0, 32 ],
+[ 296, 0, 32 ], [ 328, 0, 32 ], [ 360, 0, 40 ], [ 400, 0, 24 ],
+[ 424, 0, 32 ], [ 456, 0, 24 ], [ 480, 0, 32 ], [ 512, 0, 40 ],
+[ 552, 0, 40 ], [ 592, 0, 48 ], [ 640, 0, 48 ], [ 688, 0, 48 ],
+[ 736, 0, 40 ], [ 776, 0, 40 ], [ 816, 0, 40 ], [ 856, 0, 40 ],
+[ 896, 0, 40 ], [ 936, 0, 24 ], [ 960, 0, 32 ], [ 0, 64, 40 ],
+[ 40, 64, 40 ], [ 80, 64, 40 ], [ 120, 64, 32 ], [ 152, 64, 56 ],
+[ 208, 64, 48 ], [ 256, 64, 48 ], [ 304, 64, 48 ], [ 352, 64, 48 ],
+[ 400, 64, 48 ], [ 448, 64, 48 ], [ 496, 64, 48 ], [ 544, 64, 48 ],
+[ 592, 64, 32 ], [ 624, 64, 40 ], [ 664, 64, 48 ], [ 712, 64, 40 ],
+[ 752, 64, 56 ], [ 808, 64, 48 ], [ 856, 64, 48 ], [ 904, 64, 48 ],
+[ 952, 64, 48 ], [ 0, 128, 48 ], [ 48, 128, 48 ], [ 96, 128, 48 ],
+[ 144, 128, 48 ], [ 192, 128, 48 ], [ 240, 128, 64 ], [ 304, 128, 56 ],
+[ 360, 128, 48 ], [ 408, 128, 48 ], [ 456, 128, 40 ], [ 496, 128, 24 ],
+[ 520, 128, 40 ], [ 560, 128, 40 ], [ 600, 128, 40 ], [ 640, 128, 24 ],
+[ 664, 128, 40 ], [ 704, 128, 48 ], [ 752, 128, 40 ], [ 792, 128, 48 ],
+[ 840, 128, 40 ], [ 880, 128, 40 ], [ 920, 128, 48 ], [ 968, 128, 40 ],
+[ 0, 192, 32 ], [ 32, 192, 32 ], [ 64, 192, 48 ], [ 112, 192, 32 ],
+[ 144, 192, 56 ], [ 200, 192, 40 ], [ 240, 192, 40 ], [ 280, 192, 48 ],
+[ 328, 192, 48 ], [ 376, 192, 40 ], [ 416, 192, 40 ], [ 456, 192, 32 ],
+[ 488, 192, 40 ], [ 528, 192, 40 ], [ 568, 192, 56 ], [ 624, 192, 48 ],
+[ 672, 192, 48 ], [ 720, 192, 40 ], [ 760, 192, 40 ], [ 800, 192, 16 ],
+[ 816, 192, 40 ], [ 856, 192, 40 ] ]
+};
+
+makeCellMap(screenFont, 
+ "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
+ "*");
+
+var currentScreen = "";
+
+function showText(screen) {
+	if (screen == currentScreen)
+		return
+	currentScreen = screen;
+	mx.begin_custom_frame(screenTextureID);
+  // mx.paste_custom_frame(texture_id, frame_number, src_x, src_y, dst_x, dst_y, width, height)
+	mx.paste_custom_frame(screenTextureID, 0, 0, .5, 0.75, 0, 1.0, 0.5);
+	mx.paste_custom_frame(screenTextureID, 0, 0, .5, 0.75, .5, 1.0, 0.5);
+	drawText(screenFont, 0, 0, screen);
+	mx.end_custom_frame(screenTextureID);
 }
 
-function hide_holeshot_flames() {
-  for (var i = holeshot_flame_indexes.start - 1; i < holeshot_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
-  holeshot_flames_hidden = true;
-}
-
-function hide_finish_flames() {
-  for (var i = finish_flame_indexes.start - 1; i < finish_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
-  finish_flames_hidden = true;
-}
-
-function show_start_flames() {
-  for (var i = start_shoot_flame_indexes.start - 1; i < start_shoot_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
-  start_flames_hidden = false;
-}
-
-function show_holeshot_flames() {
-  for (var i = holeshot_flame_indexes.start - 1; i < holeshot_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
-  holeshot_flames_hidden = false;
-}
-
-function show_finish_flames() {
-  for (var i = finish_flame_indexes.start - 1; i < finish_flame_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
-  finish_flames_hidden = false;
-}
-
-function do_pyro() {
-  if (!mainEvent) return;
-  do_start_pyro();
-  do_holeshot_pyro();
-  do_finish_pyro();
-}
-
-function do_start_pyro() {
-  if (trigger_start_shoot_flames) {
-    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - time_started_start_flame < 0) hide_start_flames();
+function getCondensedName(name) {
+  // trim team name off
+  name = name.replace(/\|.*/gm, "");
+  // trim beginning and ending white spaces
+  name = name.replace(/^\s+|\s+$/gm,"");
+  // remove any non-alphabetical characters and spaces
+  name = name.replace(/[^A-Za-z ]+/gm, "");
+  // trim any final spaces off
+  name = name.replace(/\s+$/gm, "");
   
-    if (mx.seconds - seconds_since_start_shoot_update < start_shoot_frames_delay / 128) return;
-
-    if (start_flames_hidden) show_start_flames();
-
-    seconds_since_start_shoot_update = mx.seconds;
-
-    if (current_start_shoot_frame <= max_frames) {
-      mx.begin_custom_frame(start_flames_texture);
-      mx.paste_custom_frame(start_flames_texture, current_start_shoot_frame, 0, 0, 0, 0, 1, 1);
-      mx.end_custom_frame(start_flames_texture);
-      current_start_shoot_frame++;
-    } else {
-      trigger_start_shoot_flames = false;
-      hide_start_flames();
-    }
-  }
-}
-
-function do_holeshot_pyro() {
-  if (trigger_holeshot_flames) {
-    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - time_started_holeshot_flame < 0) hide_holeshot_flames();
-
-    if (mx.seconds - seconds_since_holeshot_update < holeshot_frames_delay / 128) return;
-
-    if (holeshot_flames_hidden) show_holeshot_flames();
-
-    seconds_since_holeshot_update = mx.seconds;
-    if (current_holeshot_frame <= max_frames) {
-      mx.begin_custom_frame(holeshot_flames_texture);
-      mx.paste_custom_frame(holeshot_flames_texture, current_holeshot_frame, 0, 0, 0, 0, 1, 1);
-      mx.end_custom_frame(holeshot_flames_texture);
-      current_holeshot_frame++;
-    }
-    else {
-      trigger_holeshot_flames = false;
-      hide_holeshot_flames();
-    }  
-  }
-}
-
-function do_finish_pyro() {
-  if (trigger_finish_flames) {
-    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - time_started_finish_flame < 0) hide_finish_flames();
-
-    if (mx.seconds - seconds_since_finish_update < finish_frames_delay / 128) return;
-
-    if (finish_flames_hidden) show_finish_flames();
-
-    seconds_since_finish_update = mx.seconds;
-
-    if (current_finish_frame <= max_frames) {
-      mx.begin_custom_frame(finish_flames_texture);
-      mx.begin_custom_frame(finish_flames_2_texture);
-      mx.paste_custom_frame(finish_flames_texture, current_finish_frame, 0, 0, 0, 0, 1, 1);
-      mx.paste_custom_frame(finish_flames_2_texture, current_finish_frame, 0, 0, 0, 0, 1, 1);
-      mx.end_custom_frame(finish_flames_texture);
-      mx.end_custom_frame(finish_flames_2_texture);
-      current_finish_frame++;
-    } else {
-      trigger_finish_flames = false;
-      hide_finish_flames();
-    }   
-  }
-}
-
-function triggerFinishFlameSound() {
-  if (!finishFlameSoundAdded) {
-    finishFlameSound = [];
-    finishWhistleSound = [];
-    for (var i = 0; i < finishFlameCoords.length; i++) {
-      finishFlameSound[i] = mx.add_sound("@os2022bgsxobj/sounds/pyro/finishlineflame.raw");
-      finishWhistleSound[i] = mx.add_sound("@os2022bgsxobj/sounds/pyro/finishlinewhistle.raw");
-      mx.set_sound_freq(finishFlameSound[i], 44100);
-      mx.set_sound_freq(finishWhistleSound[i], 44100);
-      mx.set_sound_vol(finishFlameSound[i], 0.5);
-      mx.set_sound_vol(finishWhistleSound[i], 2);
-      mx.set_sound_pos(finishFlameSound[i], finishFlameCoords[i][0], finishFlameCoords[i][1], finishFlameCoords[i][2]);
-      mx.set_sound_pos(finishWhistleSound[i], finishFlameCoords[i][0], finishFlameCoords[i][1], finishFlameCoords[i][2]);
-    }
-    finishFlameSoundAdded = true;
-  }
-  for (var i = 0; i < finishFlameSound.length; i++)
-    mx.start_sound(finishFlameSound[i]);
-
-  return;
-}
-
-function triggerholeshotFlameSounds() {
-  if (!holeshotFlameSoundsAdded) {
-    for (var i = 0; i < holeshotCoords.length; i++) {
-      holeshotFlameSounds[i] = mx.add_sound("@os2022bgsxobj/sounds/pyro/holeshotflame.raw");
-      mx.set_sound_freq(holeshotFlameSounds[i], 44100);
-      mx.set_sound_vol(holeshotFlameSounds[i], 2);
-      mx.set_sound_pos(holeshotFlameSounds[i], holeshotCoords[i][0], holeshotCoords[i][1], holeshotCoords[i][2]);
-    }
-    holeshotFlameSoundsAdded = true;
+  if (name.length == 0) {
+    return "Unknown Rider";
   }
 
-  for (var i = 0; i < holeshotFlameSounds.length; i++) mx.start_sound(holeshotFlameSounds[i]);
-  
-}
+  nameArray = name.split(" ");
+  if (nameArray.length > 1) {
 
-function triggerStartFlameSound(status) {
-  if (status == "dropped") {
-    if (startFlameSound != null){
-      for (var i = 0; i < startFlameSound.length; i++){
-        if (startFlameSound[i] != null){
-          mx.stop_sound(startFlameSound[i]);
-          mx.set_sound_loop(startFlameSound[i], 0);
-          mx.set_sound_vol(startFlameSound[i], 20);
-          mx.start_sound(startFlameSound[i]);
-          set_start_flame_loop = false;
+    var lastNameEntry = nameArray[nameArray.length - 1];
+    while (lastNameEntry == "Jr" || lastNameEntry == "Sr") {
+        nameArray.pop();
+        lastNameEntry = nameArray[nameArray.length - 1];
+        if (nameArray.length == 1) {
+            return nameArray[0];
         }
-      }
     }
-    // hide start loop pyro
-    for (var i = start_flame_loop_indexes.start - 1; i < start_flame_loop_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
+    return nameArray[nameArray.length - 1];
   }
-  else {
-    // show start loop pyro
-    for (var i = start_flame_loop_indexes.start - 1; i < start_flame_loop_indexes.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
-  
-    if (!startFlameSoundAdded){
-      startFlameSound = [];
-      for (var i = 0; i < startFlameCoords.length; i++){
-        startFlameSound[i] = mx.add_sound("@os2022bgsxobj/sounds/pyro/startflameburst.raw");
-        mx.set_sound_freq(startFlameSound[i], 44100);
-        mx.set_sound_vol(startFlameSound[i], 0.5);
-        mx.set_sound_pos(startFlameSound[i], startFlameCoords[i][0], startFlameCoords[i][1], startFlameCoords[i][2]);
-        startFlameSoundAdded = true;
-      }
-    }
-    if (!set_start_flame_loop){
-      for (var i = 0; i < startFlameSound.length; i++){
-        mx.stop_sound(startFlameSound[i]);
-        mx.set_sound_loop(startFlameSound[i], 1);
-        mx.set_sound_vol(startFlameSound[i], 0.5);
-        mx.start_sound(startFlameSound[i]);
-      }
-      set_start_flame_loop = true;
-    }
-  }
-  return;
+  return name;
 }
 
-function triggerFireworkSounds() {
-  for (var i = 0; i < finishWhistleSound.length; i++) mx.start_sound(finishWhistleSound[i]);
-}
+var towerMaxRidersShowing = 5;
+function updateScreen() {
+	// gets column numbers in array based on column n
+	// used for getting laptimes
+	var a = [];
+  var riderName, riderNum, numOfPeopleOnTower;
+  if (!racingEvent) {
 
-function triggerAllFlameSounds() {
-  triggerCrowdRoar(0.8);
-  trigger_all_pyro();
-}
+    // copy bestPlayerLaptimes into the sorted array
+    var bestPlayerLapsArrSrtd = bestPlayerLaptimes.slice();
+    // sort the array
+    bestPlayerLapsArrSrtd.sort(function (a, b){return a[0] - b[0];});
 
-function triggerCrowdRoar(volume) {
-  var randNumber;
-  if (!stadium) {
-    for (var i = 0; i < numOfBleachers; i++) {
-      randNumber = randomIntFromInterval(0, (numOfRoarVariants - 1));
-      mx.set_sound_vol(crowdRoars[i][randNumber], volume);
-      mx.start_sound(crowdRoars[i][randNumber]);
-    }
-  }
-  else {
-    randNumber = randomIntFromInterval(0, numOfBleachers - 1);
-    mx.set_sound_vol(crowdRoars[randNumber], volume);
-		mx.start_sound(crowdRoars[randNumber]);
-  }
-}
-
-function trigger_all_pyro() {
-  trigger_start_shoot_pyro();
-  trigger_finish_pyro();
-  trigger_holeshot_pyro();
-}
-
-function trigger_start_shoot_pyro() {
-  current_start_shoot_frame = 0;
-  seconds_since_start_shoot_update = 0;
-  trigger_start_shoot_flames = true;
-  time_started_start_flame = mx.seconds;
-  triggerStartFlameSound("dropped");
-}
-
-function trigger_holeshot_pyro() {
-  current_holeshot_frame = 0;
-  seconds_since_holeshot_update = 0;
-  trigger_holeshot_flames = true;
-  time_started_holeshot_flame = mx.seconds;
-  triggerholeshotFlameSounds();
-}
-
-function trigger_finish_pyro() {
-  current_finish_frame = 0;
-  seconds_since_finish_update = 0;
-  trigger_finish_flames = true;
-  time_started_finish_flame = mx.seconds;
-  triggerFinishFlameSound();
-}
-
-// Update Cam Positioning for Constant crowd sounds
-function updateCamPosition() {
-  // Updates crash sounds to the position of the rider if the track is in a stadium
-  // gets and stores the camera location into the p and r array variables
-  mx.get_camera_location(p, r);
-	// Constant crowd sound
-	mx.set_sound_pos(crowdConstants, p[0], p[1], p[2]);
-	
-	// Sets each crash sound at the camera postition and will be called to play later
-	for (var i = 0; i < numOfCrashVariants; i++)
-	  mx.set_sound_pos(crashSounds[i], p[0], p[1], p[2]);
-  for (var i = 0; i < crowdRoars.length; i++)
-    mx.set_sound_pos(crowdRoars[i], p[0], p[1], p[2]);
-}
-
-function initializeBalesToPushArrays() {
-  // balesToPush output: [bale index, x,y,z,a]
-  for (var i = 0; i < numOfBalesToPushUp; i++)
-    balesToPushUp.push([i + baleUpStartIndex, baleCoordsUp[i]]);
-  for (var i = 0; i < numOfBalesToPushDown; i++)
-    balesToPushDown.push([i + baleDownStartIndex, baleCoordsDown[i]]);
-}
-
-/*
-###############################
-      MOVE BALES FUNCTION
-###############################
-*/
-
-const delayForBales = 25;
-var doneMovingBales = false;
-const timeToMoveBales = 2.5;
-const unitsToMoveBales = Math.abs(balesToPushUp[0][1][1]);
-// speed of the movement of the bales in ft/sec
-const speedOfBales = unitsToMoveBales/timeToMoveBales;
-var gotDelay = false;
-var movedOutside = false;
-var moveBalesDelay = undefinedTime;
-function moveBales() {
-  var seconds = mx.seconds;
-  var index,x,y,z,a,t;
-  if (gateDropTime > 0 && !gotDelay) { 
-    moveBalesDelay = delayForBales + gateDropTime;
-    gotDelay = true;
-  }
-  if ((moveBalesDelay - 1) <= seconds <= (moveBalesDelay + timeToMoveBales + 1) || seconds <= 1) {
-    if (seconds > moveBalesDelay) {
-      if (seconds >= moveBalesDelay + timeToMoveBales)
-        t = timeToMoveBales;
-      else
-        t = (seconds - moveBalesDelay);
-    }
+    if (globalRunningOrder.length < towerMaxRidersShowing)
+      numOfPeopleOnTower = globalRunningOrder.length;
     else
-      t = 0;
-    // moves statues up y axis
-    for (var i = 0; i < numOfBalesToPushUp; i++) {
-      index = balesToPushUp[i][0];
-      x = balesToPushUp[i][1][0];
-      y = balesToPushUp[i][1][1] + (speedOfBales * t);
-      z = balesToPushUp[i][1][2];
-      a = balesToPushUp[i][1][3];
-      mx.move_statue(index, x, y, z, a);
+      numOfPeopleOnTower = towerMaxRidersShowing;
+
+    for (var i = 0; i < numOfPeopleOnTower; i++){
+      // times are stored in the first column of every row
+      var time = bestPlayerLapsArrSrtd[i][0];
+
+      // if no lap, don't display
+      if (time != undefinedTime){
+        // slots are stored in the second column of every row
+        var slot = bestPlayerLapsArrSrtd[i][1];
+        // gets last name
+        riderName = getCondensedName(mx.get_rider_name(slot));
+        riderNum = mx.get_rider_number(slot);
+        a.push((i + 1).toString() + ')   ' + timeToString(time) + ' - #' + riderNum  + ' ' + riderName);
+      }
     }
-    // move statues down y axis
-    for (var i = 0; i < numOfBalesToPushDown; i++) {
-      index = balesToPushDown[i][0];
-      x = balesToPushDown[i][1][0];
-      y = balesToPushDown[i][1][1] - (speedOfBales * t);
-      z = balesToPushDown[i][1][2];
-      a = balesToPushDown[i][1][3];
-      mx.move_statue(index, x, y, z, a);
-    }
+    showText("Top Best Laps\nPos Time      Rider Name\n" + a.join("\n"));
   }
-}
-
-function addCrashAndRoarSounds() {
-  if (!stadium) {
-    try {
-      for (var i = 0; i < numOfBleachers; i++) {
-        crowdRoars.push([]);
-        for (var j = 0; j < numOfRoarVariants; j++) {
-          crowdRoars[i][j] = mx.add_sound(crowdRoarDirectories[j]);
-          mx.set_sound_freq(crowdRoars[i][j], 44100);
-          mx.set_sound_pos(crowdRoars[i][j], bleacherSoundPositions[i][0], bleacherSoundPositions[i][1], bleacherSoundPositions[i][2]);
-        }
-      }
-      for (var i = 0; i < numOfBleachers; i++) {
-        crashSounds.push([]);
-        for (var j = 0; j < numOfCrashVariants; j++){
-          crashSounds[i][j] = mx.add_sound(crashSoundDirectories[j]);
-          mx.set_sound_freq(crashSounds[i][j], 44100);
-        }
-      }
-    }
-    catch (e) {
-      mx.message('sound error: ' + e);
-    }
-  } else {
-      for (var i = 0; i < numOfRoarVariants; i++){
-        crowdRoars[i] = mx.add_sound(crowdRoarDirectories[i]);
-        mx.set_sound_freq(crowdRoars[i], 44100);
-        mx.set_sound_pos(crowdRoars[i], bleacherSoundPositions[i][0], bleacherSoundPositions[i][1], bleacherSoundPositions[i][2]);
-      }
-      for (var i = 0; i < numOfCrashVariants; i++){
-        crashSounds[i] = mx.add_sound(crashSoundDirectories[i]);
-        mx.set_sound_freq(crashSounds[i], 44100);
-      }
-  }
-}
-
-function addCrashPositions() {
-  for (var i = 0; i < numOfBleachers; i++) {
-    for (var j = 0; j < numOfCrashVariants; j++)
-      mx.set_sound_pos(crashSounds[i][j], bleacherSoundPositions[i][0], bleacherSoundPositions[i][1], bleacherSoundPositions[i][2]);
-  }
-}
-
-function initializeAllMechanicSoundsArray() {
-  // push a new array to put sounds in every new variant
-  for (var i = 0; i < allDirectories.length; i++) allMechanicSounds.push([]);
-}
-
-function initializeMechanicSounds() {
-  // need to add a new array for every variant
-  initializeAllMechanicSoundsArray();
-
-  for (var i = 0; i < allDirectories.length; i++){
-    for (var j = 0; j < allDirectories[i].length; j++){
-      allMechanicSounds[i][j] = mx.add_sound(allDirectories[i][j]);
-      mx.set_sound_freq(allMechanicSounds[i][j], 44100);
-      mx.set_sound_vol(allMechanicSounds[i][j], 1);
-      //mx.message('[' + i.toString() + '][' + j.toString() + '] ' + allMechanicSounds[i][j].toString());
-    }
-  }
-}
-
-function initializeCrowdSounds() {
-  addCrashAndRoarSounds();
-	// if track is not in a stadium, set the crash sound positions equal to the bleacher positions
-	if (!stadium){
-    addCrashPositions();
-    crowdConstants = [];
-		// Set Sound Positions for crashes and constant sound at all bleacher positions
-		for (var j = 0; j < numOfBleachers; j++){
-			// define all crowd constants at each bleacher position
-			crowdConstants[j] = mx.add_sound("@os2022bgsxobj/sounds/crowd/crowdconstant.raw");
-			mx.set_sound_freq(crowdConstants[j], 44100);
-
-      if (racingEvent)
-        mx.set_sound_vol(crowdConstants[j], crowd_constant_base_vol);
-      else
-        mx.set_sound_vol(crowdConstants[j], crowd_constant_base_vol/4);
-
-			mx.set_sound_loop(crowdConstants[j], 1);
-			mx.set_sound_pos(crowdConstants[j], bleacherSoundPositions[j][0], bleacherSoundPositions[j][1], bleacherSoundPositions[j][2]);
-      mx.start_sound(crowdConstants[j]);
-		}
-	}
-	else
-		updateCamPosition();
-}
-
-// Gets random integer when called
-// min and max included 
-function randomIntFromInterval(min, max) {return Math.floor(Math.random() * (max - min + 1) + min);}
-
-/*
-################################################
-dynamic crowd for position changes/battles
-################################################
-*/
-var initialize_gate_and_slot_pos = false;
-// this number is the number of people that the crowd
-// will cheer if there is a battle, in this case they will cheer if there is a battle
-// within the top 3
-var numOfPeopleToCheer = 3;
-const timing_gate_to_start_battles = 14;
-var startedBattleFunction = false;
-
-// Index 0 is gap between 1st and 2nd, Index 1 is gap between 2nd and 3rd, etc.
-var gaps_between_riders = [];
-var reset_crowd_default_vol = true;
-const max_gap_between_riders = 2;
-const max_crowd_vol = (((4 * numOfPeopleToCheer) + numOfBleachers)) + (2 * crowd_constant_base_vol);
-var current_volume = 0;
-const vol_fade_time = 2;
-const vol_reset_fade_time = 5;
-var got_time_start_reset = false;
-var time_started_increase_or_decrease;
-var current_crowd_vol = crowd_constant_base_vol;
-var set_holder = false;
-var set_reset_holder = false;
-var vol_holder;
-var reset_holder;
-var vol_per_sec;
-var vol_divisor = 1;
-function battlesFunction() {
-
-  var r = g_running_order;
-  var seconds = mx.seconds;
-  var battle_between_riders = false;
-  var i, current_rider_timingGate, current_rider_slot, priority_battle;
-  if (r[0].position == timing_gate_to_start_battles + 1 && !startedBattleFunction) {
-    ResetSlotPositionHolder();
-    numOfPeopleToCheer++;
-    if (g_running_order.length < numOfPeopleToCheer)
-      numOfPeopleToCheer = g_running_order.length;
-
-    if (!mainEvent) {
-      vol_divisor = 2;
-    }
-    startedBattleFunction = true;
-  }
-
-  if (startedBattleFunction){
-    // checks for a position change
-    for (var i = 0; i < numOfPeopleToCheer - 1; i++) {
-      current_rider_slot = r[i].slot;
-      current_rider_timingGate = r[i].position;
-      if (current_rider_timingGate != current_timing_gates[current_rider_slot]) {
-        // if there was a position change, crowd cheers
-        if (checkPosChange(current_rider_slot, i)) {
-          var vol_factor;
-
-          if (mx.get_rider_down(r[i + 1].slot) == 1)
-            vol_factor = (i + 1) * 2;
-          else
-            vol_factor = i + 1;
-
-          var volume = ((2 / (vol_factor)) / vol_divisor);
-          startRoar(volume);
-        }
-      }
-    }
-    // Get gaps between riders and store in gap_between_riders array
-    for (i = numOfPeopleToCheer - 1; i > 0; i--) {
-      current_rider_slot = r[i].slot;
-      current_rider_timingGate = r[i].position - 1;
-      if (current_rider_timingGate + 1 != current_timing_gates[current_rider_slot]) {
-        var next_rider_slot = r[i-1].slot;
-        // time the rider ahead hit the gate that the rider is currently at
-        var time_rider_ahead_gate = mx.get_timing(next_rider_slot, current_rider_timingGate);
-
-        // if a rider missed a gate, return
-        if (time_rider_ahead_gate < 0) return;
-
-        // current rider hits current gate at current time
-        var current_time = seconds;
-        // therefore
-        gaps_between_riders[i-1] = current_time - time_rider_ahead_gate;
-      }
-    }
-    // Get lowest gap
-    // if priority battle is 0, there's a battle between 1st and 2nd, if 1, 2nd and 3rd, etc.
-    if (gaps_between_riders.length > 0) {
-      var priority_battle = 0;
-      var lowest_gap = gaps_between_riders[0];
-      var numOfBattles = 0;
-      if (gaps_between_riders.length > 1) {
-        for (var i = 1; i < gaps_between_riders.length; i++) {
-          if (gaps_between_riders[i] < lowest_gap){
-            lowest_gap = gaps_between_riders[i];
-            priority_battle = i;
-          }
-          if (gaps_between_riders.length > priority_battle + 2) {
-            // number of battles for the same pos
-            if (gaps_between_riders[priority_battle + 2] - gaps_between_riders[priority_battle] <= max_gap_between_riders)
-              numOfBattles++;
-          }
-        }
-      }
-
-      if (lowest_gap <= max_gap_between_riders) battle_between_riders = true;
-      // if someone in the priority battle goes down, check for other battles then set the priority battle and lowest gap
-      if (mx.get_rider_down(r[priority_battle + 1].slot) == 1 || mx.get_rider_down(r[priority_battle].slot) == 1){
-        if (gaps_between_riders.length > 1) {
-          var second_lowest_gap = undefinedTime;
-          for (var i = 0; i < gaps_between_riders.length; i++) {
-            if (i == priority_battle) continue;
-            if (gaps_between_riders[i] < second_lowest_gap) {
-              second_lowest_gap = gaps_between_riders[i];
-              lowest_gap = second_lowest_gap;
-              priority_battle = i;
-            }
-          }
-          // no other battles
-          if (lowest_gap > max_gap_between_riders) {
-            battle_between_riders = false;
-          }
-        }
-        // no other battles
-        else battle_between_riders = false;
-      }
-    }
-    // If there's a battle, set the volume of the crowd constant based on the gap and position
-    if (battle_between_riders) {
-      var volume = (((((3 * numOfBattles) + numOfBleachers) / ((lowest_gap + 0.9) * (priority_battle + 1))) + (1.5 * crowd_constant_base_vol)) / vol_divisor);
-      // If crowd has already reached desired calculated volume, return
-      if (current_crowd_vol == volume) return;
-
-      if (current_crowd_vol < crowd_constant_base_vol) {
-        current_crowd_vol = crowd_constant_base_vol;
-      }
-
-      // If volume is new, need to fade to new volume, get the time starting the increase/decrease
-      if (volume != current_volume) {
-        time_started_increase_or_decrease = seconds;
-        set_holder = false;
-      }
-      // volume holder
-      current_volume = volume;
-
-      // Another holder that holds the current crowd volume at the start of the fade
-      if (!set_holder) {
-        vol_holder = current_crowd_vol;
-        set_holder = true;
-        // sets reset values to false because this means that there is a battle fade going on
-        got_time_start_reset = false;
-        set_reset_holder = false;
-        reset_crowd_default_vol = false;
-      }
-
-      // vol/sec calculated by (end vol - start vol) / fade time
-      vol_per_sec = (current_volume - vol_holder) / vol_fade_time;
-      // t is time in seconds since the start of the fade
-      var t = seconds - time_started_increase_or_decrease;
-      // current crowd volume is the start vol + (vol/sec * time since start of fade)
-      // If there's an increase, vol/sec * t will be positive.  If there's a decrease, vol/sec * t will be negative. 
-      current_crowd_vol = vol_holder + (vol_per_sec * t);
-
-      for (var i = 0; i < numOfBleachers; i++) mx.set_sound_vol(crowdConstants[i], current_crowd_vol);
-
-    }
-    else if (!reset_crowd_default_vol) {
-      if (!got_time_start_reset) {
-        time_started_increase_or_decrease = seconds;
-        got_time_start_reset = true;
-      }
-      // sets the start fade vol to the current crowd volume
-      if (!set_reset_holder) {
-        reset_holder = current_crowd_vol;
-        set_reset_holder = true;
-      }
-
-      // vol/sec, t, and current crowd vol calculated just like above when battle fades happen
-      vol_per_sec = (crowd_constant_base_vol - reset_holder) / vol_reset_fade_time;
-      var t = seconds - time_started_increase_or_decrease;
-      current_crowd_vol = reset_holder + (vol_per_sec * t);
-
-      // if in the demo and crowd volume somehow exceeds the max crowd vol or is less than the base, reset to the base vol
-      if (current_crowd_vol > max_crowd_vol || current_crowd_vol < crowd_constant_base_vol)
-        current_crowd_vol = crowd_constant_base_vol;
-        
-      // set all crowd constant sounds to the current crowd volume calculated 
-      for (var i = 0; i < numOfBleachers; i++)
-        mx.set_sound_vol(crowdConstants[i], current_crowd_vol);
-
-      // if crowd volume equals the base volume, the volume has been reset
-      if (current_crowd_vol == crowd_constant_base_vol)
-        reset_crowd_default_vol = true;
-    }
-  }
-}
-
-function checkPosChange(slot, position) {
-  if (slot_position_holder[position] != slot) {
-    ResetSlotPositionHolder(); 
-    return true;
-  }
-  return false;
-}
-
-function startRoar(volume) {
-  for (var i = 0; i < numOfBleachers; i++) {
-    var randomNum = randomIntFromInterval(0, numOfCheerVariants - 1);
-    mx.set_sound_vol(allCheerSounds[randomNum][i], volume);
-    mx.start_sound(allCheerSounds[randomNum][i]);
-  }
-}
-
-function initializeCheerAndBooVariantSounds() {
-  var i, j;
-  initializeCheerAndBooAllSoundArrays();
-  // if there are the same number of variants do only one nested loop
-  if (numOfBooVariants == numOfCheerVariants) {
-    for (i = 0; i < numOfCheerVariants; i++) {
-      for (j = 0; j < numOfBleachers; j++) {
-        allCheerSounds[i][j] = mx.add_sound(cheerVariantDirectories[i]);
-        allBooSounds[i][j] = mx.add_sound(booVariantDirectories[i]);
-        mx.set_sound_freq(allCheerSounds[i][j], 44100);
-        mx.set_sound_freq(allBooSounds[i][j], 44100);
-        mx.set_sound_vol(allCheerSounds[i][j], 5);
-        mx.set_sound_vol(allBooSounds[i][j], 5);
-        mx.set_sound_pos(allCheerSounds[i][j], bleacherSoundPositions[j][0], bleacherSoundPositions[j][1], bleacherSoundPositions[j][2]);
-        mx.set_sound_pos(allBooSounds[i][j], bleacherSoundPositions[j][0], bleacherSoundPositions[j][1], bleacherSoundPositions[j][2]);
-      }
-    }
-  }
-  // otherwise do two different nested loops
   else {
-    for (i = 0; i < numOfBooVariants; i++) {
-      for (j = 0; j < numOfBleachers; j++) {
-        allBooSounds[i][j] = mx.add_sound(booVariantDirectories[i]);
-        mx.set_sound_freq(allBooSounds[i][j], 44100);
-        mx.set_sound_vol(allBooSounds[i][j], 5);
-        mx.set_sound_pos(allBooSounds[i][j], bleacherSoundPositions[j][0], bleacherSoundPositions[j][1], bleacherSoundPositions[j][2]);
-      }
-    }
-   
-    for (i = 0; i < numOfCheerVariants; i++) {
-      for (j = 0; j < numOfBleachers; j++) {
-        allCheerSounds[i][j] = mx.add_sound(cheerVariantDirectories[i]);
-        mx.set_sound_freq(allCheerSounds[i][j], 44100);
-        mx.set_sound_vol(allCheerSounds[i][j], 5);
-        mx.set_sound_pos(allCheerSounds[i][j], bleacherSoundPositions[j][0], bleacherSoundPositions[j][1], bleacherSoundPositions[j][2]);
-      }
-    }
-    
-  }
-}
+    var timingGate;
+    if (globalRunningOrder.length < towerMaxRidersShowing)
+      numOfPeopleOnTower = globalRunningOrder.length;
 
-function initializeCheerAndBooAllSoundArrays(){
-  var i;
-  for (i = 0; i < numOfCheerVariants; i++)
-    allCheerSounds.push([]);
-  for (i = 0; i < numOfBooVariants; i++)
-    allBooSounds.push([]);
-}
-
-
-/*
-################################################
-dynamic crowd and mechanic sounds based on rider
-################################################
-*/
-
-// this number determines who the rider's mechanic is
-var mechanicNumberIdentifiers = [];
-var initialize_mechanic_identifiers = false;
-var soundDelay = 0;
-const seconds_to_delay = 3;
-var initializeCheerAndBooVariants = false;
-var playedScream = false;
-var time_to_play_scream;
-var playing_song = false;
-var time_started_song = 20;
-var current_song = -1;
-function dynamicMechanicAndFans() {
-
-	var randNumber, slot, timing_gate, i;
-	var running_order = g_running_order;
-  // use time to seed random numbers
-  var seconds = mx.seconds;
-
-	if (seconds >= 0 && !initialize_mechanic_identifiers) {
-    if (mainEvent) {
-      // Use last place's slot number to seed a random number between 3 and 6 seconds
-      time_to_play_scream = (running_order[running_order.length-1].slot % 4) + 3;
-    }
-
-		if (running_order.length > numOfMechanicPositions)
-			mx.message('Warning: Not Every Rider Will Be Assigned a Mechanic');
-
-		for (i = 0; i < running_order.length; i++) {
-      slot = running_order[i].slot;
-
-      /*
-      if the running order is longer than the mechanic positions length,
-      not all riders will be assigned a mechanic, only the ones within the confines
-      of the mechanic positions length
-      */
-
-      // assign mechanic sounds based on slot num
-			if (i <= numOfMechanicPositions) {
-        if (slot % 4 == 0) {
-          mechanicNumberIdentifiers[slot] = 3;
-        }
-        else if (slot % 3 == 0) {
-          mechanicNumberIdentifiers[slot] = 2;
-        }
-        else if (slot % 2 == 0) {
-          mechanicNumberIdentifiers[slot] = 1;
-        }
-        else {
-          mechanicNumberIdentifiers[slot] = 0;
-        }
-			}
-		}
-		initialize_mechanic_identifiers = true;
-	}
-
-  if (!initializeCheerAndBooVariants) {
-    initializeCheerAndBooVariantSounds();
-    initializeCheerAndBooVariants = true;
-  }
-
-  if (seconds > time_to_play_scream && !playedScream && mainEvent) {
-    for (var i = 0; i < main_event_screams.length; i++)
-      mx.start_sound(main_event_screams[i]);
-    playedScream = true;
-  }
-
-  if (playedScream && seconds < time_to_play_scream) {
-    playedScream = false;
-  }
-
-  if (songs_on) {
-    song_function();
-  }
-
-	for (i = 0; i < running_order.length; i++) {
-		slot = running_order[i].slot;
-		timing_gate = running_order[i].position;
-		/*
-		###################
-		crowds at bleachers
-		###################
-		if you do not want boos/cheers just delete this whole if statement section
-		*/
-    
-		if (timing_gate != current_timing_gates[slot] && (seconds >= soundDelay)) {
-			// Runs a loop every time someone hits a gate that's in the gatesAndPosCheerOrBoo array
-			for (var x = 0; x < gatesAndPosCheerOrBoo.length; x++) {
-				// every lap, and first sound only plays when you hit the first timing gate in the slot
-				if ((timing_gate - (gatesAndPosCheerOrBoo[x][0] + 1)) % normalLapLength == 0 && timing_gate >= gatesAndPosCheerOrBoo[x][0] + 1) {
-					// make's name comparison, sends in running order, index, and the array
-					makeNameComparison(slot, x, seconds);
-          break;
-				}
-			}
-		}
-		/*
-		##############
-		mechanics area
-		##############
-		*/ 
-		if (((timing_gate - (mechanicGate + 1)) % normalLapLength == 0) && 
-    (timing_gate > ((mechanicGate + 1) * (lapToActivateMechanics - 1))) && 
-    (timing_gate != current_timing_gates[slot])) {
-      var position = i + 1;
-      // pick from first place prompts
-			if (position == 1)
-				randNumber = Math.floor((seconds % 5));
-      // pick from front running sounds for top 5 that's not first
-			else if (position <= 5)
-				randNumber = Math.floor((seconds % 6)) + 5;
-      // pick from 6th-10th sounds
-      else if (position <= 10)
-				randNumber = Math.floor((seconds % 5)) + 11;
-      // pick from midpack1 sounds (11th-15th)
-      else if (position <= 15)
-				randNumber = Math.floor((seconds % 4)) + 16;
-      // pick from midpack2 sounds (16th-21st)
-      else if (position <= 21)
-				randNumber = Math.floor((seconds % 5)) + 20;
-      // pick from last place prompts
-      else if (position == running_order.length)
-				randNumber = Math.floor((seconds % 5)) + 35;
-      // pick from endpack sounds
-      else
-				randNumber = Math.floor((seconds % 10)) + 25;
+    else
+      numOfPeopleOnTower = towerMaxRidersShowing;
       
-      if (slot <= numOfMechanicPositions)
-        assignPositionsForMechanicsAndPlaySound(slot, mechanicNumberIdentifiers, randNumber);
-		}
-	}
-}
-
-
-function song_function() {
-  try {
-    if (playing_song) {
-      if (mx.seconds > song_lengths[current_song] + time_started_song || mx.seconds - time_started_song < 0) {
-        if (mx.seconds - time_started_song < 0) {
-          current_song--;
-        }
-        for (var i = 0; i < numOfSpeakers; i++) {
-          mx.stop_sound(songs[i][current_song]);
-        }
-        playing_song = false;
+    for (var i = 0; i < numOfPeopleOnTower; i++){
+      timingGate = globalRunningOrder[i].position;
+      if (timingGate > 0){
+        riderName = getCondensedName(mx.get_rider_name(globalRunningOrder[i].slot));
+        riderNum = mx.get_rider_number(slot);
+        a.push((i + 1).toString() + ')   ' + '#' + riderNum + ' ' + riderName);
       }
     }
-  
-    if (!playing_song && mainEvent && mx.seconds > time_to_start_songs){
-      current_song++;
-      if (current_song == songs.length)
-        current_song = 0;
-      for (var i = 0; i < numOfSpeakers; i++){
-        mx.start_sound(songs[i][current_song]);
-      }
-      playing_song = true;
-      time_started_song = mx.seconds;
-    }
-  }
-  catch(e){
-    mx.message('song error' + e);
-  }
-}
 
-function assignPositionsForMechanicsAndPlaySound(slotNumber, mechanicNumberIdentifiers, randNumber){
-  //var mechNum = mechanicNumberIdentifiers[slotNumber];
-	/*mx.message('slot number: ' + slotNumber);
-  mx.message('setting sound position for: [' + mechNum + '][' + randNumber + '] at ' + mechanicPositions[slotNumber]);
-  mx.set_sound_pos(allMechanicSounds[mechNum][randNumber], mechanicPositions[slotNumber][0], mechanicPositions[slotNumber][1], mechanicPositions[slotNumber][2]);
-  mx.start_sound(allMechanicSounds[mechNum][randNumber]);*/
-}
-
-function seed(s) {
-  var mask = 0xffffffff;
-  var m_w  = (123456789 + s) & mask;
-  var m_z  = (987654321 - s) & mask;
-
-  return function() {
-    m_z = (36969 * (m_z & 65535) + (m_z >>> 16)) & mask;
-    m_w = (18000 * (m_w & 65535) + (m_w >>> 16)) & mask;
-
-    var result = ((m_z << 16) + (m_w & 65535)) >>> 0;
-    result /= 4294967296;
-    return result;
-  }
-}
-
-function makeNameComparison(slot, benchPos, seconds) {
-  // use time to seed random numbers
-  seconds = seconds.toFixed(3);
-  var randNumber, randFunc, randFunc2;
-  var lucky_number = 2;
-
-  if (slots_to_cheer.indexOf(slot) != -1) {
-    // cheer sounds have a 10% chance of playing
-    randFunc = seed((seconds * 1000) << 2);
-    randNumber = Math.floor(randFunc() * 100) % 10;
-
-    if (randNumber == lucky_number) {
-      randFunc2 = seed((randFunc()) * mx.tics_per_second);
-      randNumber = Math.floor(randFunc2() * 100) % numOfCheerVariants;
-
-      mx.start_sound(allCheerSounds[randNumber][benchPos]);
-      // delay so sounds don't overlay
-      soundDelay = seconds + seconds_to_delay;
-    }
-  }
-
-  if (slots_to_boo.indexOf(slot) != -1) {
-    // boo sounds have a 10% chance of playing
-    randFunc = seed((seconds * 1000) << 2);
-    randNumber = Math.floor(randFunc() * 100) % 10;
-
-    if (randNumber == lucky_number) {
-      randFunc2 = seed((randFunc()) * mx.tics_per_second);
-      randNumber = Math.floor(randFunc2() * 100) % numOfBooVariants;
-
-      mx.start_sound(allBooSounds[randNumber][benchPos]);
-      // delay so sounds don't overlay
-      soundDelay = seconds + seconds_to_delay;
-    }
+    showText("Running Order\nPos Rider  Name\n" + a.join("\n"));
   }
 
 }
 
-// Make name comparison at the finish to determine if the rider should be booed or not when they win
-function makeNameComparisonFinish(slot) {
-  var randNumber;
-	
-  if (slots_to_boo.indexOf(slot) != -1) {
+var crashSounds = [];
+// choose random directories to assign to crashsounds so it's not all the same sound when someone crashes
+const crashSoundDirectories = [
+  "@os2022bgsxobj/sounds/crashes/crash1.raw",
+  "@os2022bgsxobj/sounds/crashes/crash2.raw",
+  "@os2022bgsxobj/sounds/crashes/crash3.raw",
+  "@os2022bgsxobj/sounds/cheers/roar1.raw",
+  "@os2022bgsxobj/sounds/cheers/roar2.raw"
+];
+const numOfCrashVariants = crashSoundDirectories.length;
+
+addCrashSounds();
+
+function addCrashSounds() {
+  if (!stadium) {
     for (var i = 0; i < numOfBleachers; i++) {
-      randNumber = randomIntFromInterval(0, (allBooSounds.length - 1));
-			mx.start_sound(allBooSounds[randNumber][i]);
-		}
+      crashSounds.push([]);
+      for (var j = 0; j < numOfCrashVariants; j++) {
+        crashSounds[i][j] = mx.add_sound(crashSoundDirectories[j]);
+        mx.set_sound_freq(crashSounds[i][j], 44100);
+        mx.set_sound_pos(crashSounds[i][j], bleacherSoundPositions[i][0], bleacherSoundPositions[i][1], bleacherSoundPositions[i][2]);
+      }
+    }
     return;
   }
 
-	for (var i = 0; i < numOfBleachers; i++) {
-    randNumber = randomIntFromInterval(0, (allCheerSounds.length - 1));
-		mx.start_sound(allCheerSounds[randNumber][j]);
-	}
-}
-
-var playFinishSoundAndFlame = false;
-function laps_remaining_string(l) {
-   if (l == 0) {
-     if (racingEvent) {
-      if (!playFinishSoundAndFlame) {
-        if (mainEvent) {
-          triggerAllFlameSounds();
-          triggerFireworkSounds();
-          makeNameComparisonFinish(g_running_order[0].slot);
-        }
-        // someone wins a heat or lcq
-        else triggerCrowdRoar(0.4);
-        playFinishSoundAndFlame = true;
-      }
-     }
-	   return "Finish";
-   }
-   if (l == 1) {
-      if (mainEvent && playFinishSoundAndFlame)
-        playFinishSoundAndFlame = false;
-      return "Final Lap";
-   }
-   return l.toFixed(0) + " Laps"
-}
-
-function time_or_laps_remaining() {
-   var t, l;
-
-   if (g_finish_time == 0)
-      return laps_remaining_string(g_finish_laps - mx.index_to_lap(g_running_order[0].position));
-
-   t = time_remaining();
-
-   if (t == 0) {
-      l = laps_remaining();
-      if (l <= g_finish_laps)
-         return laps_remaining_string(l);
-   }
-
-   return time_to_string(t);
-}
-function laps_remaining() {
-   final_lap = laps_before_time(g_finish_time) + 1 + g_finish_laps;
-
-   return final_lap - mx.index_to_lap(g_running_order[0].position);
-}
-
-function laps_before_time(seconds) {
-   var r, i, last, t;
-
-   if (seconds == 0)
-      return 0;
-
-   seconds += mx.get_gate_drop_time();
-
-   r = g_running_order;
-
-   last = mx.index_to_lap(r[0].position);
-
-   /* search backwards to find leader's last lap before time expired */
-   for (i = last; i > 0; i--) {
-      t = mx.get_timing(r[0].slot, mx.lap_to_index(i));
-      if (t < seconds)
-         break;
-   }
-
-   /* search entire field forwards to find last lap before time expired */
-   for (; i <= last; i++) {
-      if (!index_reached_before(mx.lap_to_index(i), seconds))
-         break;
-   }
-
-   return i - 1;
-}
-
-function time_remaining() {
-   var drop = mx.get_gate_drop_time();
-   var secs = mx.seconds - drop;
-
-   if (drop < 0 || secs < 0)
-      return g_finish_time;
-
-   return Math.max(0.0, g_finish_time - secs);
-}
-
-function index_reached_before(index, seconds) {
-   var i, r, t;
-
-   r = g_running_order;
-
-   for (i = 0; i < r.length; i++) {
-      t = mx.get_timing(r[i].slot, index);
-      if (t >= 0 && t < seconds)
-         return true;
-   }
-
-   return false;
-}
-
-/*
-########################################
-get, sort, and display laptimes function
-########################################
-*/
-var best_player_laps = [];
-var all_player_laps = [];
-var invalid_laptimes = [];
-var invalid_lap_numbers = [];
-var gotRunningOrder = false;
-var displayLeadLap = false;
-var debug_laps = true;
-var displayed_invalid_laps = false;
-
-function displayLaptimes() {
-	var riderName;
-	var r, slot, timing_gate;
-	var laptimeToString;
-
-  r = g_running_order;
-
-	if (!gotRunningOrder && mx.seconds >= 0) {
-		// sets an unchanging running order for storing unchanging element positions
-		for (var i = 0; i < r.length; i++) {
-			// best laps set to undefined time for every rider at the start of the session
-			best_player_laps[r[i].slot] = [undefinedTime, r[i].slot];
-      all_player_laps[r[i].slot] = [undefinedTime];
-      invalid_laptimes[r[i].slot] = [];
-      invalid_lap_numbers[r[i].slot] = [];
-		}
-		// update screen on start
-		if (!racingEvent) {
-      update_screen();
-    }
-      
-		gotRunningOrder = true;
-	}
-
-	for (var i = 0; i < r.length; i++) {
-		// initialize rider names array
-		slot = r[i].slot;
-		timing_gate = r[i].position;
-  
-		if ((timing_gate - firstLapLength) % normalLapLength == 0 && (timing_gate > 0) && (timing_gate != firstLapLength) && (timing_gate != current_timing_gates[slot])) {
-      riderName = mx.get_rider_name(slot);
-
-      // Laptime will be an array that stores the laptime and if the laptime is good or not
-      var laptime = get_laptime(slot, timing_gate);
-
-      // For time trial catching
-      if (r.length > all_player_laps.length) {
-        for (i = all_player_laps.length - 1; i < r.length; i++) {
-          best_player_laps[i] = [undefinedTime, slot];
-          all_player_laps[i] = [undefinedTime];
-          invalid_laptimes[i] = [];
-          invalid_lap_numbers[i] = [];
-        }
-      }
-
-      // Have to add 1 since laps are 1 based-indexed, this is the lap number the rider is on
-      var lap_number = ((timing_gate - firstLapLength) / normalLapLength) + 1;
-
-      // Lap 2 is the first lap that counts, so take the lap number and subtract 2 to get the index
-      all_player_laps[slot][lap_number - 2] = laptime[0];
-      
-      var new_pb = false;
-
-			// if 2nd lap, replace pb of 0
-			if (timing_gate == (firstLapLength + normalLapLength)) {
-        new_pb = true;
-      }
-			// not 2nd lap, check to see if lap is faster
-			else if (best_player_laps[slot][0] > laptime[0]) {
-        new_pb = true;
-      }
-
-      // If the rider missed a timing gate and it's there best, don't count the lap as a pb
-      if (laptime[1] == false) {
-        if (new_pb) new_pb = false;
-        // If this rider has already had this invalid lap number and laptime added, return and don't add
-        if (invalid_lap_numbers[slot].indexOf(lap_number) > -1) return;
-
-        // These two arrays have the same length
-        var len = invalid_laptimes[slot].length;
-        invalid_laptimes[slot][len] = laptime[0];
-        invalid_lap_numbers[slot][len] = lap_number;
-      }
-
-      if (new_pb) {
-        best_player_laps[slot][0] = laptime[0];
-				laptimeToString = time_to_string(laptime[0]);
-      
-				// update screen
-				if (!racingEvent) {
-          update_screen();
-          // For time trial catching
-          if (riderName == "") {
-            riderName = "Ghost Rider";
-          }
-          // Display person ran best lap of the session
-          if (is_fastest_lap(laptime[0])) {
-            mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + laptimeToString);
-          }
-        }
-      }
-		}
-  }
-
-  // display invalid laps if everyone finished
-  if (!racingEvent && every_rider_finished && !displayed_invalid_laps) {
-    display_invalid_laptimes();
-    displayed_invalid_laps = true;
+  for (var i = 0; i < numOfCrashVariants; i++) {
+    crashSounds[i] = mx.add_sound(crashSoundDirectories[i]);
+    mx.set_sound_freq(crashSounds[i], 44100);
   }
 }
 
-function display_invalid_laptimes() {
-  var printed_header = false;
-  var riders_with_invalid_laps = 0;
-  var output;
-  for (var slot = 0; slot < invalid_laptimes.length; slot++) {
-    // if we have undefined slot, continue
-    if (invalid_laptimes[slot] == undefined) continue;
-
-    // if we have an empty array, where the rider had no invalid laps, continue to next rider
-    var sub_arr_len = invalid_laptimes[slot].length;
-    if (sub_arr_len == 0) continue;
-
-    
-    invalid_laptimes[slot].sort(function(a, b){return a-b});
-    var best_rider_lap = best_player_laps[slot][0];
-
-    // If their best invalid lap was slower than a lap that counted, continue to next rider
-    if (invalid_laptimes[slot][0] > best_rider_lap) continue;
-    
-    // Increment the number of riders with invalid laps
-    riders_with_invalid_laps++;
-
-    // Print the header of invalid laps if we have at least one person with an invalid laptime
-    if (!printed_header) {
-      print_header("\x1b[31m", "Invalid Laptimes:", 22, true);
-      printed_header = true;
-    }
-    var rider_name = mx.get_rider_name(slot);
-    output = rider_name + " - (\x1b[31m" + time_to_string(invalid_laptimes[slot][0]);
-
-    for (var i = 1; i < sub_arr_len; i++) {
-      // if we are at a lap that's 1.5 seconds slower than the faster than the slowest lap or it's slower than their best counted, exit loop
-      if (invalid_laptimes[slot][i] > invalid_laptimes[slot][0] + 1.5 || invalid_laptimes[slot][i] > best_rider_lap) break;
-      output += "\x1b[0m, \x1b[31m" + time_to_string(invalid_laptimes[slot][i]);
-    }
-
-    output += "\x1b[0m)";
-    mx.message(output);
-  }
-
-  if (riders_with_invalid_laps > 0) mx.message("");
-
-}
-
-
-function is_fastest_lap(laptime) {
-
-  var best_player_laps_srtd = best_player_laps.slice();
-  best_player_laps_srtd.sort(function (a, b){return a[0] - b[0];});
-  var best_lap = best_player_laps_srtd[0][0];
-  if (best_lap == laptime) return true;
-
-  return false;
-}
-
-function get_laptime(slot, current_gate) {
-  var end_gate = current_gate - 1;
-  var start_gate = end_gate - normalLapLength;
-  var is_lap_good = true;
-  // If the rider missed a timing gate between the lap, don't count it
-  for (var i = start_gate + 1; i < end_gate; i++) {
-    if (mx.get_timing(slot, i) < 0) {
-      is_lap_good = false;
-      break;
-    }
-  }
-  var start_lap = mx.get_timing(slot, start_gate);
-  var finish_lap = mx.get_timing(slot, end_gate);
-  return [finish_lap - start_lap, is_lap_good];
-}
-
-function break_time(t) {
-   var min, sec, ms;
-
-   ms = Math.floor(t * 1000.0);
-   sec = Math.floor(ms / 1000);
-   min = Math.floor(sec / 60);
-
-   ms -= sec * 1000;
-   sec -= min * 60;
-
-   return { min: min, sec: sec, ms: ms };
-}
-
-function left_fill_string(s, pad, n) {
-
-   n -= s.length;
-
-   while (n > 0) {
-      if (n & 1)
-         s = pad + s;
-
-      n >>= 1;
-      pad += pad;
-   }
-
-   return s;
-}
-
-// converts raw seconds to formatted time
-function time_to_string(t) {
-   var s;
-
-   t = break_time(t);
-
-   s = left_fill_string(t.min.toString(), " ", 0) + ":";
-   s += left_fill_string(t.sec.toString(), "0", 2) + ".";
-   s += left_fill_string(t.ms.toString(), "0", 3);
-
-   return s;
-}
-
-var initialize_rider_down_stuff = false;
-var set_start_delay = false;
-var down_check_gates = [];
-var times_riders_last_crash = [];
-var start_delay = undefinedTime;
+var setStartDelay = false;
+var initializeRiderDown = false;
+var riderDownCheckGates = [];
+var timesRidersLastCrashed = [];
+var startDelay = undefinedTime;
 // this number is the top x people the crowd will react to going down
-var max_num_riders_down = 3;
-const base_vol_factor = 1.75;
+var maxNumRidersDown = 3;
+const baseVolFactor = 2.75;
 
-const place_extensions = [
-  "th", "st", "nd", "rd", "th", "th",
-  "th", "th", "th", "th"
-];
+function intializeRiderDownStuff() {
+    var r = globalRunningOrder;
+    for (var i = 0; i < r.length; i++) {
+        timesRidersLastCrashed[r[i].slot] = -1;
+        riderDownCheckGates[r[i].slot] = 0;     
+    }
+    // change the number of riders to cheer for going down if somehow the number is greater than the running order length
+    if (r.length < maxNumRidersDown) {
+      maxNumRidersDown = r.length;
+    }
+}
 
 /*
 ###############################
 REWRITE FUNCTION TO WORK WITH ANY NUMBER OF PEOPLE -> DONE
 ###############################
 */
+
 function isRiderDown() {
-
-	var r;
-	// r is stored as the running order
-	r = g_running_order;
-
-	// store down check gates at 0, initialize times_riders_crashed, and reassign num of riders down
-  if (!initialize_rider_down_stuff) {
-    for (var i = 0; i < r.length; i++) {
-      times_riders_last_crash[r[i].slot] = -1;
-      down_check_gates[r[i].slot] = 0;     
-	  }
-    // change the number of riders to cheer for going down if somehow the number is greater than the running order length
-    if (max_num_riders_down > r.length) {
-      max_num_riders_down = r.length;
-    }
-    initialize_rider_down_stuff = true;
+  
+  var r = globalRunningOrder;
+  if (!initializeRiderDown) {
+    intializeRiderDownStuff();
+    initializeRiderDown = true;
   }
-
+  
   // wait 20 seconds after gate drop until checking for the top 3 riders going down
-  if (gateDropped && !set_start_delay) {
-    start_delay = gateDropTime + 20;
-    set_start_delay = true;
+  if (gateDropped && !setStartDelay) {
+    startDelay = gateDropTime + 20;
+    setStartDelay = true;
   } 
 		
-  if (mx.seconds < start_delay) return;
+  if (mx.seconds < startDelay) return;
 
   var seconds = mx.seconds;
-  var slots_down = [];
-  var sum_positions_down = 0;
+  var slotsDownArr = [];
+  var sumPositionsDown = 0;
 
-  for (var i = 0; i < max_num_riders_down; i++) {
+  for (var i = 0; i < maxNumRidersDown; i++) {
     var slot = r[i].slot;
-    var timing_gate = r[i].position;
-    if (mx.get_rider_down(slot) === 1 && timing_gate != down_check_gates[slot]) {
+    var timingGate = r[i].position;
+    if (mx.get_rider_down(slot) === 1 && timingGate != riderDownCheckGates[slot]) {
+
       // if rider is down and happened to roll into the next timing gate after their gate check
-      if (timing_gate === (down_check_gates[slot] + 1) && seconds < (times_riders_last_crash[slot] + 4)) {
-        down_check_gates[slot] = timing_gate;
+      if (timingGate === (riderDownCheckGates[slot] + 1) && seconds < (timesRidersLastCrashed[slot] + 4)) {
+        riderDownCheckGates[slot] = timingGate;
         return;
       }
-      times_riders_last_crash[slot] = seconds;
+
+      timesRidersLastCrashed[slot] = seconds;
       // store the slot down, and position they're in.
-      slots_down[slots_down.length] = [slot, i + 1];
-      sum_positions_down = i + 1;
+      slotsDownArr[slotsDownArr.length] = [slot, i + 1];
+      sumPositionsDown = i + 1;
 
       // go through again and see if someone's already down and accounted for
-      for (var j = 0; j < max_num_riders_down; j++) {
+      for (var j = 0; j < maxNumRidersDown; j++) {
         if (i == j) continue;
-        var slot_two = r[j].slot;
-        var timing_gate_two = r[j].position;
-        if (mx.get_rider_down(slot_two) === 1) {
+        var slotTwo = r[j].slot;
+        var timingGateTwo = r[j].position;
+        if (mx.get_rider_down(slotTwo) === 1) {
           // If this is the first time the rider has been caught crashing as well, set their down check gate and time they crashed
-          if (timing_gate_two != down_check_gates[slot_two]) {
-            down_check_gates[slot_two] = timing_gate_two;
-            times_riders_last_crash[slot_two] = seconds;
+          if (timingGateTwo != riderDownCheckGates[slotTwo]) {
+            riderDownCheckGates[slotTwo] = timingGateTwo;
+            timesRidersLastCrashed[slotTwo] = seconds;
           }
           // store the slot down, and position they're in.  Accumulate sum of positions down
-          slots_down[slots_down.length] = [slot_two, j + 1];
-          sum_positions_down += (j + 1);
+          slotsDownArr[slotsDownArr.length] = [slotTwo, j + 1];
+          sumPositionsDown += (j + 1);
         }
       }
-      down_check_gates[slot] = timing_gate;
+      riderDownCheckGates[slot] = timingGate;
     }
   }
 
-  const num_riders_down = slots_down.length;
-  if (num_riders_down < 1) return;
+  
+  const numRidersDown = slotsDownArr.length;
+  if (numRidersDown < 1) return;
 
-  var riders_down_together = 0;
-  var num_riders_down_at_same_time = 0;
+  var ridersDownTogether = 0;
+  var numRidersDownAtSameTime = 0;
 
   // See how many riders are down at the same time, or same gate
-  if (num_riders_down > 1) {
-    for (var i = 0; i < num_riders_down; i++) {
-      var tg = down_check_gates[slots_down[i][0]];
+  if (numRidersDown > 1) {
+    for (var i = 0; i < numRidersDown; i++) {
+      var tg = riderDownCheckGates[slotsDownArr[i][0]];
       
-      for (var j = i + 1; j < num_riders_down; j++) {
-        var tg2 = down_check_gates[slots_down[j][0]];
+      for (var j = i + 1; j < numRidersDown; j++) {
+        var tg2 = riderDownCheckGates[slotsDownArr[j][0]];
         
         /* Have to take the absolute value because the slots down doesn't take into account in which order the riders crashed, just that they crashed and the times
             it happened, and since the gaps can never be less than zero, we can take the absolute value which essentially flip flops the times 
             if someone crashed before the other person */
-        if (Math.abs(times_riders_last_crash[slots_down[i][0]] - times_riders_last_crash[slots_down[j][0]]) <= 2) {
-          num_riders_down_at_same_time++;
+        if (Math.abs(timesRidersLastCrashed[slotsDownArr[i][0]] - timesRidersLastCrashed[slotsDownArr[j][0]]) <= 2) {
+          numRidersDownAtSameTime++;
         }
   
         if (tg === tg2) {
-          riders_down_together++;
+          ridersDownTogether++;
         }
       }
     }
   }
 
-  const avg_position_down = sum_positions_down / num_riders_down;
+  const avgPositionDown = sumPositionsDown / numRidersDown;
   // volume is determined by what positions are currently down, how many riders are down, how many are down together, how many crashed at the same time
-  var volume = (base_vol_factor + ((num_riders_down_at_same_time + riders_down_together) / 2)) / (avg_position_down / num_riders_down);
+  var volume = (baseVolFactor + ((numRidersDownAtSameTime + ridersDownTogether) / 2)) / (avgPositionDown / numRidersDown);
 
   playCrashSound(volume);
 }
 
-function updateRunningOrderScreen() {
-  var r = g_running_order;
-  var slot, timing_gate;
-  if (g_running_order.length > 1) {
-    for (i = 0; i < r.length; i++) {
-      slot = r[i].slot;
-      timing_gate = r[i].position;
-      if (timing_gate != current_timing_gates[slot]){
-        if (checkPosChange(slot, i) || timing_gate == 1) {
-          update_screen();
-        }
-      }
-    }
-  }
-  else if (r[0].position == 1 && r[0].position != current_timing_gates[slot]) {
-    update_screen();
-  }
-}
-
-function ResetSlotPositionHolder() {
-  for (var i = 0; i < g_running_order.length; i++) {
-    slot_position_holder[i] = g_running_order[i].slot;
-  }
-}
-
-function set_up_cheer_boo_slots() {
-  if (!racingEvent) return;
-
-  for (var i = 0; i < g_running_order.length; i++) {
-    var slot = g_running_order[i].slot;
-    var rider_name = mx.get_rider_name(slot).toLowerCase();
-    for (var i = 0; i < booRiderNames.length; i++) {
-      if (rider_name.includes(booRiderNames[i])) {
-        slots_to_boo[slots_to_boo.length] = slot;
-        break;
-      }
-    }
-    for (var i = 0; i < cheerRiderNames.length; i++) {
-      if (rider_name.includes(cheerRiderNames[i])) {
-        slots_to_cheer[slots_to_cheer.length] = slot;
-        break;
-      }
-    }
-  }
-}
-
-var initializedArrays = false;
-function frameHandler(seconds) {
-  g_running_order = mx.get_running_order();
-  if (!initializedArrays) {
-    reset_current_timing_gates();
-    ResetSlotPositionHolder();
-    set_up_cheer_boo_slots();
-    initializedArrays = true;
-  }
-
-  if (stadium) updateCamPosition();
-	gateSound();
-  determineHoleshot();
-  update_rider_finish_flags();
-  if (racingEvent) {
-    isRiderDown();
-    try {
-      dynamicMechanicAndFans();
-    }
-    catch (e) {
-      mx.message('dynamic sounds error: ' + e);
-    }
-    battlesFunction();
-    updateRunningOrderScreen();
-    do_pyro();
-    rider_awards();
-  }
-  try {
-		displayLaptimes();
-	}
-	catch (e) {
-		mx.message('laptimes error: ' + e);
-	}
-  moveBales();
-  time_or_laps_remaining();
-	flaggers_frame_handler(seconds);
-  reset_current_timing_gates();
-  frameHandlerPrev(seconds);
-}
-
-var frameHandlerPrev = mx.frame_handler;
-mx.frame_handler = frameHandler;
-
-var most_consistent_rider;
-
-function rider_awards() {
-  // If it's not a main event, don't display awards
-  if (!mainEvent) return;
-
-  if (every_rider_finished && !displayed_awards) {
-    
-    calculate_positions_gained();
-    most_consistent_rider = get_rider_consistency();
-
-    var msg;
-    var extra_space = false;
-    
-    // Initial Header
-    print_header("\x1b[33m", "Awards:", 11, extra_space);
-    mx.message("Note: Hard Charger / Anchor do not account for cuts.");
-    mx.message("");
-    msg = "Nobody";
-    extra_space = true;
-    
-    // Holeshot
-    print_header("\x1b[36m", "Holeshot Award:", 21, extra_space);
-
-    var rider_name = mx.get_rider_name(holeshot_rider_slot);
-    if (rider_name) msg = rider_name.toString();
-    
-    mx.message(msg);
-    mx.message("");
-    msg = "Nobody";
-
-    // Hard Charger Award
-    print_header("\x1b[32m", "Hard Charger Award:", 27, extra_space)
-
-    var positions_gained = 0;
-    if (rider_positions_gained[0]){
-      positions_gained = rider_positions_gained[0][0];
-      rider_name = mx.get_rider_name(rider_positions_gained[0][1]);
-      if (positions_gained != 0) msg = "\x1b[32m+" + positions_gained.toString() + ' Positions\x1b[0m - ' + rider_name.toString();
-    }
-    
-    mx.message(msg);
-    mx.message("");
-    msg = "Nobody";
-
-    // Anchor Award
-    print_header("\x1b[31m", "Anchor Award:", 19, extra_space);
-
-    if (rider_positions_gained[rider_positions_gained.length - 1][0] != rider_positions_gained[0][0]) {
-      positions_gained = rider_positions_gained[rider_positions_gained.length - 1][0];
-      rider_name = mx.get_rider_name(rider_positions_gained[rider_positions_gained.length - 1][1]);
-      if (positions_gained != 0) msg = "\x1b[31m" + positions_gained.toString() + ' Positions\x1b[0m - ' + rider_name.toString();
-    }
-    
-    mx.message(msg);
-    mx.message("");
-    msg = "Nobody";
-
-    // On the Clock Award
-    print_header("\x1b[34m", "On The Clock Award:", 26, extra_space);
-    
-    var fastest_rider = get_fastest_lap();
-    if (fastest_rider[0] != undefinedTime) {
-      rider_name = mx.get_rider_name(fastest_rider[1]);
-      msg = "\x1b[34m" + time_to_string(fastest_rider[0]) + '\x1b[0m - ' + rider_name.toString();
-    }
-    mx.message(msg);
-    mx.message("");
-    msg = "Nobody";
-
-    // Consistency Award
-    print_header("\x1b[35m", "Consistency Award:", 25, extra_space);
-
-    var std_dev = most_consistent_rider[0].toFixed(3);
-    rider_name = mx.get_rider_name(most_consistent_rider[1]);
-    if (most_consistent_rider) msg = "\x1b[35mStd. Dev: " + std_dev.toString() + "\x1b[0m - " + rider_name.toString();
-    mx.message(msg);
-
-    displayed_awards = true;
-  }
-}
-
-function print_header(color, header, dash_length, space) {
-  var dashes = "";
-  for (var i = 0; i < dash_length; i++) {
-    dashes += "-";
-  }
-  mx.message(color + dashes);
-  mx.message(color + header);
-  mx.message(color + dashes);
-  if (space) mx.message("");
-}
-
-// zero indexed, 0 is 1st, 1 is 2nd, etc.
-var rider_positions_after_L1 = [];
-var rider_positions_finish = [];
-var rider_positions_gained = [];
-
-// calculate stats
-function calculate_positions_gained () {
-  if (rider_positions_after_L1.length != rider_positions_finish.length) return;
-
-  var num_null_arrs = 0;
-  for (var i = 0; i < rider_positions_after_L1.length; i++) {
-    if (rider_positions_after_L1[i] && rider_positions_finish[i]) {
-      rider_positions_gained.push([]);
-      // first store the number of positions gained
-      rider_positions_gained[i - num_null_arrs][0] = rider_positions_after_L1[i][0] - rider_positions_finish[i][0];
-      // then their slot number associated
-      rider_positions_gained[i - num_null_arrs][1] = rider_positions_after_L1[i][1];
-    } else {
-      num_null_arrs++;
-    }
-  }
-
-  // sort in descending order by largest num of positions gained.
-  rider_positions_gained.sort(function (a, b) {
-    if (a[0] < b[0]) {
-      return 1;
-    }
-
-    if (a[0] == b[0]) {
-      // If the two riders gained or lost the same number of positions but the finish position of A rider was worse then B rider, then A rider gained 'less' positions
-      if (rider_positions_finish[a[1]] > rider_positions_finish[b[1]]) {
-        return 1;
-      }
-    }
-    return -1;
-  });
-}
-
-function get_fastest_lap() {
-  // copy best_player_laps into temp array
-  var best_player_laps_srtd = best_player_laps.slice();
-  // srt array and return
-  best_player_laps_srtd.sort(function (a, b){return a[0] - b[0];});
-  return best_player_laps_srtd[0];
-}
-
-function get_rider_consistency() {
-  // TODO: calculate the std deviation for each rider
-  var avg_laps = [];
-  var std_devs = [];
-
-  for (var slot = 0; slot < all_player_laps.length; slot++) {
-    var sum = 0;
-    avg_laps[slot] = undefined;
-    std_devs[slot] = undefined;
-    if (all_player_laps[slot].length > 0) {
-      // calculate average laptime for each player
-      for (var j = 0; j < all_player_laps[slot].length; j++) {
-        sum += all_player_laps[slot][j];
-      }
-      avg_laps[slot] = sum / all_player_laps[slot].length;
-
-      // std deviation = sqrt((lap - avglap)^2 for all laps / num of laps)
-      sum = 0;
-      for (var j = 0; j < all_player_laps[slot].length; j++) {
-        sum += Math.pow(all_player_laps[slot][j] - avg_laps[slot], 2);
-      }
-
-      var variance = sum / all_player_laps[slot].length;
-      var std_deviation = Math.sqrt(variance);
-      std_devs[slot] = [std_deviation, slot];
-    }
-  }
-
-  // sort by array by each rider's standard deviation
-  std_devs.sort(function (a, b){return a[0] - b[0];})
+var maxCrashRepetitions = Math.ceil(numOfBleachers / numOfCrashVariants);
+var crashVariantCounter = [];
+function playCrashSound(multiplier) {
+	var volume, randNumber;
+	volume = multiplier;
   
-  // filter out zeros and undefined.
-  for (var i = 0; i < std_devs.length; i++) {
-    if (!std_devs[i] || std_devs[i][0] <= 0) {
-      std_devs.splice(i,1);
-      i--;
+	if (!stadium) {
+    for (var i = 0; i < numOfCrashVariants; i++) {
+      crashVariantCounter[i] = 0;
     }
- }
+
+	  for (var i = 0; i < numOfBleachers; i++) {
+      do {
+        randNumber = randomIntFromInterval(0, numOfCrashVariants - 1);
+      }
+      while (crashVariantCounter[randNumber] == maxCrashRepetitions);
+
+      crashVariantCounter[randNumber]++;
+	    mx.set_sound_vol(crashSounds[i][randNumber], volume);
+	    mx.start_sound(crashSounds[i][randNumber]);
+	  }
+    return;
+	}
+		
+  // if the sounds are in a stadium, then just play a random variant for all the riders
+	randNumber = Math.floor((mx.seconds * 1234) % numOfCrashVariants);
+	mx.set_sound_vol(crashSounds[randNumber], volume);
+	mx.start_sound(crashSounds[randNumber]);
   
-  // returns an array with the consistency and slot associated
-  return std_devs[0];
 }
 
-var every_rider_finished = false;
-var time_to_give_up = 30;
+var everyRiderFinished = false;
+const timeToGiveUp = 30;
 // flags to hold whether a person has finished the race or not
-var riders_finished = [];
-var times_until_give_up = [];
-var set_up_rider_finish_flags = false;
-var set_seconds_at_first_finish = false;
-var displayed_awards = false;
+var ridersFinishedArr = [];
+var timesUntilGiveUpArr = [];
+var setUpRiderFinishFlags = false;
+var setSecondsAtFirstFinish = false;
 
-function update_rider_finish_flags() {
-  var r = g_running_order;
-  var timing_gate, slot, rider_laps_remain;
+function updateRiderFinishFlags() {
+  var r = globalRunningOrder;
+  var timingGate, slot, riderLapsRemain;
 
   // stores rider start / finish positions
   for (var i = 0; i < r.length; i++) {
     slot = r[i].slot;
-    timing_gate = r[i].position;
+    timingGate = r[i].position;
 
-    if (!set_up_rider_finish_flags) {
+    if (!setUpRiderFinishFlags) {
       // Set all active slots to unfinished
-      riders_finished[slot] = false;
+      ridersFinishedArr[slot] = false;
       if (i == r.length - 1) {
-        set_up_rider_finish_flags = true;
+        setUpRiderFinishFlags = true;
       }
     }
     
     // stores rider positions after lap 1
-    if (timing_gate == firstLapLength && timing_gate != current_timing_gates[slot]) {
-      rider_positions_after_L1[slot] = [(i + 1), slot];
+    if (timingGate == firstLapLength && timingGate != currentTimingGates[slot]) {
+      riderPositionsAfterL1[slot] = [(i + 1), slot];
     } 
       
 
     // if time has expired
-    if (mx.seconds >= g_drop_time + g_finish_time || g_finish_time == 0) {
+    if (mx.seconds >= gateDropTime + globalFinishTime || globalFinishTime == 0) {
       
       // get laps that remain
-      if (g_finish_time == 0 && g_finish_laps == 0) {
+      if (globalFinishTime == 0 && globalFinishLaps == 0) {
         // Finish line is now first timing gate
-        rider_laps_remain = 1 - g_running_order[0].position;
+        riderLapsRemain = 1 - globalRunningOrder[0].position;
       }
-      else if (g_finish_time == 0) {
-        rider_laps_remain = g_finish_laps - mx.index_to_lap(g_running_order[0].position);
+      else if (globalFinishTime == 0) {
+        riderLapsRemain = globalFinishLaps - mx.index_to_lap(globalRunningOrder[0].position);
       }
       else {
-        rider_laps_remain = laps_remaining();
+        riderLapsRemain = lapsRemaining();
       }
         
 
       // if first has finished
-      if (rider_laps_remain == 0) {
+      if (riderLapsRemain == 0) {
 
         // set up all times players have to hit the next timing gate except first
-        if (!set_seconds_at_first_finish) {
-          for (var j = 0; j < riders_finished.length; j++) {
+        if (!setSecondsAtFirstFinish) {
+          for (var j = 0; j < ridersFinishedArr.length; j++) {
             if (j == r[0].slot) continue;
-            times_until_give_up[j] = mx.seconds + time_to_give_up;
+            timesUntilGiveUpArr[j] = mx.seconds + timeToGiveUp;
           }
-          set_seconds_at_first_finish = true;
+          setSecondsAtFirstFinish = true;
         }
 
-        if (timing_gate != current_timing_gates[slot]) {
+        if (timingGate != currentTimingGates[slot]) {
 
           // if rider hit the finish timing gate, set the position they finished and a flag that they have finished
-          if ((timing_gate - firstLapLength) % normalLapLength == 0 || g_finish_laps == 0) {
-            rider_positions_finish[slot] = [(i + 1), slot];
-            riders_finished[slot] = true;
+          if ((timingGate - firstLapLength) % normalLapLength == 0 || globalFinishLaps == 0) {
+            riderFinishPositions[slot] = [(i + 1), slot];
+            ridersFinishedArr[slot] = true;
           }
 
           // if they haven't finished, but hit a new timing gate reset their time to give up
-          else if (!riders_finished[slot]) {
-            times_until_give_up[slot] = mx.seconds + time_to_give_up;
+          else if (!ridersFinishedArr[slot]) {
+            timesUntilGiveUpArr[slot] = mx.seconds + timeToGiveUp;
           }
 
           // if they have hit a new timing gate and have finished it means we've incorrectly assumed they've given up, so reset
-          else if (riders_finished[slot]) {
-            riders_finished[slot] = false;
-            times_until_give_up[slot] = undefined;
-            if (every_rider_finished && displayed_awards) {
-              every_rider_finished = false;
-              displayed_awards = false;
+          else if (ridersFinishedArr[slot]) {
+            ridersFinishedArr[slot] = false;
+            timesUntilGiveUpArr[slot] = undefined;
+            if (everyRiderFinished && displayedAwards) {
+              everyRiderFinished = false;
+              displayedAwards = false;
             }
           }
         }
 
         // if current in game time is greater than the riders time to give up, set flag that they have finished
-        else if (mx.seconds > times_until_give_up[slot] && riders_finished[slot] == 0) {
-          rider_positions_finish[slot] = [(i + 1), slot];
-          riders_finished[slot] = true;
+        else if (mx.seconds > timesUntilGiveUpArr[slot] && ridersFinishedArr[slot] == 0) {
+          riderFinishPositions[slot] = [(i + 1), slot];
+          ridersFinishedArr[slot] = true;
         }
       }
       // if first is the only rider and they haven't finished (going back in demos)
-      else if (every_rider_finished) {
-        riders_finished[r[0].slot] = false;
-        every_rider_finished = false;
+      else if (everyRiderFinished) {
+        ridersFinishedArr[r[0].slot] = false;
+        everyRiderFinished = false;
+        setSecondsAtFirstFinish = false;
       }
     }
   }
 
   // check every flag is set to true, if it is we can now display awards if it's a main, or display invalid laps if it's not a racing event
-  if (!every_rider_finished) {
-    every_rider_finished = true;
-    displayed_invalid_laps = false;
-    for (var i = 0; i < riders_finished.length; i++) {
-      if (riders_finished[i] == false) {
-        every_rider_finished = false;
+  if (!everyRiderFinished) {
+    everyRiderFinished = true;
+    displayedInvalidLaps = false;
+    for (var i = 0; i < ridersFinishedArr.length; i++) {
+      if (ridersFinishedArr[i] == false) {
+        everyRiderFinished = false;
         break;
       }
     }
   }
 }
 
-function reset_current_timing_gates(){
-  var timingGate, slot;
-  for (var i = 0; i < g_running_order.length; i++){
-    slot = g_running_order[i].slot;
-    timingGate = g_running_order[i].position;
-    if (timingGate != current_timing_gates[slot]){
-      // for demos going back in time, reset their down check gate
-      if (timingGate < current_timing_gates[slot]) {
-        current_timing_gates[slot] = timingGate;
-        down_check_gates[slot] = 0;
-        soundDelay = 0;
-      }
-      current_timing_gates[slot] = timingGate;
-    }
-  }
-}
+var firstLapGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]; 
+var normalLapGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]; 
+var flaggersArr = [];
+var flaggerCount = flaggersArr.length;
+var starterIndex = 0;
+var finisherIndex = 1;
+var firstFlaggerIndex = 2;
+var thirtyBoardIndex = firstFlaggerIndex + flaggerCount;
+var greenFlagIndex = thirtyBoardIndex + 1;
+var whiteFlagIndex = greenFlagIndex + 1;
+var checkedFlagIndex = whiteFlagIndex + 1;
+var firstYellowFlagIndex;
 
-var maxCrashRepetitions;
-var maxRepCrashCounter = [];
-var setMaxCrashRep = false;
-function playCrashSound(multiplier) {
-	var volume, randNumber;
-	volume = multiplier;
-	if (!stadium) {
-		volume = multiplier;
-    for (var i = 0; i < numOfCrashVariants; i++)
-      maxRepCrashCounter[i] = 0;
-    if (!setMaxCrashRep){ 
-      maxCrashRepetitions = Math.ceil(numOfBleachers / numOfCrashVariants);
-      setMaxCrashRep = true;
-    }
-		for (var i = 0; i < numOfBleachers; i++) {
-      do {
-        randNumber = randomIntFromInterval(0, numOfCrashVariants - 1);
-      }
-      while (maxRepCrashCounter[randNumber] >= maxCrashRepetitions);
+var starterStartPos = [ 312.8, 385.2 ];
+var starterEndPos = [ 284.7, 357.5 ];
+var starterFeetPerSecond = 10.0;
+var starterRunVector = [ 0, 0 ];
+var starterRunDistance;
 
-      maxRepCrashCounter[randNumber]++;
-			mx.set_sound_vol(crashSounds[i][randNumber], volume);
-			mx.start_sound(crashSounds[i][randNumber]);
-		}
-	} else {
-		// if the sounds are in a stadium, then just play a random variant for all the riders
-		randNumber = Math.floor(mx.seconds % numOfCrashVariants);
-		mx.set_sound_vol(crashSounds[randNumber], volume);
-		mx.start_sound(crashSounds[randNumber]);
-	}
+movv2(starterRunVector, starterEndPos);
+subv2(starterRunVector, starterStartPos);
 
-}
+starterRunDistance = Math.sqrt(dotv2(starterRunVector, starterRunVector));
+starterRunDuration = starterRunDistance / starterFeetPerSecond;
+starterRunStartTime = 6.5;
+starterRunEndTime = starterRunStartTime + starterRunDuration;
 
-// this variable is for determining if someone is going backwards in the demo
-var backwards = false;
-var holeshot_rider_slot;
-function determineHoleshot(){ 
-  var r = g_running_order;
-  // this first if is for optimization so the rest isn't called after first is 2 gates away from the holeshot
-  if (r[0].position <= (holeshotGate + 3)){ 
-    if (r[0].position == (holeshotGate + 1) && !backwards) {
-      if (!holeshot){
-        holeshot_rider_slot = r[0].slot;
-        firstPlaceName = mx.get_rider_name(holeshot_rider_slot);
-        holeshot = true;
-        if (mainEvent) {
-          trigger_holeshot_pyro();
-        }
-      }
-    }
-    else {
-      // for demos going backwards in time
-      if (r[0].position >= (holeshotGate + 1)) backwards = true;
-      else backwards = false;
-      holeshot = false;
-    }
-  }
-}
-
-var g_starter_start_pos = [ 312.8, 385.2 ];
-var g_starter_end_pos = [ 284.7, 357.5 ];
-var g_starter_feet_per_second = 10.0;
-var g_starter_run_vector = [ 0, 0 ];
-var g_starter_run_distance;
-var g_starter_run_time;
-
-movv2(g_starter_run_vector, g_starter_end_pos);
-subv2(g_starter_run_vector, g_starter_start_pos);
-
-g_starter_run_distance = Math.sqrt(dotv2(g_starter_run_vector, g_starter_run_vector));
-g_starter_run_duration = g_starter_run_distance / g_starter_feet_per_second;
-g_starter_run_start_time = 6.5;
-g_starter_run_end_time = g_starter_run_start_time + g_starter_run_duration;
-
-function update_starter() {
+function updateStarter() {
 	var t = mx.seconds;
 	var v = [ 0, 0 ];
 	var a, f;
 
 
-	if (t < g_starter_run_start_time)
-		movv2(v, g_starter_start_pos);
-	else if (t > g_starter_run_end_time) {
-		movv2(v, g_starter_end_pos);
-		pose_animate(g_flagger_idle, g_starter_index, t);
-		pose_animate(g_flag_idle, g_30board_index, t);
+	if (t < starterRunStartTime)
+		movv2(v, starterStartPos);
+	else if (t > starterRunEndTime) {
+		movv2(v, starterEndPos);
+		poseAnimate(flaggerIdleAnim, starterIndex, t);
+		poseAnimate(flagIdleAnim, thirtyBoardIndex, t);
 		return;
 	} else {
-		movv2(v, g_starter_run_vector);
-		scalev2(v, (t - g_starter_run_start_time) / g_starter_run_duration);
-		addv2(v, g_starter_start_pos);
+		movv2(v, starterRunVector);
+		scalev2(v, (t - starterRunStartTime) / starterRunDuration);
+		addv2(v, starterStartPos);
 	}
 
-	a = Math.atan2(g_starter_run_vector[0], g_starter_run_vector[1]) - Math.PI / 2.0;
+	a = Math.atan2(starterRunVector[0], starterRunVector[1]) - Math.PI / 2.0;
 	a -= Math.PI * 4.0; /* force vertical Y axis */
-	mx.move_statue(g_starter_index, v[0], 3.9, v[1], a);
-	mx.move_statue(g_30board_index, v[0], 3.9, v[1], a);
+	mx.move_statue(starterIndex, v[0], 3.9, v[1], a);
+	mx.move_statue(thirtyBoardIndex, v[0], 3.9, v[1], a);
 
 	/*
 	 turn 0-11
@@ -3445,20 +674,18 @@ function update_starter() {
 	if (f > 42.0)
 		f = (f - 29.0) % 13.0 + 29.0;
 
-	pose_animate_frame(g_flagger_start, g_starter_index, f);
-	pose_animate_frame(g_flag_start, g_30board_index, f);
+	poseAnimateFrame(flaggerStartAnim, starterIndex, f);
+	poseAnimateFrame(flagStartAnim, thirtyBoardIndex, f);
 }
 
-var g_last_lap = 1000000;
-var g_halfway_lap = 1000000;
-var g_drop_time = -1;
-var g_finish_laps = mx.get_finish_laps();
-var g_finish_time = mx.get_finish_time();
+var globalLastLap = 1000000;
+var globalHalfwayLap = 1000000;
+var gDropTime = -1;
 
-function update_last_lap() {
+function updateLastLap() {
 	var p, l;
 
-	if (g_last_lap < 1000000) {
+	if (globalLastLap < 1000000) {
 		/*
 		 TODO: incrementally check if the last lap is wrong because of lag.
 		 (e.g. leader hits lap x before buzzer but has enough lag that second place
@@ -3467,9 +694,9 @@ function update_last_lap() {
 		return;
 	}
 
-	if (g_finish_time == 0) {
-		g_last_lap = g_finish_laps;
-		g_halfway_lap = Math.floor(g_last_lap / 2);
+	if (globalFinishTime == 0) {
+		globalLastLap = globalFinishLaps;
+		globalHalfwayLap = Math.floor(globalLastLap / 2);
 		return;
 	}
 
@@ -3477,90 +704,90 @@ function update_last_lap() {
 
 	l = mx.index_to_lap(p);
 
-	if (g_halfway_lap == 1000000 && mx.seconds >= g_drop_time + g_finish_time / 2)
-		g_halfway_lap = l + 1;
+	if (globalHalfwayLap == 1000000 && mx.seconds >= gDropTime + globalFinishTime / 2)
+		globalHalfwayLap = l + 1;
 
-	if (g_last_lap == 1000000 && mx.seconds >= g_drop_time + g_finish_time)
-		g_last_lap = l + 1 + g_finish_laps;
+	if (globalLastLap == 1000000 && mx.seconds >= gDropTime + globalFinishTime)
+		globalLastLap = l + 1 + globalFinishLaps;
 }
 
 var lastPlace;
-var set_last_place = false;
-var reset_last_place = false;
-function update_finisher() {
-	var p, l, last_lap, time_expired, near_finish;
+var setLastPlace = false;
+var resetLastPlace = false;
+function updateFinisher() {
+	var p, l, lastLap, timeExpired, nearFinish;
 
   p = mx.get_running_order_position(0);
 
-  if (p <= firstLapLength - 1 && !set_last_place) {
-    lastPlace = g_running_order.length - 1;
-    set_last_place = true;
-    reset_last_place = false;
+  if (p <= firstLapLength - 1 && !setLastPlace) {
+    lastPlace = globalRunningOrder.length - 1;
+    setLastPlace = true;
+    resetLastPlace = false;
   }
   else
-    set_last_place = false;
+    setLastPlace = false;
 
-  if (p > firstLapLength - 1 && g_running_order.length > 1 && !reset_last_place) {
+  if (p > firstLapLength - 1 && globalRunningOrder.length > 1 && !resetLastPlace) {
     var i, j;
     i = 0;
     j = 1;
     while (i == 0) {
       // keep looping until there is a person found with a position > 0
-      if (g_running_order[g_running_order.length - j].position > 0) {
+      if (globalRunningOrder[globalRunningOrder.length - j].position > 0) {
         i = 1;
-        lastPlace = g_running_order.length - j;
-        reset_last_place = true;
+        lastPlace = globalRunningOrder.length - j;
+        resetLastPlace = true;
       }
       j++;
     }
   }
 
-	if (g_drop_time < 0)
-		g_drop_time = mx.get_gate_drop_time();
+	if (gDropTime < 0)
+		gDropTime = mx.get_gate_drop_time();
 
-	update_last_lap();
+	updateLastLap();
 
 	l = mx.index_to_lap(p + 1);
 
-	last_lap = g_last_lap;
+	lastLap = globalLastLap;
 
-	time_expired = (mx.seconds >= g_drop_time + g_finish_time);
+	timeExpired = (mx.seconds >= gDropTime + globalFinishTime);
 
-	near_finish = (mx.index_to_lap(l) == p);
+	nearFinish = (mx.index_to_lap(l) == p);
 
-	if (time_expired && near_finish)
-		last_lap = Math.min(last_lap, l + g_finish_laps);
+	if (timeExpired && nearFinish)
+		lastLap = Math.min(lastLap, l + globalFinishLaps);
 
-	if (l >= last_lap) {
+	if (l >= lastLap) {
 		/* checkered */
-		pose_animate(g_flagger_wave, g_finisher_index, mx.seconds);
-		pose_animate(g_flag_on_ground, g_green_flag_index, mx.seconds);
-		pose_animate(g_flag_on_ground, g_white_flag_index, mx.seconds);
-		pose_animate(g_flag_wave, g_checkered_flag_index, mx.seconds);
-	} else if (l == last_lap - 1 && g_running_order[0].position > 0) {
+		poseAnimate(flaggerWaveAnim, finisherIndex, mx.seconds);
+		poseAnimate(flagOnGroundAnim, greenFlagIndex, mx.seconds);
+		poseAnimate(flagOnGroundAnim, whiteFlagIndex, mx.seconds);
+		poseAnimate(flagWaveAnim, checkedFlagIndex, mx.seconds);
+	} else if (l == lastLap - 1 && globalRunningOrder[0].position > 0) {
 		/* white */
-		pose_animate(g_flagger_wave, g_finisher_index, mx.seconds);
-		pose_animate(g_flag_on_ground, g_green_flag_index, mx.seconds);
-		pose_animate(g_flag_wave, g_white_flag_index, mx.seconds);
-		pose_animate(g_flag_on_ground, g_checkered_flag_index, mx.seconds);
-	} else if (l == g_halfway_lap) {
+		poseAnimate(flaggerWaveAnim, finisherIndex, mx.seconds);
+		poseAnimate(flagOnGroundAnim, greenFlagIndex, mx.seconds);
+		poseAnimate(flagWaveAnim, whiteFlagIndex, mx.seconds);
+		poseAnimate(flagOnGroundAnim, checkedFlagIndex, mx.seconds);
+	} else if (l == globalHalfwayLap) {
 		/* green/white crossed */
-		pose_animate(g_flagger_crossed, g_finisher_index, mx.seconds);
-		pose_animate(g_flag_crossed, g_green_flag_index, mx.seconds);
-		pose_animate(g_flag_crossed2, g_white_flag_index, mx.seconds);
-		pose_animate(g_flag_on_ground, g_checkered_flag_index, mx.seconds);
+		poseAnimate(flaggerCrossedAnim, finisherIndex, mx.seconds);
+		poseAnimate(flagCrossedAnim, greenFlagIndex, mx.seconds);
+		poseAnimate(flagCrossedAnim2, whiteFlagIndex, mx.seconds);
+		poseAnimate(flagOnGroundAnim, checkedFlagIndex, mx.seconds);
     // wave green flag until last active rider crosses finish for first lap
-	} else if (l == 0 || (g_running_order[lastPlace].position < firstLapLength)) {
+	} else if (l == 0 || (globalRunningOrder[lastPlace].position < firstLapLength)) {
 		if (p >= firstLapLength + normalLapLength - 2 || p < firstLapLength - 1) {
       // leader came around second lap without everyone crossing the first lap or first hasn't reached the finish on the first lap yet, idleAnimate
 			idleAnimate();
 			return;
 		}
 		/* green, first lap */
-		pose_animate(g_flagger_wave, g_finisher_index, mx.seconds);
-		pose_animate(g_flag_wave, g_green_flag_index, mx.seconds);
-		pose_animate(g_flag_on_ground, g_white_flag_index, mx.seconds);
-		pose_animate(g_flag_on_ground, g_checkered_flag_index, mx.seconds);
+		poseAnimate(flaggerWaveAnim, finisherIndex, mx.seconds);
+		poseAnimate(flagWaveAnim, greenFlagIndex, mx.seconds);
+		poseAnimate(flagOnGroundAnim, whiteFlagIndex, mx.seconds);
+		poseAnimate(flagOnGroundAnim, checkedFlagIndex, mx.seconds);
 	} else {
 		/* green */
 		idleAnimate();
@@ -3568,95 +795,95 @@ function update_finisher() {
 }
 
 function idleAnimate() {
-	pose_animate(g_flagger_idle, g_finisher_index, mx.seconds);
-	pose_animate(g_flag_idle, g_green_flag_index, mx.seconds);
-	pose_animate(g_flag_on_ground, g_white_flag_index, mx.seconds);
-	pose_animate(g_flag_on_ground, g_checkered_flag_index, mx.seconds);
+	poseAnimate(flaggerIdleAnim, finisherIndex, mx.seconds);
+	poseAnimate(flagIdleAnim, greenFlagIndex, mx.seconds);
+	poseAnimate(flagOnGroundAnim, whiteFlagIndex, mx.seconds);
+	poseAnimate(flagOnGroundAnim, checkedFlagIndex, mx.seconds);
 }
 
-function check_flagger_gates(f) {
+function checkFlaggerGates(f) {
 	var i, a;
 
-	a = g_flaggers[f];
+	a = flaggersArr[f];
 	for (i = 0; i < a.length; i++)
-		if (g_yellow_gates[a[i]].length > 0)
+		if (yellowGatesArr[a[i]].length > 0)
 			return true;
 
 	return false;
 }
 
-var g_statue_poses = [];
+var statuePosesArr = [];
 
-function pose_animate_frame(anim, statue_index, frame) {
-	if (!(statue_index in g_statue_poses))
-		g_statue_poses[statue_index] = { anim:null, frame:-1 };
+function poseAnimateFrame(anim, statueIndex, frame) {
+	if (!(statueIndex in statuePosesArr))
+		statuePosesArr[statueIndex] = { anim:null, frame:-1 };
 
-	if (g_statue_poses[statue_index].anim === anim
-	 && g_statue_poses[statue_index].frame == frame)
+	if (statuePosesArr[statueIndex].anim === anim
+	 && statuePosesArr[statueIndex].frame == frame)
 		return;
 
-	g_statue_poses[statue_index].anim = anim;
-	g_statue_poses[statue_index].frame = frame;
+	statuePosesArr[statueIndex].anim = anim;
+	statuePosesArr[statueIndex].frame = frame;
 
 	if ("cached_poses" in anim)
-		mx.pose_statue_from_sequence(statue_index, anim.cached_poses, frame);
+		mx.pose_statue_from_sequence(statueIndex, anim.cached_poses, frame);
 	else
-		mx.pose_statue(statue_index, anim.bone_count, anim.rest_centers, anim.poses[frame].centers, anim.poses[frame].rotations);
+		mx.pose_statue(statueIndex, anim.bone_count, anim.rest_centers, anim.poses[frame].centers, anim.poses[frame].rotations);
 }
 
-function pose_animate(anim, statue_index, seconds) {
+function poseAnimate(anim, statueIndex, seconds) {
 	var f;
 
 	f = seconds * anim.fps % (anim.frame_count - 1);
 
-	pose_animate_frame(anim, statue_index, f);
+	poseAnimateFrame(anim, statueIndex, f);
 }
 
-function cache_pose_sequence(anim) {
+function cachePoseSequence(anim) {
 	if ("cache_pose_sequence" in mx)
 		anim.cached_poses = mx.cache_pose_sequence(anim);
 }
 
-var g_active_slots = null;
-var g_rider_down;
-var g_yellow_gates;
+var activeRiderSlots = null;
+var flaggerRiderDown;
+var yellowGatesArr;
 
-function init_flagger_stuff() {
+function initFlaggerStuff() {
 	var i;
 
-	g_active_slots = mx.get_running_order();
-	g_rider_down = [];
-	for (i = 0; i < g_active_slots.length; i++) {
-		g_active_slots[i] = g_active_slots[i].slot;
-		g_rider_down.push([]);
+	activeRiderSlots = mx.get_running_order();
+	flaggerRiderDown = [];
+	for (i = 0; i < activeRiderSlots.length; i++) {
+		activeRiderSlots[i] = activeRiderSlots[i].slot;
+		flaggerRiderDown.push([]);
 	}
 
-	g_yellow_gates = [];
-	for (i = 0; i < g_firstlap.length; i++) {
-		g_yellow_gates[g_firstlap[i]] = [];
+	yellowGatesArr = [];
+	for (i = 0; i < firstLapGates.length; i++) {
+		yellowGatesArr[firstLapGates[i]] = [];
 	}
-	for (i = 0; i < g_normallap.length; i++) {
-		g_yellow_gates[g_normallap[i]] = [];
+	for (i = 0; i < normalLapGates.length; i++) {
+		yellowGatesArr[normalLapGates[i]] = [];
 	}
 }
 
-function wrap_timing_position(t) {
-	return g_firstlap.length + (t - g_firstlap.length) % g_normallap.length;
+function wrapTimingPosition(t) {
+	return firstLapGates.length + (t - firstLapGates.length) % normalLapGates.length;
 }
 
-function gate_from_timing_position(t) {
-	if (t < g_firstlap.length)
-		return g_firstlap[t];
+function gateFromTimingPosition(t) {
+	if (t < firstLapGates.length)
+		return firstLapGates[t];
 
-	return g_normallap[(t - g_firstlap.length) % g_normallap.length];
+	return normalLapGates[(t - firstLapGates.length) % normalLapGates.length];
 }
 
-function add_to_array(a, i) {
+function addToArray(a, i) {
 	if (a.indexOf(i) == -1)
 		a.push(i);
 }
 
-function remove_from_array(a, i) {
+function removeFromArray(a, i) {
 	var j;
 
 	j = a.indexOf(i);
@@ -3665,42 +892,42 @@ function remove_from_array(a, i) {
 		a.splice(j, 1);
 }
 
-function check_yellow(i) {
+function checkYellow(i) {
 	var j, slot, g;
 
-	if (g_active_slots.length <= i)
+	if (activeRiderSlots.length <= i)
 		return;
 
-	slot = g_active_slots[i];
+	slot = activeRiderSlots[i];
 
 	if (mx.get_rider_down(slot)) {
-		if (g_debug && g_rider_down[i].length == 0)
-			debug_message("Slot " + slot.toFixed(0) + " down!");
-		g = gate_from_timing_position(mx.get_timing_position(slot));
-		add_to_array(g_yellow_gates[g], i);
-		add_to_array(g_rider_down[i], g);
+		if (debugBool && flaggerRiderDown[i].length == 0)
+			debugMessage("Slot " + slot.toFixed(0) + " down!");
+		g = gateFromTimingPosition(mx.get_timing_position(slot));
+		addToArray(yellowGatesArr[g], i);
+		addToArray(flaggerRiderDown[i], g);
 		
 	} else {
-		if (g_debug && g_rider_down[i].length > 0)
-			debug_message("Slot " + slot.toFixed(0) + " back up!");
-		for (j = 0; j < g_rider_down[i].length; j++) {
-			if (g_debug) debug_message("removing from " + g_rider_down[i][j])
-			remove_from_array(g_yellow_gates[g_rider_down[i][j]], i)
+		if (debugBool && flaggerRiderDown[i].length > 0)
+			debugMessage("Slot " + slot.toFixed(0) + " back up!");
+		for (j = 0; j < flaggerRiderDown[i].length; j++) {
+			if (debugBool) debugMessage("removing from " + flaggerRiderDown[i][j])
+			removeFromArray(yellowGatesArr[flaggerRiderDown[i][j]], i)
 		}
-		g_rider_down[i].length = 0;
+		flaggerRiderDown[i].length = 0;
 	}
 }
 
-var g_check_yellow_progress = 0;
-function check_yellows() {
-	var i = g_check_yellow_progress;
+var checkYellowProgress = 0;
+function checkYellows() {
+	var i = checkYellowProgress;
 
-	check_yellow(i++);
+	checkYellow(i++);
 
-	if (i >= g_active_slots.length)
+	if (i >= activeRiderSlots.length)
 		i = 0;
 
-	g_check_yellow_progress = i;
+	checkYellowProgress = i;
 }
 
 /*
@@ -3708,32 +935,32 @@ function check_yellows() {
  Use flagger count for smoother animation.
  Use smaller number for better FPS.
 */
-var g_flagger_updates_per_frame = 1;
+var flaggersUpdatePerFrame = 1;
 
-var g_pose_flagger_progress = 0;
-function flaggers_frame_handler(seconds) {
+var poseFlaggerProgress = 0;
+function flaggersFrameHandler(seconds) {
 	var i, j, s;
-	var n = Math.min(g_flagger_updates_per_frame, g_flagger_count);
+	var n = Math.min(flaggersUpdatePerFrame, flaggerCount);
 
-	if (g_active_slots == null)
-		init_flagger_stuff();
+	if (activeRiderSlots == null)
+		initFlaggerStuff();
 
 	try {
 		for (j = 0; j < n; j++) {
-			i = g_pose_flagger_progress;
-			g_pose_flagger_progress = (i + 1) % g_flagger_count;
+			i = poseFlaggerProgress;
+			poseFlaggerProgress = (i + 1) % flaggerCount;
 			s = seconds + i * 0.25; /* small time offset so flaggers won't be synchronized */
-			if (check_flagger_gates(i)) {
-				pose_animate(g_flagger_wave, g_first_flagger_index + i, s);
-				pose_animate(g_flag_wave, g_first_yellow_flag_index + i, s);
+			if (checkFlaggerGates(i)) {
+				poseAnimate(flaggerWaveAnim, firstFlaggerIndex + i, s);
+				poseAnimate(flagWaveAnim, firstYellowFlagIndex + i, s);
 			} else {
-				pose_animate(g_flagger_idle, g_first_flagger_index + i, s);
-				pose_animate(g_flag_idle, g_first_yellow_flag_index + i, s);
+				poseAnimate(flaggerIdleAnim, firstFlaggerIndex + i, s);
+				poseAnimate(flagIdleAnim, firstYellowFlagIndex + i, s);
 			}
 		}
-		update_starter();
-		update_finisher();
-		check_yellows();
+		updateStarter();
+		updateFinisher();
+		checkYellows();
 	} catch (e) {
 		mx.message("flag error: " + e);
 	}
@@ -3741,13 +968,23 @@ function flaggers_frame_handler(seconds) {
 	return;
 }
 
+/* 2d vector functions */
+function movv2(r, a) { r[0] = a[0]; r[1] = a[1]; }
+function addv2(r, a) { r[0] += a[0]; r[1] += a[1]; }
+function subv2(r, a) { r[0] -= a[0]; r[1] -= a[1]; }
+function scalev2(r, a) { r[0] *= a; r[1] *= a; }
+function dotv2(a, b) { return a[0] * b[0] + a[1] * b[1]; }
+
+var debugBool = false;
+function debugMessage(s) { if (debugBool) mx.message(s); }
+
 /*
 ################################################################################
 ## Exported poses
 ##
 ################################################################################
 */
-var g_flagger_wave = 
+var flaggerWaveAnim = 
 /* Begin pose exported from flagger.blend (flaggerArmature / Wave) */
 {
   bone_count: 12,
@@ -4431,9 +1668,9 @@ var g_flagger_wave =
   ],
 }
 /* End pose exported from flagger.blend (flaggerArmature / Wave) */
-cache_pose_sequence(g_flagger_wave);
+cachePoseSequence(flaggerWaveAnim);
 
-var g_flag_wave =
+var flagWaveAnim =
 /* Begin pose exported from flagger.blend (flagArmature / Wave) */
 {
   bone_count: 2,
@@ -4667,9 +1904,9 @@ var g_flag_wave =
   ],
 }
 /* End pose exported from flagger.blend (flagArmature / Wave) */
-cache_pose_sequence(g_flag_wave);
+cachePoseSequence(flagWaveAnim);
 
-var g_flagger_start =
+var flaggerStartAnim =
 /* Begin pose exported from flagger.blend (flaggerArmature / Start) */
 {
   bone_count: 12,
@@ -5983,9 +3220,9 @@ var g_flagger_start =
   ],
 }
 /* End pose exported from flagger.blend (flaggerArmature / Start) */
-cache_pose_sequence(g_flagger_start);
+cachePoseSequence(flaggerStartAnim);
 
-var g_flag_start = 
+var flagStartAnim = 
 /* Begin pose exported from flagger.blend (flagArmature / Start) */
 {
   bone_count: 2,
@@ -6429,9 +3666,9 @@ var g_flag_start =
   ],
 }
 /* End pose exported from flagger.blend (flagArmature / Start) */
-cache_pose_sequence(g_flag_start);
+cachePoseSequence(flagStartAnim);
 
-var g_flagger_idle =
+var flaggerIdleAnim =
 /* Begin pose exported from flagger.blend (flaggerArmature / Idle) */
 {
   bone_count: 12,
@@ -7085,9 +4322,9 @@ var g_flagger_idle =
   ],
 }
 /* End pose exported from flagger.blend (flaggerArmature / Idle) */
-cache_pose_sequence(g_flagger_idle);
+cachePoseSequence(flaggerIdleAnim);
 
-var g_flag_idle =
+var flagIdleAnim =
 /* Begin pose exported from flagger.blend (flagArmature / Idle) */
 {
   bone_count: 2,
@@ -7311,9 +4548,9 @@ var g_flag_idle =
   ],
 }
 /* End pose exported from flagger.blend (flagArmature / Idle) */
-cache_pose_sequence(g_flag_idle);
+cachePoseSequence(flagIdleAnim);
 
-var g_flag_on_ground =
+var flagOnGroundAnim =
 /* Begin pose exported from flagger.blend (flagArmature / FlagOnGround) */
 {
   bone_count: 2,
@@ -7337,9 +4574,9 @@ var g_flag_on_ground =
   ],
 }
 /* End pose exported from flagger.blend (flagArmature / FlagOnGround) */
-cache_pose_sequence(g_flag_on_ground);
+cachePoseSequence(flagOnGroundAnim);
 
-var g_flagger_crossed = 
+var flaggerCrossedAnim = 
 /* Begin pose exported from flagger.blend (flaggerArmature / Cross) */
 {
   bone_count: 12,
@@ -7393,9 +4630,9 @@ var g_flagger_crossed =
   ],
 }
 /* End pose exported from flagger.blend (flaggerArmature / Cross) */
-cache_pose_sequence(g_flagger_crossed);
+cachePoseSequence(flaggerCrossedAnim);
 
-var g_flag_crossed = 
+var flagCrossedAnim = 
 /* Begin pose exported from flagger.blend (flagArmature / Cross) */
 {
   bone_count: 2,
@@ -7420,7 +4657,7 @@ var g_flag_crossed =
 }
 /* End pose exported from flagger.blend (flagArmature / Cross) */
 
-var g_flag_crossed2 = 
+var flagCrossedAnim2 = 
 /* Begin pose exported from flagger.blend (flagArmature / Cross2) */
 {
   bone_count: 2,
@@ -7444,236 +4681,2158 @@ var g_flag_crossed2 =
   ],
 }
 /* End pose exported from flagger.blend (flagArmature / Cross2) */
-cache_pose_sequence(g_flag_crossed);
+cachePoseSequence(flagCrossedAnim);
 
-/* 2d vector functions */
-function movv2(r, a) { r[0] = a[0]; r[1] = a[1]; }
-function addv2(r, a) { r[0] += a[0]; r[1] += a[1]; }
-function subv2(r, a) { r[0] -= a[0]; r[1] -= a[1]; }
-function scalev2(r, a) { r[0] *= a; r[1] *= a; }
-function dotv2(a, b) { return a[0] * b[0] + a[1] * b[1]; }
-
-var g_debug = false;
-function debug_message(s) { if (g_debug) mx.message(s); }
+// Booleans and Sound Array Variables
+var setStartFlameLoop = false;
+var startFlameSoundAdded = false;
+var holeshotFlameSoundsAdded = false;
+var finishFlameSoundAdded = false;
+var finishFlameSound;
+var finishWhistleSound;
+var holeshotFlameSounds;
+var startFlameSound = [];
 
 /*
+#################
+FLAME COORDINATES
+#################
+*/
+const startFlameCoords = [
+  [128.438416, 9.000000, 497.612274],
+  [137.961914, 9.000000, 506.996399],
+  [153.301193, 9.000000, 522.226196],
+  [162.861298, 9.000000, 531.605957],
+  [168.705368, 9.000000, 537.329834],
+  [178.207001, 9.000000, 546.702881],
+  [203.094864, 9.000000, 571.254089],
+  [193.566559, 9.000000, 561.846985]
+];
+
+const holeshotCoords = [
+  [315.363922, 8.000000, 283.171173],
+  [323.246948, 8.000000, 291.764801]
+];
+
+const finishFlameCoords = [
+  [459.547089, 20.500000, 361.974976],
+  [459.601410, 20.500000, 395.998230]
+];
+
+// Finish Flame Pyro Animation Variables
+var triggerFinishFlames = false;
+var secondsSinceFinishUpdate = 0;
+var currentFinishFrame = 0;
+// 3rd arg in first line of sequence file
+var finishFramesDelay = 4;
+var timeStartedFinishFlame;
+var finishFlamesHidden = false;
+
+// Start Shoot Flame Pyro Animation Variables
+var triggerStartShootFlames = false;
+var secondsSinceStartShootUpdate = 0;
+var currentStartShootFrame = 0;
+var startShootFramesDelay = 4;
+var timeStartedStartFlame;
+var startFlamesHidden = false;
+
+// Holeshot Flame Pyro Animation Variables
+var triggerHoleshotFlames = false;
+var secondsSinceHoleshotUpdate = 0;
+var currentHoleshotFrame = 0;
+var holeshotFramesDelay = 4;
+var timeStartedHoleshotFlame;
+var holeshotFlamesHidden = false;
+
+var maxFramesPyro = 69;
+
+/*
+####################
+SET UP PYRO TEXTURES
+####################
+*/
+var finishFlamesTexture = mx.read_texture("@os2022bgsxobj/js/pyro/finishflames.seq");
+var finishFlamesV2Texture = mx.read_texture("@os2022bgsxobj/js/pyro/finishflames2.seq");
+var holeshotFlamesTexture = mx.read_texture("@os2022bgsxobj/js/pyro/holeshotflames.seq");
+var startFlamesTexture = mx.read_texture("@os2022bgsxobj/js/pyro/holeshotflames.seq");
+
+var startFlameLoopIndices = {start:1,end:8};
+var holeshotFlameIndices = {start:9,end:10};
+var finishFlameIndices = {start:11,end:12};
+var startShootFlameIndices = {start:13,end:20};
+
+// hide flames on start until called upon
+hideAllFlames();
+var showLoopPyroVal = 0;
+if (mainEvent) {showLoopPyroVal = 1}
+// hides or shows start flames on start of race
+for (var i = startFlameLoopIndices.start - 1; i < startFlameLoopIndices.end; i++) {
+  mx.color_billboard(i, 1, 1, 1, showLoopPyroVal);
+}
+
+/* 
+###################################
+        SHOW/HIDE FLAMES
+###################################
+*/
+function hideAllFlames() {
+  hideStartFlames();
+  hideHoleshotFlames();
+  hideFinishFlames(); 
+}
+
+function hideStartFlames() {
+  for (var i = startShootFlameIndices.start - 1; i < startShootFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
+  startFlamesHidden = true;
+}
+
+function hideHoleshotFlames() {
+  for (var i = holeshotFlameIndices.start - 1; i < holeshotFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
+  holeshotFlamesHidden = true;
+}
+
+function hideFinishFlames() {
+  for (var i = finishFlameIndices.start - 1; i < finishFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
+  finishFlamesHidden = true;
+}
+
+function showStartFlames() {
+  for (var i = startShootFlameIndices.start - 1; i < startShootFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+  startFlamesHidden = false;
+}
+
+function showHoleshotFlames() {
+  for (var i = holeshotFlameIndices.start - 1; i < holeshotFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+  holeshotFlamesHidden = false;
+}
+
+function showFinishFlames() {
+  for (var i = finishFlameIndices.start - 1; i < finishFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+  finishFlamesHidden = false;
+}
+
+// The Function that actually does all the work
+function doPyro() {
+  if (!mainEvent) return;
+  doStartPyro();
+  doHoleshotPyro();
+  doFinishPyro();
+}
+
+function doStartPyro() {
+  if (triggerStartShootFlames) {
+    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
+    if (mx.seconds - timeStartedStartFlame < 0) hideStartFlames();
+  
+    if (mx.seconds - secondsSinceStartShootUpdate < startShootFramesDelay / 128) return;
+
+    if (startFlamesHidden) showStartFlames();
+
+    secondsSinceStartShootUpdate = mx.seconds;
+
+    if (currentStartShootFrame <= maxFramesPyro) {
+      mx.begin_custom_frame(startFlamesTexture);
+      mx.paste_custom_frame(startFlamesTexture, currentStartShootFrame, 0, 0, 0, 0, 1, 1);
+      mx.end_custom_frame(startFlamesTexture);
+      currentStartShootFrame++;
+    } else {
+      triggerStartShootFlames = false;
+      hideStartFlames();
+    }
+  }
+}
+
+function doHoleshotPyro() {
+  if (triggerHoleshotFlames) {
+    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
+    if (mx.seconds - timeStartedHoleshotFlame < 0) hideHoleshotFlames();
+
+    if (mx.seconds - secondsSinceHoleshotUpdate < holeshotFramesDelay / 128) return;
+
+    if (holeshotFlamesHidden) showHoleshotFlames();
+
+    secondsSinceHoleshotUpdate = mx.seconds;
+    if (currentHoleshotFrame <= maxFramesPyro) {
+      mx.begin_custom_frame(holeshotFlamesTexture);
+      mx.paste_custom_frame(holeshotFlamesTexture, currentHoleshotFrame, 0, 0, 0, 0, 1, 1);
+      mx.end_custom_frame(holeshotFlamesTexture);
+      currentHoleshotFrame++;
+    }
+    else {
+      triggerHoleshotFlames = false;
+      hideHoleshotFlames();
+    }  
+  }
+}
+
+function doFinishPyro() {
+  if (triggerFinishFlames) {
+    // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
+    if (mx.seconds - timeStartedFinishFlame < 0) hideFinishFlames();
+
+    if (mx.seconds - secondsSinceFinishUpdate < finishFramesDelay / 128) return;
+
+    if (finishFlamesHidden) showFinishFlames();
+
+    secondsSinceFinishUpdate = mx.seconds;
+
+    if (currentFinishFrame <= maxFramesPyro) {
+      mx.begin_custom_frame(finishFlamesTexture);
+      mx.begin_custom_frame(finishFlamesV2Texture);
+      mx.paste_custom_frame(finishFlamesTexture, currentFinishFrame, 0, 0, 0, 0, 1, 1);
+      mx.paste_custom_frame(finishFlamesV2Texture, currentFinishFrame, 0, 0, 0, 0, 1, 1);
+      mx.end_custom_frame(finishFlamesTexture);
+      mx.end_custom_frame(finishFlamesV2Texture);
+      currentFinishFrame++;
+    } else {
+      triggerFinishFlames = false;
+      hideFinishFlames();
+    }   
+  }
+}
+
+function triggerFinishFlameSound() {
+  if (!finishFlameSoundAdded) {
+    finishFlameSound = [];
+    finishWhistleSound = [];
+    for (var i = 0; i < finishFlameCoords.length; i++) {
+      finishFlameSound[i] = mx.add_sound("@os2022bgsxobj/sounds/pyro/finishlineflame.raw");
+      finishWhistleSound[i] = mx.add_sound("@os2022bgsxobj/sounds/pyro/finishlinewhistle.raw");
+      mx.set_sound_freq(finishFlameSound[i], 44100);
+      mx.set_sound_freq(finishWhistleSound[i], 44100);
+      mx.set_sound_vol(finishFlameSound[i], 0.5);
+      mx.set_sound_vol(finishWhistleSound[i], 2);
+      mx.set_sound_pos(finishFlameSound[i], finishFlameCoords[i][0], finishFlameCoords[i][1], finishFlameCoords[i][2]);
+      mx.set_sound_pos(finishWhistleSound[i], finishFlameCoords[i][0], finishFlameCoords[i][1], finishFlameCoords[i][2]);
+    }
+    finishFlameSoundAdded = true;
+  }
+  for (var i = 0; i < finishFlameSound.length; i++)
+    mx.start_sound(finishFlameSound[i]);
+
+  return;
+}
+
+function triggerholeshotFlameSounds() {
+    if (!holeshotFlameSoundsAdded) {
+      holeshotFlameSounds = [];
+      for (var i = 0; i < holeshotCoords.length; i++) {
+        holeshotFlameSounds[i] = mx.add_sound("@os2022bgsxobj/sounds/pyro/holeshotflame.raw");
+        mx.set_sound_freq(holeshotFlameSounds[i], 44100);
+        mx.set_sound_vol(holeshotFlameSounds[i], 2);
+        mx.set_sound_pos(holeshotFlameSounds[i], holeshotCoords[i][0], holeshotCoords[i][1], holeshotCoords[i][2]);
+      }
+      holeshotFlameSoundsAdded = true;
+    }
+
+  for (var i = 0; i < holeshotFlameSounds.length; i++) mx.start_sound(holeshotFlameSounds[i]);
+  
+}
+
+function triggerStartFlameSound(status) {
+  if (status == "dropped") {
+    if (startFlameSound != null){
+      for (var i = 0; i < startFlameSound.length; i++){
+        if (startFlameSound[i] != null){
+          mx.stop_sound(startFlameSound[i]);
+          mx.set_sound_loop(startFlameSound[i], 0);
+          mx.set_sound_vol(startFlameSound[i], 20);
+          mx.start_sound(startFlameSound[i]);
+          setStartFlameLoop = false;
+        }
+      }
+    }
+    // hide start loop pyro
+    for (var i = startFlameLoopIndices.start - 1; i < startFlameLoopIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
+  }
+  else {
+    // show start loop pyro
+    for (var i = startFlameLoopIndices.start - 1; i < startFlameLoopIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+  
+    if (!startFlameSoundAdded){
+        startFlameSound = [];
+        for (var i = 0; i < startFlameCoords.length; i++) {
+          startFlameSound[i] = mx.add_sound("@os2022bgsxobj/sounds/pyro/startflameburst.raw");
+          mx.set_sound_freq(startFlameSound[i], 44100);
+          mx.set_sound_vol(startFlameSound[i], 0.5);
+          mx.set_sound_pos(startFlameSound[i], startFlameCoords[i][0], startFlameCoords[i][1], startFlameCoords[i][2]);
+          startFlameSoundAdded = true;
+        }
+    }
+    if (!setStartFlameLoop){
+        for (var i = 0; i < startFlameSound.length; i++) {
+          mx.stop_sound(startFlameSound[i]);
+          mx.set_sound_loop(startFlameSound[i], 1);
+          mx.set_sound_vol(startFlameSound[i], 0.5);
+          mx.start_sound(startFlameSound[i]);
+        }
+        setStartFlameLoop = true;
+    }
+  }
+  return;
+}
+
+function triggerFireworkSounds() {
+  for (var i = 0; i < finishWhistleSound.length; i++) mx.start_sound(finishWhistleSound[i]);
+}
+
+function triggerAllFlameSounds() {
+  triggerCrowdRoar(0.8);
+  triggerAllPyro();
+}
+
+function triggerCrowdRoar(volume) {
+  var randNumber;
+  if (!stadium) {
+    for (var i = 0; i < numOfBleachers; i++) {
+      randNumber = randomIntFromInterval(0, (numOfRoarVariants - 1));
+      mx.set_sound_vol(crowdRoars[i][randNumber], volume);
+      mx.start_sound(crowdRoars[i][randNumber]);
+    }
+  } else {
+    randNumber = randomIntFromInterval(0, numOfBleachers - 1);
+    mx.set_sound_vol(crowdRoars[randNumber], volume);
+    mx.start_sound(crowdRoars[randNumber]);
+  }
+}
+
+function triggerAllPyro() {
+  triggerStartShootPyro();
+  triggerFinishPyro();
+  triggerHoleshotPyro();
+}
+
+function triggerStartShootPyro() {
+  currentStartShootFrame = 0;
+  secondsSinceStartShootUpdate = 0;
+  triggerStartShootFlames = true;
+  timeStartedStartFlame = mx.seconds;
+  triggerStartFlameSound("dropped");
+}
+
+function triggerHoleshotPyro() {
+  currentHoleshotFrame = 0;
+  secondsSinceHoleshotUpdate = 0;
+  triggerHoleshotFlames = true;
+  timeStartedHoleshotFlame = mx.seconds;
+  triggerholeshotFlameSounds();
+}
+
+function triggerFinishPyro() {
+  currentFinishFrame = 0;
+  secondsSinceFinishUpdate = 0;
+  triggerFinishFlames = true;
+  timeStartedFinishFlame = mx.seconds;
+  triggerFinishFlameSound();
+}
+
+/*
+################################################
+dynamic crowd for position changes/battles
+################################################
+*/
+// this number is the number of people that the crowd
+// will cheer if there is a battle, in this case they will cheer if there is a battle
+// within the top 3
+var numOfPeopleToCheer = 3;
+const timingGateToStartBattles = 14;
+var startedBattleFunction = false;
+
+// Index 0 is gap between 1st and 2nd, Index 1 is gap between 2nd and 3rd, etc.
+var gapsBetweenRidersArr = [];
+var resetCrowdDefaultVol = true;
+const maxGapBetweenRiders = 2;
+const maxCrowdVol = (((4 * numOfPeopleToCheer) + numOfBleachers)) + (2 * crowdConstantBaseVol);
+var currentVolume = 0;
+const volFadeTime = 2;
+const volResetFadeTime = 5;
+var gotTimeStartReset = false;
+var timeStartedIncreaseOrDecrease;
+var currentCrowdVol = crowdConstantBaseVol;
+var setHolder = false;
+var setResetHolder = false;
+var volHolder;
+var resetHolder;
+var volPerSec;
+var volDivisor = 1;
+function battlesFunction() {
+
+  var r = globalRunningOrder;
+  var seconds = mx.seconds;
+  var battleBetweenRiders = false;
+  var i, currentRiderTimingGate, currentRiderSlot, priorityBattle;
+  if (r[0].position == timingGateToStartBattles + 1 && !startedBattleFunction) {
+    ResetSlotPositionHolder();
+    numOfPeopleToCheer++;
+    if (r.length < numOfPeopleToCheer) {
+      numOfPeopleToCheer = globalRunningOrder.length;
+    }
+
+    if (!mainEvent) {
+      volDivisor = 2;
+    }
+    startedBattleFunction = true;
+  }
+
+  if (startedBattleFunction) {
+    // checks for a position change
+    for (var i = 0; i < numOfPeopleToCheer - 1; i++) {
+      currentRiderSlot = r[i].slot;
+      currentRiderTimingGate = r[i].position;
+      if (currentRiderTimingGate != currentTimingGates[currentRiderSlot]) {
+        // if there was a position change, crowd cheers
+        if (checkPosChange(currentRiderSlot, i)) {
+          var volFactor;
+
+          if (mx.get_rider_down(r[i + 1].slot) == 1) {
+            volFactor = (i + 1) * 2;
+          } else {
+            volFactor = i + 1;
+          }
+          
+          var volume = ((2 / (volFactor)) / volDivisor);
+          startRoar(volume);
+        }
+      }
+    }
+    // Get gaps between riders and store in gapsBetweenRidersArr array
+    for (i = numOfPeopleToCheer - 1; i > 0; i--) {
+      currentRiderSlot = r[i].slot;
+      currentRiderTimingGate = r[i].position - 1;
+      if (currentRiderTimingGate + 1 != currentTimingGates[currentRiderSlot]) {
+        var nextRiderSlot = r[i-1].slot;
+        // time the rider ahead hit the gate that the rider is currently at
+        var timeRiderAheadGate = mx.get_timing(nextRiderSlot, currentRiderTimingGate);
+
+        // if a rider missed a gate, return
+        if (timeRiderAheadGate < 0) return;
+
+        // current rider hits current gate at current time, therefore
+        gapsBetweenRidersArr[i-1] = seconds - timeRiderAheadGate;
+      }
+    }
+    // Get lowest gap
+    // if priority battle is 0, there's a battle between 1st and 2nd, if 1, 2nd and 3rd, etc.
+    if (gapsBetweenRidersArr.length > 0) {
+      var priorityBattle = 0;
+      var lowestGap = gapsBetweenRidersArr[0];
+      var numOfBattles = 0;
+
+      if (gapsBetweenRidersArr.length > 1) {
+        for (var i = 1; i < gapsBetweenRidersArr.length; i++) {
+          if (gapsBetweenRidersArr[i] < lowestGap){
+            lowestGap = gapsBetweenRidersArr[i];
+            priorityBattle = i;
+          }
+          if (gapsBetweenRidersArr.length > priorityBattle + 2) {
+            // number of battles for the same pos
+            if (gapsBetweenRidersArr[priorityBattle + 2] - gapsBetweenRidersArr[priorityBattle] <= maxGapBetweenRiders)
+              numOfBattles++;
+          }
+        }
+      }
+
+      if (lowestGap <= maxGapBetweenRiders) battleBetweenRiders = true;
+
+      // if someone in the priority battle goes down, check for other battles then set the priority battle and lowest gap
+      if (mx.get_rider_down(r[priorityBattle + 1].slot) == 1 || mx.get_rider_down(r[priorityBattle].slot) == 1) {
+        if (gapsBetweenRidersArr.length > 1) {
+          var secondLowestGap = undefinedTime;
+          for (var i = 0; i < gapsBetweenRidersArr.length; i++) {
+            if (i == priorityBattle) continue;
+            if (gapsBetweenRidersArr[i] < secondLowestGap) {
+              secondLowestGap = gapsBetweenRidersArr[i];
+              lowestGap = secondLowestGap;
+              priorityBattle = i;
+            }
+          }
+          // no other battles
+          if (lowestGap > maxGapBetweenRiders) {
+            battleBetweenRiders = false;
+          }
+        }
+        // no other battles
+        else battleBetweenRiders = false;
+      }
+    }
+    // If there's a battle, set the volume of the crowd constant based on the gap and position
+    if (battleBetweenRiders) {
+      var volume = (((((3 * numOfBattles) + numOfBleachers) / ((lowestGap + 0.9) * (priorityBattle + 1))) + (1.5 * crowdConstantBaseVol)) / volDivisor);
+      // If crowd has already reached desired calculated volume, return
+      if (currentCrowdVol == volume) return;
+
+      if (currentCrowdVol < crowdConstantBaseVol) {
+        currentCrowdVol = crowdConstantBaseVol;
+      }
+
+      // If volume is new, need to fade to new volume, get the time starting the increase/decrease
+      if (volume != currentVolume) {
+        timeStartedIncreaseOrDecrease = seconds;
+        setHolder = false;
+      }
+      // volume holder
+      currentVolume = volume;
+
+      // Another holder that holds the current crowd volume at the start of the fade
+      if (!setHolder) {
+        volHolder = currentCrowdVol;
+        setHolder = true;
+        // sets reset values to false because this means that there is a battle fade going on
+        gotTimeStartReset = false;
+        setResetHolder = false;
+        resetCrowdDefaultVol = false;
+      }
+
+      // vol/sec calculated by (end vol - start vol) / fade time
+      volPerSec = (currentVolume - volHolder) / volFadeTime;
+      // t is time in seconds since the start of the fade
+      var t = seconds - timeStartedIncreaseOrDecrease;
+      // current crowd volume is the start vol + (vol/sec * time since start of fade)
+      // If there's an increase, vol/sec * t will be positive.  If there's a decrease, vol/sec * t will be negative. 
+      currentCrowdVol = volHolder + (volPerSec * t);
+
+      for (var i = 0; i < numOfBleachers; i++) {
+        mx.set_sound_vol(crowdConstants[i], currentCrowdVol);
+      }
+
+    }
+    else if (!resetCrowdDefaultVol) {
+      if (!gotTimeStartReset) {
+        timeStartedIncreaseOrDecrease = seconds;
+        gotTimeStartReset = true;
+      }
+      // sets the start fade vol to the current crowd volume
+      if (!setResetHolder) {
+        resetHolder = currentCrowdVol;
+        setResetHolder = true;
+      }
+
+      // vol/sec, t, and current crowd vol calculated just like above when battle fades happen
+      volPerSec = (crowdConstantBaseVol - resetHolder) / volResetFadeTime;
+      var t = seconds - timeStartedIncreaseOrDecrease;
+      currentCrowdVol = resetHolder + (volPerSec * t);
+
+      // if in the demo and crowd volume somehow exceeds the max crowd vol or is less than the base, reset to the base vol
+      if (currentCrowdVol > maxCrowdVol || currentCrowdVol < crowdConstantBaseVol) {
+        currentCrowdVol = crowdConstantBaseVol;
+      }
+        
+      // set all crowd constant sounds to the current crowd volume calculated 
+      for (var i = 0; i < numOfBleachers; i++) {
+        mx.set_sound_vol(crowdConstants[i], currentCrowdVol);
+      }
+
+      // if crowd volume equals the base volume, the volume has been reset
+      if (currentCrowdVol <= crowdConstantBaseVol) {
+        // set the crowd volume to the base just in case of skipping for demos
+        for (var i = 0; i < numOfBleachers; i++) {
+          mx.set_sound_vol(crowdConstants[i], crowdConstantBaseVol);
+        }
+        resetCrowdDefaultVol = true;
+      }
+    }
+  }
+}
+
+function startRoar(volume) {
+  var randomNum = randomIntFromInterval(0, numOfCheerVariants - 1);;
+  if (!stadium) {
+    for (var i = 0; i < numOfBleachers; i++) {
+      mx.set_sound_vol(allCheerSounds[randomNum][i], volume);
+      mx.start_sound(allCheerSounds[randomNum][i]);
+    }
+    return;
+  }
+
+  mx.set_sound_vol(allCheerSounds[randomNum], volume);
+  mx.start_sound(allCheerSounds[randomNum]);
+}
+
+var startedFlameSound = false;
+/*
 ################################################################################
-## Video screen display
+## Gate Sounds
 ##
 ################################################################################
 */
-
-function make_cell_map(font, characters, key) {
-	var i, map;
-
-	map = [];
-
-  // * = 9
-	key = characters.indexOf(key);
-
-  // for 128 characters set up map for all indexes needed equal to the key
-  // i = 33
-  // map[!] = *
-	for (i = 0; i < 128; i++)
-    map[String.fromCharCode(i)] = key;
-
-  // map[characters[i]] = i
-  // i = 0
-  // map[!] = 0;
-  // i = 1
-  // map["] = 1;
-	for (i = 0; i < characters.length; i++)
-    map[characters[i]] = i;
-
-  font.map = map;
-}
-
-function get_cell_coords(font, character) {
-  // if character is not in the font map we created, return
-	if (!(character in font.map))
-		mx.message("Not in map " + character);
-  /* return the coords in our font variable
-    ex. font.coords[font.map[character]];
-    character = ','
-    font.coords[font.map[,]];
-    font.map[,] = 11;
-    font.coords[11] = [360, 0, 40] */
-	return font.coords[font.map[character]];
-}
-
-function draw_text(font, x, y, current_screen) {
-	var i, cell_coords, sx, sy, dx, dy, width, height;
-
-  // starting x and y values set to dx and dy
-	dx = x;
-	dy = y;
-
-  // go through the whole screen 
-	for (i = 0; i < current_screen.length; i++) {
-    //if character equals newline
-		if (current_screen[i] == "\n") {
-      // reset the dx to the beginning
-			dx = x;
-      // new y value = old y value + (64 / 512 * 1)
-			dy += font.line_height / font.height * font.yscale;
-			continue;
-		}
-    // if character equals a space
-		if (current_screen[i] == " ") {
-      // get cell coords of a comma
-			cell_coords = get_cell_coords(font, ","); /* comma about as wide as space */
-      // cell_coords = [360, 0, 40]
-      // new x value = old x value + (40 / 1024 * 1)
-			dx += cell_coords[2] / font.width * font.xscale;
-      // continue statement skips the next steps of the loop and continues to the next iteration
-			continue;
-		}
-    // get cell coordinates of current character of font
-		cell_coords = get_cell_coords(font, current_screen[i]);
-    /* source x is first value / (font width * font xscale + xoffset)
-      ex char = '"', cell coords = [24, 0, 32]
-      sx = (24 / 1024 * 1 + 0) = 0.0234375
-      sy = (0 / 512 * 1 + 0) = 0
-      width = (32 / 1024 * 1) = 0.03125
-      height = (64 / 512 * 1) = 0.125 */
-		sx = cell_coords[0] / font.width * font.xscale + font.xoffset;
-		sy = cell_coords[1] / font.height * font.yscale + font.yoffset;
-		width = cell_coords[2] / font.width * font.xscale;
-		height = font.line_height / font.height * font.yscale;
-		mx.paste_custom_frame(font.tid, 0, sx, sy, dx, dy, width, height);
-    /* add to dx so new character doesn't overlap
-    dx += 0.03125 - (8 / (1024 * 1)) => 0.03125 - 0.0078125 => 0.0234375
-    dx += 0.0234375 */
-		dx += width - (font.overlap / (font.width * font.xscale));
-	}
-}
-
-var g_screen_tid = mx.read_texture("@os2022bgsxobj/statue/other/timingtower/scoringtower.seq");
-
-var g_screen_font = {
-tid: g_screen_tid,
-xoffset: 0,
-yoffset: 0,
-xscale: 1,
-yscale: 1,
-overlap: 8,
-width: 512,
-height: 512,
-line_height: 64,
-coords: [ [ 0, 0, 24 ], [ 24, 0, 32 ], [ 56, 0, 48 ], [ 104, 0, 40 ],
-[ 144, 0, 56 ], [ 200, 0, 48 ], [ 248, 0, 16 ], [ 264, 0, 32 ],
-[ 296, 0, 32 ], [ 328, 0, 32 ], [ 360, 0, 40 ], [ 400, 0, 24 ],
-[ 424, 0, 32 ], [ 456, 0, 24 ], [ 480, 0, 32 ], [ 512, 0, 40 ],
-[ 552, 0, 40 ], [ 592, 0, 48 ], [ 640, 0, 48 ], [ 688, 0, 48 ],
-[ 736, 0, 40 ], [ 776, 0, 40 ], [ 816, 0, 40 ], [ 856, 0, 40 ],
-[ 896, 0, 40 ], [ 936, 0, 24 ], [ 960, 0, 32 ], [ 0, 64, 40 ],
-[ 40, 64, 40 ], [ 80, 64, 40 ], [ 120, 64, 32 ], [ 152, 64, 56 ],
-[ 208, 64, 48 ], [ 256, 64, 48 ], [ 304, 64, 48 ], [ 352, 64, 48 ],
-[ 400, 64, 48 ], [ 448, 64, 48 ], [ 496, 64, 48 ], [ 544, 64, 48 ],
-[ 592, 64, 32 ], [ 624, 64, 40 ], [ 664, 64, 48 ], [ 712, 64, 40 ],
-[ 752, 64, 56 ], [ 808, 64, 48 ], [ 856, 64, 48 ], [ 904, 64, 48 ],
-[ 952, 64, 48 ], [ 0, 128, 48 ], [ 48, 128, 48 ], [ 96, 128, 48 ],
-[ 144, 128, 48 ], [ 192, 128, 48 ], [ 240, 128, 64 ], [ 304, 128, 56 ],
-[ 360, 128, 48 ], [ 408, 128, 48 ], [ 456, 128, 40 ], [ 496, 128, 24 ],
-[ 520, 128, 40 ], [ 560, 128, 40 ], [ 600, 128, 40 ], [ 640, 128, 24 ],
-[ 664, 128, 40 ], [ 704, 128, 48 ], [ 752, 128, 40 ], [ 792, 128, 48 ],
-[ 840, 128, 40 ], [ 880, 128, 40 ], [ 920, 128, 48 ], [ 968, 128, 40 ],
-[ 0, 192, 32 ], [ 32, 192, 32 ], [ 64, 192, 48 ], [ 112, 192, 32 ],
-[ 144, 192, 56 ], [ 200, 192, 40 ], [ 240, 192, 40 ], [ 280, 192, 48 ],
-[ 328, 192, 48 ], [ 376, 192, 40 ], [ 416, 192, 40 ], [ 456, 192, 32 ],
-[ 488, 192, 40 ], [ 528, 192, 40 ], [ 568, 192, 56 ], [ 624, 192, 48 ],
-[ 672, 192, 48 ], [ 720, 192, 40 ], [ 760, 192, 40 ], [ 800, 192, 16 ],
-[ 816, 192, 40 ], [ 856, 192, 40 ] ]
-};
-
-make_cell_map(g_screen_font, 
- "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
- "*");
-
-var g_current_screen = "";
-
-function show_text(screen) {
-	if (screen == g_current_screen)
-		return
-	g_current_screen = screen;
-	mx.begin_custom_frame(g_screen_tid);
-  // mx.paste_custom_frame(texture_id, frame_number, src_x, src_y, dst_x, dst_y, width, height)
-	mx.paste_custom_frame(g_screen_tid, 0, 0, .5, 0.75, 0, 1.0, 0.5);
-	mx.paste_custom_frame(g_screen_tid, 0, 0, .5, 0.75, .5, 1.0, 0.5);
-	draw_text(g_screen_font, 0, 0, screen);
-	mx.end_custom_frame(g_screen_tid);
-}
-
-function get_condensed_name(name) {
-  // trim team name off
-  name = name.replace(/\|.*/gm, "");
-  // trim beginning and ending white spaces
-  name = name.replace(/^\s+|\s+$/gm,"");
-  // remove any non-alphabetical characters and spaces
-  name = name.replace(/[^A-Za-z ]+/gm, "");
-  // trim any final spaces off
-  name = name.replace(/\s+$/gm, "");
+var gateDropTime;
+var gateSoundPositions = [
+    [149, 0, 517],
+    [166, 0, 534],
+    [183, 0, 551]
+  ];
   
-  if (name.length == 0)
-    return "Unknown Rider";
-  name_arr = name.split(" ");
-  if (name_arr.length > 1)
-    name = name_arr[1];
-  return name;
+  var gateSounds = [];
+  var gateDropped = false;
+  
+for (var i = 0; i < gateSoundPositions.length; i++) {
+    gateSounds[i] = mx.add_sound("@os2022bgsxobj/sounds/gate/gatedrop.raw");
+    mx.set_sound_freq(gateSounds[i], 44100);
+    mx.set_sound_vol(gateSounds[i], 0.5);
+    mx.set_sound_pos(gateSounds[i], gateSoundPositions[i][0], gateSoundPositions[i][1], gateSoundPositions[i][2]);
 }
 
-var tower_max_showing_riders = 5;
-function update_screen() {
-	// gets column numbers in array based on column n
-	// used for getting laptimes
-	var a = [];
-  var riderName, riderNum, num_of_people_on_tower;
-  if (!racingEvent) {
-
-    // copy best_player_laps into the sorted array
-    var best_player_laps_arr_srtd = best_player_laps.slice();
-    // sort the array
-    best_player_laps_arr_srtd.sort(function (a, b){return a[0] - b[0];});
-
-    if (g_running_order.length < tower_max_showing_riders)
-      num_of_people_on_tower = g_running_order.length;
-    else
-      num_of_people_on_tower = tower_max_showing_riders;
-
-    for (var i = 0; i < num_of_people_on_tower; i++){
-      // times are stored in the first column of every row
-      var time = best_player_laps_arr_srtd[i][0];
-
-      // if no lap, don't display
-      if (time != undefinedTime){
-        // slots are stored in the second column of every row
-        var slot = best_player_laps_arr_srtd[i][1];
-        // gets last name
-        riderName = get_condensed_name(mx.get_rider_name(slot));
-        riderNum = mx.get_rider_number(slot);
-        a.push((i + 1).toString() + ')   ' + time_to_string(time) + ' - #' + riderNum  + ' ' + riderName);
-      }
-    }
-    show_text("Top Best Laps\nPos Time      Rider Name\n" + a.join("\n"));
+function gateSound() {
+  if (!gateDropped) {
+    gateDropTime = mx.get_gate_drop_time();
   }
-  else {
-    var timingGate;
-    if (g_running_order.length < tower_max_showing_riders)
-      num_of_people_on_tower = g_running_order.length;
 
-    else
-      num_of_people_on_tower = tower_max_showing_riders;
+  if (gateDropTime > 0 && !gateDropped) {
+    for (var i = 0; i < gateSounds.length; i++) 
+      mx.start_sound(gateSounds[i]);
       
-    for (var i = 0; i < num_of_people_on_tower; i++){
-      timingGate = g_running_order[i].position;
-      if (timingGate > 0){
-        riderName = get_condensed_name(mx.get_rider_name(g_running_order[i].slot));
-        riderNum = mx.get_rider_number(slot);
-        a.push((i + 1).toString() + ')   ' + '#' + riderNum + ' ' + riderName);
+    gateDropped = true;
+
+    if (mainEvent) {
+      triggerAllFlameSounds();
+    }
+  }
+  
+  if (mainEvent && ((gateDropped && mx.seconds < gateDropTime) || (!gateDropped && !startedFlameSound && mx.seconds > 0))) {
+    triggerStartFlameSound("notdropped");
+    hideAllFlames();
+    gateDropped = false;
+    startedFlameSound = true;
+  }
+}
+
+// this variable is for determining if someone is going backwards in the demo
+var backwards = false;
+var holeshot = false;
+var holeshotRiderSlot;
+const holeshotGate = 2;
+
+function determineHoleshot(){ 
+  var r = globalRunningOrder;
+  // this first if is for optimization so the rest isn't called after first is 2 gates away from the holeshot
+  if (r[0].position <= (holeshotGate + 3)){ 
+    if (r[0].position == (holeshotGate + 1) && !backwards) {
+      if (!holeshot){
+        holeshotRiderSlot = r[0].slot;
+        holeshot = true;
+        if (mainEvent) {
+          triggerHoleshotPyro();
+        }
       }
     }
+    else {
+      // for demos going backwards in time
+      if (r[0].position >= (holeshotGate + 1)) backwards = true;
+      else backwards = false;
+      holeshot = false;
+    }
+  }
+}
 
-    show_text("Running Order\nPos Rider  Name\n" + a.join("\n"));
+// Make name comparison at the finish to determine if the rider should be booed or not when they win
+function makeNameComparisonFinish(slot) {
+    var randNumber;
+    if (!stadium) {
+        if (slotsToBoo.indexOf(slot) != -1) {
+            for (var i = 0; i < numOfBleachers; i++) {
+                  randNumber = randomIntFromInterval(0, (allBooSounds.length - 1));
+                  mx.set_sound_vol(allBooSounds[randNumber][i], booSoundVol);
+                  mx.start_sound(allBooSounds[randNumber][i]);
+            }
+            return;
+        }
+        
+        for (var i = 0; i < numOfBleachers; i++) {
+          randNumber = randomIntFromInterval(0, (allCheerSounds.length - 1));
+          mx.set_sound_vol(allCheerSounds[randNumber][i], cheerSoundVol);
+          mx.start_sound(allCheerSounds[randNumber][i]);
+        }
+        return;
+    }
+
+    if (slotsToBoo.indexOf(slot) != -1) {
+        randNumber = randomIntFromInterval(0, allBooSounds.length - 1);
+        mx.set_sound_vol(allBooSounds[randNumber], booSoundVol);
+        mx.start_sound(allBooSounds[randNumber]);
+        return;
+    }
+
+    randNumber = randomIntFromInterval(0, allCheerSounds.length - 1);
+    mx.set_sound_vol(allCheerSounds[randNumber], cheerSoundVol);
+    mx.start_sound(allCheerSounds[randNumber]);
+
+  }
+  
+var playFinishSoundAndFlame = false;
+function lapsRemainingString(l) {
+    if (l == 0) {
+        if (racingEvent) {
+            if (!playFinishSoundAndFlame) {
+                if (mainEvent) {
+                    triggerAllFlameSounds();
+                    triggerFireworkSounds();
+                    makeNameComparisonFinish(globalRunningOrder[0].slot);
+                }
+                // someone wins a heat or lcq
+                else triggerCrowdRoar(0.4);
+                playFinishSoundAndFlame = true;
+            }
+        }
+        return "Finish";
+    }
+    if (l == 1) {
+        if (mainEvent && playFinishSoundAndFlame) {
+            playFinishSoundAndFlame = false;
+        }
+        return "Final Lap";
+    }
+    return l.toFixed(0) + " Laps"
+}
+
+function timeOrLapsRemaining() {
+    var t, l;
+  
+    if (globalFinishTime == 0) {
+        return lapsRemainingString(globalFinishLaps - mx.index_to_lap(globalRunningOrder[0].position));
+    }
+        
+    t = timeRemaining();
+  
+    if (t == 0) {
+        l = lapsRemaining();
+        if (l <= globalFinishLaps)
+           return lapsRemainingString(l);
+    }
+  
+    return timeToString(t);
+}
+  
+function lapsRemaining() {
+    final_lap = lapsBeforeTime(globalFinishTime) + 1 + globalFinishLaps;
+    return final_lap - mx.index_to_lap(globalRunningOrder[0].position);
+}
+  
+function lapsBeforeTime(seconds) {
+    var r, i, last, t;
+
+    if (seconds == 0)
+       return 0;
+
+    seconds += mx.get_gate_drop_time();
+
+    r = globalRunningOrder;
+
+    last = mx.index_to_lap(r[0].position);
+
+    /* search backwards to find leader's last lap before time expired */
+    for (i = last; i > 0; i--) {
+        t = mx.get_timing(r[0].slot, mx.lap_to_index(i));
+        if (t < seconds)
+            break;
+    }
+
+    /* search entire field forwards to find last lap before time expired */
+    for (; i <= last; i++) {
+        if (!indexReachedBefore(mx.lap_to_index(i), seconds))
+            break;
+    }
+
+    return i - 1;
+  }
+  
+function timeRemaining() {
+    var drop = mx.get_gate_drop_time();
+    var secs = mx.seconds - drop;
+
+    if (drop < 0 || secs < 0)
+       return globalFinishTime;
+
+    return Math.max(0.0, globalFinishTime - secs);
+}
+  
+function indexReachedBefore(index, seconds) {
+    var i, r, t;
+  
+    r = globalRunningOrder;
+  
+    for (i = 0; i < r.length; i++) {
+        t = mx.get_timing(r[i].slot, index);
+        if (t >= 0 && t < seconds)
+            return true;
+    }
+  
+    return false;
+}
+
+function breakTime(t) {
+   var min, sec, ms;
+
+   ms = Math.floor(t * 1000.0);
+   sec = Math.floor(ms / 1000);
+   min = Math.floor(sec / 60);
+
+   ms -= sec * 1000;
+   sec -= min * 60;
+
+   return { min: min, sec: sec, ms: ms };
+}
+
+function leftFillString(s, pad, n) {
+    n -= s.length;
+
+    while (n > 0) {
+        if (n & 1)
+        s = pad + s;
+
+        n >>= 1;
+        pad += pad;
+    }
+
+   return s;
+}
+
+// converts raw seconds to formatted time
+function timeToString(t) {
+   var s;
+
+   t = breakTime(t);
+
+   s = leftFillString(t.min.toString(), " ", 0) + ":";
+   s += leftFillString(t.sec.toString(), "0", 2) + ".";
+   s += leftFillString(t.ms.toString(), "0", 3);
+
+   return s;
+}
+
+/*
+########################################
+get, sort, and display laptimes function
+########################################
+*/
+var bestPlayerLaptimes = [];
+var allPlayerLaptimes = [];
+var invalidLaptimes = [];
+var invalidLapNumbers = [];
+var gotRunningOrder = false;
+var displayLeadLap = false;
+var debugLaps = true;
+var displayedInvalidLaps = false;
+
+function displayLaptimes() {
+	var riderName;
+	var r, slot, timingGate;
+	var laptimeToString;
+
+  r = globalRunningOrder;
+
+	if (!gotRunningOrder && mx.seconds >= 0) {
+		// sets an unchanging running order for storing unchanging element positions
+		for (var i = 0; i < r.length; i++) {
+			// best laps set to undefined time for every rider at the start of the session
+			bestPlayerLaptimes[r[i].slot] = [undefinedTime, r[i].slot];
+      allPlayerLaptimes[r[i].slot] = [undefinedTime];
+      invalidLaptimes[r[i].slot] = [];
+      invalidLapNumbers[r[i].slot] = [];
+		}
+		// update screen on start
+		if (!racingEvent) {
+      updateScreen();
+    }
+      
+		gotRunningOrder = true;
+	}
+
+	for (var i = 0; i < r.length; i++) {
+	  // initialize rider names array
+	  slot = r[i].slot;
+	  timingGate = r[i].position;
+  
+	  if ((timingGate - firstLapLength) % normalLapLength == 0 && (timingGate > 0) && 
+      (timingGate != firstLapLength) && (timingGate != currentTimingGates[slot])) {
+
+        riderName = mx.get_rider_name(slot);  
+
+        // Laptime will be an array that stores the laptime and if the laptime is good or not
+        var laptime = getLaptime(slot, timingGate);
+
+        // For time trial catching
+        if (r.length > allPlayerLaptimes.length) {
+          for (i = allPlayerLaptimes.length - 1; i < r.length; i++) {
+            bestPlayerLaptimes[i] = [undefinedTime, slot];
+            allPlayerLaptimes[i] = [undefinedTime];
+            invalidLaptimes[i] = [];
+            invalidLapNumbers[i] = [];
+          }
+        }
+
+        // Have to add 1 since laps are 1 based-indexed, this is the lap number the rider is on
+        var lapNumber = ((timingGate - firstLapLength) / normalLapLength) + 1;  
+        // Lap 2 is the first lap that counts, so take the lap number and subtract 2 to get the index
+        allPlayerLaptimes[slot][lapNumber - 2] = laptime[0];
+        
+        var newPB = false;  
+	    // if 2nd lap, replace pb of 0
+	    if (timingGate == (firstLapLength + normalLapLength)) {
+            newPB = true;
+        }
+	    // not 2nd lap, check to see if lap is faster
+	    else if (bestPlayerLaptimes[slot][0] > laptime[0]) {
+            newPB = true;
+        }
+  
+        // If the rider missed a timing gate and it's there best, don't count the lap as a pb
+        if (laptime[1] == false) {
+          if (newPB) newPB = false;
+          // If this rider has already had this invalid lap number and laptime added, return and don't add
+          if (invalidLapNumbers[slot].indexOf(lapNumber) > -1) return;
+  
+          // These two arrays have the same length
+          var len = invalidLaptimes[slot].length;
+          invalidLaptimes[slot][len] = laptime[0];
+          invalidLapNumbers[slot][len] = lapNumber;
+        }
+  
+        if (newPB) {
+          bestPlayerLaptimes[slot][0] = laptime[0];
+	  	  laptimeToString = timeToString(laptime[0]);
+        
+	  	  // update screen
+	  	  if (!racingEvent) {
+            updateScreen();
+            // For time trial catching
+            if (riderName == "") {
+              riderName = "Ghost Rider";
+            }
+            // Display person ran best lap of the session
+            if (isFastestLap(laptime[0])) {
+              mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + laptimeToString);
+            }
+          }
+        }
+	  }
+    }
+
+  // display invalid laps if everyone finished
+  if (!racingEvent && everyRiderFinished && !displayedInvalidLaps) {
+    displayInvalidLaptimes();
+    displayedInvalidLaps = true;
+  }
+}
+
+function displayInvalidLaptimes() {
+  var printedHeader = false;
+  var ridersWithInvalidLaps = 0;
+  var output;
+  for (var slot = 0; slot < invalidLaptimes.length; slot++) {
+    // if we have undefined slot, continue
+    if (invalidLaptimes[slot] == undefined) continue;
+
+    // if we have an empty array, where the rider had no invalid laps, continue to next rider
+    var riderInvalidLapsArrLen = invalidLaptimes[slot].length;
+    if (riderInvalidLapsArrLen == 0) continue;
+
+    
+    invalidLaptimes[slot].sort(function(a, b){return a-b});
+    var bestRiderLap = bestPlayerLaptimes[slot][0];
+
+    // If their best invalid lap was slower than a lap that counted, continue to next rider
+    if (invalidLaptimes[slot][0] > bestRiderLap) continue;
+    
+    // Increment the number of riders with invalid laps
+    ridersWithInvalidLaps++;
+
+    // Print the header of invalid laps if we have at least one person with an invalid laptime
+    if (!printedHeader) {
+      printHeader("\x1b[31m", "Invalid Laptimes:", 22, true);
+      printedHeader = true;
+    }
+    var riderName = mx.get_rider_name(slot);
+
+    // Add the first invalid lap to the output
+    output = riderName + " - (\x1b[31m" + timeToString(invalidLaptimes[slot][0]);
+
+    // Add out any other invalid laps to the output
+    for (var i = 1; i < riderInvalidLapsArrLen; i++) {
+      // if we are at a lap that's 1.5 seconds slower than the faster than the slowest lap or it's slower than their best counted, exit loop
+      if (invalidLaptimes[slot][i] > invalidLaptimes[slot][0] + 1.5 || invalidLaptimes[slot][i] > bestRiderLap) break;
+      output += "\x1b[0m, \x1b[31m" + timeToString(invalidLaptimes[slot][i]);
+    }
+
+    // Finish the output by closing parenthesis and send the message in chat
+    output += "\x1b[0m)";
+    mx.message(output);
   }
 
+  if (ridersWithInvalidLaps > 0) mx.message("");
+
 }
+
+function isFastestLap(laptime) {
+
+  var bestPlayerLapsSrtd = bestPlayerLaptimes.slice();
+  bestPlayerLapsSrtd.sort(function (a, b){return a[0] - b[0];});
+  var bestLap = bestPlayerLapsSrtd[0][0];
+  if (bestLap == laptime) return true;
+
+  return false;
+}
+
+function getLaptime(slot, currentGate) {
+  var endGate = currentGate - 1;
+  var startGate = endGate - normalLapLength;
+  var isLapGood = true;
+  // If the rider missed a timing gate between the lap, don't count it
+  for (var i = startGate + 1; i < endGate; i++) {
+    if (mx.get_timing(slot, i) < 0) {
+      isLapGood = false;
+      break;
+    }
+  }
+  var startLapTime = mx.get_timing(slot, startGate);
+  var finishLapTime = mx.get_timing(slot, endGate);
+  return [finishLapTime - startLapTime, isLapGood];
+}
+
+/* 
+timing gate at which to activate mechanic sounds
+assuming gates are ordered numerically and zero indexed.
+ex. 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, etc.
+*/
+const mechanicGate = 43;
+
+/* this is the number of times the rider needs pass the mechanic gate above
+before activating mechanics. Ex. 1 means the first time the rider passes the mechanic gate*/
+const lapToActivateMechanics = 1;
+
+// If you want songs enabled on the speakers
+const songsEnabled = false;
+  
+/* This is for boos/cheers on the track, if you want that.
+Array is written as [element1, element 2]; where each element =
+[timing gate,[soundPosX, soundPosY, soundPosZ]]*/
+const gatesAndPosCheerOrBoo = [
+  [16,bleacherSoundPositions[0]],
+  [15,bleacherSoundPositions[1]],
+  [18,bleacherSoundPositions[2]],
+  [19,bleacherSoundPositions[3]],
+  [30,bleacherSoundPositions[4]],
+  [42,bleacherSoundPositions[5]],
+  [41,bleacherSoundPositions[6]],
+  [40,bleacherSoundPositions[7]],
+  [31,bleacherSoundPositions[8]],
+];
+
+var crowdConstants;
+var crowdRoars = [];
+const crowdRoarDirectories = [
+  "@os2022bgsxobj/sounds/cheers/cheer1.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer3.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer4.raw",
+  "@os2022bgsxobj/sounds/cheers/roar1.raw",
+  "@os2022bgsxobj/sounds/cheers/roar2.raw",
+  "@os2022bgsxobj/sounds/cheers/horn2.raw"
+];
+const numOfRoarVariants = crowdRoarDirectories.length;
+
+var allCheerSounds = [];
+var allBooSounds = [];
+
+const cheerVariantDirectories = [
+  "@os2022bgsxobj/sounds/cheers/cheer1.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer2.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer3.raw",
+  "@os2022bgsxobj/sounds/cheers/cheer4.raw",
+  "@os2022bgsxobj/sounds/cheers/roar1.raw",
+  "@os2022bgsxobj/sounds/cheers/roar2.raw",
+  "@os2022bgsxobj/sounds/cheers/horn1.raw",
+  "@os2022bgsxobj/sounds/cheers/horn2.raw"
+
+];
+const numOfCheerVariants = cheerVariantDirectories.length;
+
+const booVariantDirectories = [
+  "@os2022bgsxobj/sounds/boos/boo1.raw",
+  "@os2022bgsxobj/sounds/boos/boo2.raw",
+  "@os2022bgsxobj/sounds/boos/boo3.raw",
+  "@os2022bgsxobj/sounds/boos/boo4.raw"
+];
+const numOfBooVariants = booVariantDirectories.length;
+
+// leave blank
+var allMechanicSounds = [];
+// to add another variant, make an array of the sound directories to store and add that
+// array directory name into all directories array.
+const joeSoundDirectories = [
+  "@os2022bgsxobj/sounds/mechanic/joe/joe1.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe2.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe3.raw", 
+  "@os2022bgsxobj/sounds/mechanic/joe/joe4.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe5.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe6.raw", 
+  "@os2022bgsxobj/sounds/mechanic/joe/joe7.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe8.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe9.raw", 
+  "@os2022bgsxobj/sounds/mechanic/joe/joe10.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe11.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe12.raw", 
+  "@os2022bgsxobj/sounds/mechanic/joe/joe13.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe14.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe15.raw", 
+  "@os2022bgsxobj/sounds/mechanic/joe/joe16.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe17.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe18.raw", 
+  "@os2022bgsxobj/sounds/mechanic/joe/joe19.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe20.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe21.raw", 
+  "@os2022bgsxobj/sounds/mechanic/joe/joe22.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe23.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe24.raw", 
+  "@os2022bgsxobj/sounds/mechanic/joe/joe25.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe26.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe27.raw", 
+  "@os2022bgsxobj/sounds/mechanic/joe/joe28.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe29.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe30.raw",
+  "@os2022bgsxobj/sounds/mechanic/joe/joe31.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe32.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe33.raw",
+  "@os2022bgsxobj/sounds/mechanic/joe/joe34.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe35.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe36.raw",
+  "@os2022bgsxobj/sounds/mechanic/joe/joe37.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe38.raw", "@os2022bgsxobj/sounds/mechanic/joe/joe39.raw",
+  "@os2022bgsxobj/sounds/mechanic/joe/joe40.raw"
+];
+const sethSoundDirectories = [
+  "@os2022bgsxobj/sounds/mechanic/seth/seth1.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth2.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth3.raw", 
+  "@os2022bgsxobj/sounds/mechanic/seth/seth4.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth5.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth6.raw", 
+  "@os2022bgsxobj/sounds/mechanic/seth/seth7.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth8.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth9.raw", 
+  "@os2022bgsxobj/sounds/mechanic/seth/seth10.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth11.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth12.raw", 
+  "@os2022bgsxobj/sounds/mechanic/seth/seth13.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth14.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth15.raw", 
+  "@os2022bgsxobj/sounds/mechanic/seth/seth16.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth17.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth18.raw", 
+  "@os2022bgsxobj/sounds/mechanic/seth/seth19.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth20.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth21.raw", 
+  "@os2022bgsxobj/sounds/mechanic/seth/seth22.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth23.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth24.raw", 
+  "@os2022bgsxobj/sounds/mechanic/seth/seth25.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth26.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth27.raw", 
+  "@os2022bgsxobj/sounds/mechanic/seth/seth28.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth29.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth30.raw",
+  "@os2022bgsxobj/sounds/mechanic/seth/seth31.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth32.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth33.raw",
+  "@os2022bgsxobj/sounds/mechanic/seth/seth34.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth35.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth36.raw",
+  "@os2022bgsxobj/sounds/mechanic/seth/seth37.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth38.raw", "@os2022bgsxobj/sounds/mechanic/seth/seth39.raw",
+  "@os2022bgsxobj/sounds/mechanic/joe/seth40.raw"
+];
+const hubSoundDirectories = [
+  "@os2022bgsxobj/sounds/mechanic/hub/hub1.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub2.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub3.raw", 
+  "@os2022bgsxobj/sounds/mechanic/hub/hub4.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub5.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub6.raw", 
+  "@os2022bgsxobj/sounds/mechanic/hub/hub7.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub8.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub9.raw", 
+  "@os2022bgsxobj/sounds/mechanic/hub/hub10.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub11.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub12.raw", 
+  "@os2022bgsxobj/sounds/mechanic/hub/hub13.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub14.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub15.raw", 
+  "@os2022bgsxobj/sounds/mechanic/hub/hub16.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub17.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub18.raw", 
+  "@os2022bgsxobj/sounds/mechanic/hub/hub19.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub20.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub21.raw", 
+  "@os2022bgsxobj/sounds/mechanic/hub/hub22.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub23.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub24.raw", 
+  "@os2022bgsxobj/sounds/mechanic/hub/hub25.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub26.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub27.raw", 
+  "@os2022bgsxobj/sounds/mechanic/hub/hub28.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub29.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub30.raw",
+  "@os2022bgsxobj/sounds/mechanic/hub/hub31.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub32.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub33.raw",
+  "@os2022bgsxobj/sounds/mechanic/hub/hub34.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub35.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub36.raw",
+  "@os2022bgsxobj/sounds/mechanic/hub/hub37.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub38.raw", "@os2022bgsxobj/sounds/mechanic/hub/hub39.raw",
+  "@os2022bgsxobj/sounds/mechanic/joe/hub40.raw"
+];
+const someSoundDirectories = [
+  "@os2022bgsxobj/sounds/mechanic/some/some1.raw", "@os2022bgsxobj/sounds/mechanic/some/some2.raw", "@os2022bgsxobj/sounds/mechanic/some/some3.raw", 
+  "@os2022bgsxobj/sounds/mechanic/some/some4.raw", "@os2022bgsxobj/sounds/mechanic/some/some5.raw", "@os2022bgsxobj/sounds/mechanic/some/some6.raw", 
+  "@os2022bgsxobj/sounds/mechanic/some/some7.raw", "@os2022bgsxobj/sounds/mechanic/some/some8.raw", "@os2022bgsxobj/sounds/mechanic/some/some9.raw", 
+  "@os2022bgsxobj/sounds/mechanic/some/some10.raw", "@os2022bgsxobj/sounds/mechanic/some/some11.raw", "@os2022bgsxobj/sounds/mechanic/some/some12.raw", 
+  "@os2022bgsxobj/sounds/mechanic/some/some13.raw", "@os2022bgsxobj/sounds/mechanic/some/some14.raw", "@os2022bgsxobj/sounds/mechanic/some/some15.raw", 
+  "@os2022bgsxobj/sounds/mechanic/some/some16.raw", "@os2022bgsxobj/sounds/mechanic/some/some17.raw", "@os2022bgsxobj/sounds/mechanic/some/some18.raw", 
+  "@os2022bgsxobj/sounds/mechanic/some/some19.raw", "@os2022bgsxobj/sounds/mechanic/some/some20.raw", "@os2022bgsxobj/sounds/mechanic/some/some21.raw", 
+  "@os2022bgsxobj/sounds/mechanic/some/some22.raw", "@os2022bgsxobj/sounds/mechanic/some/some23.raw", "@os2022bgsxobj/sounds/mechanic/some/some24.raw", 
+  "@os2022bgsxobj/sounds/mechanic/some/some25.raw", "@os2022bgsxobj/sounds/mechanic/some/some26.raw", "@os2022bgsxobj/sounds/mechanic/some/some27.raw", 
+  "@os2022bgsxobj/sounds/mechanic/some/some28.raw", "@os2022bgsxobj/sounds/mechanic/some/some29.raw", "@os2022bgsxobj/sounds/mechanic/some/some30.raw",
+  "@os2022bgsxobj/sounds/mechanic/some/some31.raw", "@os2022bgsxobj/sounds/mechanic/some/some32.raw", "@os2022bgsxobj/sounds/mechanic/some/some33.raw",
+  "@os2022bgsxobj/sounds/mechanic/some/some34.raw", "@os2022bgsxobj/sounds/mechanic/some/some35.raw", "@os2022bgsxobj/sounds/mechanic/some/some36.raw",
+  "@os2022bgsxobj/sounds/mechanic/some/some37.raw", "@os2022bgsxobj/sounds/mechanic/some/some38.raw", "@os2022bgsxobj/sounds/mechanic/some/some39.raw",
+  "@os2022bgsxobj/sounds/mechanic/joe/some40.raw"
+];
+
+const allMechanicDirectories = [
+  joeSoundDirectories,
+  sethSoundDirectories,
+  hubSoundDirectories,
+  someSoundDirectories
+];
+
+// Change list to boo or cheer specific riders when they pass by the crowd
+const booRiderNames = [
+  "brayden tharp",
+  "alexis leclair",
+  "rogan mcintosh",
+  "roborider",
+  "spencer turley",
+  "larry reyes jr",
+  "jr reyes",
+  "tyler lang",
+  "rasmus balzer"
+];
+
+const cheerRiderNames = [
+  "cade matherly",
+  "alexis leclair",
+  "jakob hubbard",
+  "braden carter",
+  "seth garrett",
+  "greg conrad",
+  "tanner rogers",
+  "colton hansen",
+  "maxime vanderbeek",
+  "brandon larsen"
+];
+
+var slotsToCheer = [];
+var slotsToBoo = [];
+
+// ADD POSITIONS FOR MECHANICS X Y Z
+// How this works is every slot number will be signed a unique mechanic position
+const mechanicPositions = [
+    [0, 0, 0], [1, 0, 1], 
+    [265, 6, 436], [265, 6, 436], 
+    [4, 0, 4], [5, 0, 5], 
+    [6, 0, 6], [7, 0, 7], 
+    [8, 0, 8], [9, 0, 9], 
+    [10, 0, 10], [11, 0, 11], 
+    [12, 0, 12], [13, 0, 13], 
+    [14, 0, 14], [15, 0, 15], 
+    [16, 0, 16], [17, 0, 17], 
+    [18, 0, 18], [19, 0, 19], 
+    [20, 0, 20], [21, 0, 21]
+];
+const numOfMechanicPositions = mechanicPositions.length;
+
+/*
+####################
+CHANGE EVERY TRACK
+####################
+*/
+var speakerPositions = [
+  [581.5,30,148],
+  [312,30,95],
+  [140,30,216]
+];
+var numOfSpeakers = speakerPositions.length;
+var mainEventScreams = [];
+if (songsEnabled) {
+  var timeToStartSongs = 20;
+  var songs = [[]];
+  // song lengths in seconds, 1:1 correlation with songDirectories
+  var songLengths = [];
+  // song files
+  var songDirectories = [
+  ];
+  shuffleSongs(songDirectories, songLengths);
+}
+var time = globalFinishTime / 60;
+var fourFiftyMain = false;
+if (time == 20) fourFiftyMain = true;
+for (var i = 0; i < numOfSpeakers; i++){
+  if (fourFiftyMain)
+    mainEventScreams[i] = mx.add_sound("@os2022bgsxobj/sounds/crowd/maineventscream2.raw");
+  else
+    mainEventScreams[i] = mx.add_sound("@os2022bgsxobj/sounds/crowd/maineventscream.raw");
+  
+  if (songsEnabled) {
+    if (i < numOfSpeakers - 1)
+      songs.push([]);
+
+    for (var j = 0; j < songDirectories.length; j++){
+      songs[i][j] = mx.add_sound(songDirectories[j]);
+      mx.set_sound_freq(songs[i][j], 48000);
+      mx.set_sound_vol(songs[i][j], 1);
+      mx.set_sound_pos(songs[i][j], speakerPositions[i][0], speakerPositions[i][1], speakerPositions[i][2]);
+    }
+  }
+
+  mx.set_sound_freq(mainEventScreams[i], 44100);
+  mx.set_sound_vol(mainEventScreams[i], 1);
+  mx.set_sound_pos(mainEventScreams[i], speakerPositions[i][0], speakerPositions[i][1], speakerPositions[i][2]);
+}
+
+function shuffleSongs(directories, lengths) {
+    var currentIndex = directories.length;
+    var randomIndex;
+  
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+  
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+  
+      // swap elements
+      var temp = directories[currentIndex];
+      directories[currentIndex] = directories[randomIndex];
+      directories[randomIndex] = temp;
+  
+      temp = lengths[currentIndex];
+      lengths[currentIndex] = lengths[randomIndex];
+      lengths[randomIndex] = temp;
+      
+    }
+}
+
+function initializeMechanicSounds() {
+  for (var i = 0; i < allMechanicDirectories.length; i++) {
+    allMechanicSounds.push([]);
+    for (var j = 0; j < allMechanicDirectories[i].length; j++){
+      allMechanicSounds[i][j] = mx.add_sound(allMechanicDirectories[i][j]);
+      mx.set_sound_freq(allMechanicSounds[i][j], 44100);
+      mx.set_sound_vol(allMechanicSounds[i][j], 1);
+      //mx.message('[' + i.toString() + '][' + j.toString() + '] ' + allMechanicSounds[i][j].toString());
+    }
+  }
+}
+
+function initializeCheerAndBooAllSoundArrays() {
+    if (numOfCheerVariants == numOfBooVariants) {
+      for (var i = 0; i < numOfCheerVariants; i++) {
+        allCheerSounds.push([]);
+        allBooSounds.push([]);
+      }
+      return;
+    }
+
+    for (var i = 0; i < numOfCheerVariants; i++)
+      allCheerSounds.push([]);
+    for (var i = 0; i < numOfBooVariants; i++)
+      allBooSounds.push([]);
+}
+
+const cheerSoundVol = 5;
+const booSoundVol = 5;
+function addCheerBooSounds() {
+    if (!stadium) {
+        initializeCheerAndBooAllSoundArrays();
+        // otherwise do two different nested loops
+        for (var i = 0; i < numOfBooVariants; i++) {
+          for (var j = 0; j < numOfBleachers; j++) {
+            allBooSounds[i][j] = mx.add_sound(booVariantDirectories[i]);
+            mx.set_sound_freq(allBooSounds[i][j], 44100);
+            mx.set_sound_vol(allBooSounds[i][j], booSoundVol);
+            mx.set_sound_pos(allBooSounds[i][j], bleacherSoundPositions[j][0], bleacherSoundPositions[j][1], bleacherSoundPositions[j][2]);
+          }
+        }
+    
+        for (var i = 0; i < numOfCheerVariants; i++) {
+          for (var j = 0; j < numOfBleachers; j++) {
+            allCheerSounds[i][j] = mx.add_sound(cheerVariantDirectories[i]);
+            mx.set_sound_freq(allCheerSounds[i][j], 44100);
+            mx.set_sound_vol(allCheerSounds[i][j], cheerSoundVol);
+            mx.set_sound_pos(allCheerSounds[i][j], bleacherSoundPositions[j][0], bleacherSoundPositions[j][1], bleacherSoundPositions[j][2]);
+          }
+        }
+        return;
+    }
+
+    for (var i = 0; i < numOfBooVariants; i++) {
+        allBooSounds[i] = mx.add_sound(booVariantDirectories[i]);
+        mx.set_sound_freq(allBooSounds[i], 44100);
+    }
+    for (var i = 0; i < numOfCheerVariants; i++) {
+        allCheerSounds[i] = mx.add_sound(cheerVariantDirectories[i]);
+        mx.set_sound_freq(allCheerSounds[i], 44100);
+    }
+}
+
+/*
+################################################
+dynamic crowd and mechanic sounds based on rider
+################################################
+*/
+
+// this number determines who the rider's mechanic is
+var mechanicNumberIdentifiers = [];
+var soundDelay = 0;
+const secondsToDelay = 3;
+var initializedMechanicIdentifiers = false;
+var playedScream = false;
+var timeToPlayScream;
+var playingSong = false;
+var timeStartedSong = 20;
+var currentSongIndex = -1;
+
+initializeCrowdSounds();
+initializeMechanicSounds();
+
+function dynamicMechanicAndFans() {
+
+  var randNumber, slot, timingGate, i;
+  var runningOrder = globalRunningOrder;
+
+  if (!initializedMechanicIdentifiers) {
+    initializeMechanicIdentifiers();
+    initializedMechanicIdentifiers = true;
+  }
+  // use time to seed random numbers
+  var seconds = mx.seconds;
+
+  if (seconds > timeToPlayScream && !playedScream && mainEvent) {
+    for (var i = 0; i < mainEventScreams.length; i++)
+      mx.start_sound(mainEventScreams[i]);
+    playedScream = true;
+  }
+
+  if (playedScream && seconds < timeToPlayScream) {playedScream = false;}
+
+  if (songsEnabled) {songFunction();}
+
+  for (i = 0; i < runningOrder.length; i++) {
+      slot = runningOrder[i].slot;
+      timingGate = runningOrder[i].position;
+      /*
+      ###################
+      crowds at bleachers
+      ###################
+
+      if you do not want boos/cheers just delete this whole if statement section
+      */
+  
+      if (timingGate != currentTimingGates[slot] && (seconds >= soundDelay)) {
+          // Runs a loop every time someone hits a gate that's in the gatesAndPosCheerOrBoo array
+          for (var x = 0; x < gatesAndPosCheerOrBoo.length; x++) {
+            // every lap, and first sound only plays when you hit the first timing gate in the slot
+            if ((timingGate - (gatesAndPosCheerOrBoo[x][0] + 1)) % normalLapLength == 0 && timingGate >= gatesAndPosCheerOrBoo[x][0] + 1) {
+                // make's name comparison, sends in running order, index, and the array
+                makeNameComparison(slot, x, seconds);
+                break;
+            }
+          }
+        }
+      /*
+      ##############
+      mechanics area
+      ##############
+      */ 
+      if (((timingGate - (mechanicGate + 1)) % normalLapLength == 0) && 
+          (timingGate > ((mechanicGate + 1) * (lapToActivateMechanics - 1))) && 
+          (timingGate != currentTimingGates[slot])) {
+
+            var position = i + 1;
+            // pick from first place prompts
+            if (position == 1)
+              randNumber = Math.floor((seconds % 5));
+
+            // pick from front running sounds for top 5 that's not first
+            else if (position <= 5)
+              randNumber = Math.floor((seconds % 6)) + 5;
+
+            // pick from 6th-10th sounds
+            else if (position <= 10)
+              randNumber = Math.floor((seconds % 5)) + 11;
+
+            // pick from midpack1 sounds (11th-15th)
+            else if (position <= 15)
+              randNumber = Math.floor((seconds % 4)) + 16;
+
+            // pick from midpack2 sounds (16th-21st)
+            else if (position <= 21)
+              randNumber = Math.floor((seconds % 5)) + 20;
+
+            // pick from last place prompts
+            else if (position == runningOrder.length)
+              randNumber = Math.floor((seconds % 5)) + 35;
+
+            // pick from endpack sounds
+            else
+              randNumber = Math.floor((seconds % 10)) + 25;
+    
+            if (slot <= numOfMechanicPositions)
+              assignPositionsForMechanicsAndPlaySound(slot, mechanicNumberIdentifiers, randNumber);
+        }
+    }
+}
+
+function initializeMechanicIdentifiers() {
+    var runningOrder = globalRunningOrder;
+    if (mainEvent) {
+        // Use last place's slot number to seed a random number between 3 and 6 seconds
+        timeToPlayScream = (runningOrder[runningOrder.length-1].slot % 4) + 3;
+    }
+    if (runningOrder.length > numOfMechanicPositions) {
+        mx.message('Warning: Not Every Rider Will Be Assigned a Mechanic');    
+    }
+      
+    for (i = 0; i < runningOrder.length; i++) {
+        slot = runningOrder[i].slot;    
+        /*
+        if the running order is longer than the mechanic positions length,
+        not all riders will be assigned a mechanic, only the ones within the confines
+        of the mechanic positions length
+        */    
+        // assign mechanic sounds based on slot num
+        if (i <= numOfMechanicPositions) {
+
+            if (slot % 4 == 0) {
+                mechanicNumberIdentifiers[slot] = 3;
+                continue;
+            }
+
+            if (slot % 3 == 0) {
+                mechanicNumberIdentifiers[slot] = 2;
+                continue;
+            }
+
+            if (slot % 2 == 0) {
+                mechanicNumberIdentifiers[slot] = 1;
+                continue;
+            }
+            mechanicNumberIdentifiers[slot] = 0;
+        }
+    }
+}
+
+function songFunction() {
+  try {
+    if (playingSong) {
+      if (mx.seconds > songLengths[currentSongIndex] + timeStartedSong || mx.seconds - timeStartedSong < 0) {
+        if (mx.seconds - timeStartedSong < 0) {
+          currentSongIndex--;
+        }
+        for (var i = 0; i < numOfSpeakers; i++) {
+          mx.stop_sound(songs[i][currentSongIndex]);
+        }
+        playingSong = false;
+      }
+    }
+  
+    if (!playingSong && mainEvent && mx.seconds > timeToStartSongs){
+      currentSongIndex++;
+      if (currentSongIndex == songs.length)
+        currentSongIndex = 0;
+      for (var i = 0; i < numOfSpeakers; i++) {
+        mx.start_sound(songs[i][currentSongIndex]);
+      }
+      playingSong = true;
+      timeStartedSong = mx.seconds;
+    }
+  }
+  catch(e) {
+    mx.message("song error: " + e);
+  }
+}
+
+function assignPositionsForMechanicsAndPlaySound(slotNumber, mechanicNumberIdentifiers, randNumber) {
+  /*var mechNum = mechanicNumberIdentifiers[slotNumber];
+  mx.message('slot number: ' + slotNumber);
+  mx.message('setting sound position for: [' + mechNum + '][' + randNumber + '] at ' + mechanicPositions[slotNumber]);
+  mx.set_sound_pos(allMechanicSounds[mechNum][randNumber], mechanicPositions[slotNumber][0], mechanicPositions[slotNumber][1], mechanicPositions[slotNumber][2]);
+  mx.start_sound(allMechanicSounds[mechNum][randNumber]);*/
+}
+
+function makeNameComparison(slot, benchPos, seconds) {
+  // use time to seed random numbers
+  seconds = seconds.toFixed(3);
+  var randNumber, randFunc, randFunc2;
+  var luckyNumber = 2;
+
+  if (slotsToCheer.indexOf(slot) != -1) {
+    // cheer sounds have a 10% chance of playing
+    randFunc = seed((seconds * 1000) << 2);
+    randNumber = Math.floor(randFunc() * 100) % 10;
+
+    if (randNumber == luckyNumber) {
+      randFunc2 = seed((randFunc()) * mx.tics_per_second);
+      randNumber = Math.floor(randFunc2() * 100) % numOfCheerVariants;
+
+      mx.set_sound_vol(allCheerSounds[randNumber][benchPos], cheerSoundVol);
+      mx.start_sound(allCheerSounds[randNumber][benchPos]);
+      // delay so sounds don't overlay
+      soundDelay = seconds + secondsToDelay;
+    }
+  }
+
+  if (slotsToBoo.indexOf(slot) != -1) {
+    // boo sounds have a 10% chance of playing
+    randFunc = seed((seconds * 1000) << 2);
+    randNumber = Math.floor(randFunc() * 100) % 10;
+
+    if (randNumber == luckyNumber) {
+      randFunc2 = seed((randFunc()) * mx.tics_per_second);
+      randNumber = Math.floor(randFunc2() * 100) % numOfBooVariants;
+      
+      mx.set_sound_vol(allBooSounds[randNumber][benchPos], booSoundVol);
+      mx.start_sound(allBooSounds[randNumber][benchPos]);
+      // delay so sounds don't overlay
+      soundDelay = seconds + secondsToDelay;
+    }
+  }
+}
+  
+function addRoarSounds() {
+    if (!stadium) {
+      for (var i = 0; i < numOfBleachers; i++) {
+        crowdRoars.push([]);
+        for (var j = 0; j < numOfRoarVariants; j++) {
+          crowdRoars[i][j] = mx.add_sound(crowdRoarDirectories[j]);
+          mx.set_sound_freq(crowdRoars[i][j], 44100);
+          mx.set_sound_pos(crowdRoars[i][j], bleacherSoundPositions[i][0], bleacherSoundPositions[i][1], bleacherSoundPositions[i][2]);
+        }
+      }
+      return;
+    }
+  
+    for (var i = 0; i < numOfRoarVariants; i++) {
+      crowdRoars[i] = mx.add_sound(crowdRoarDirectories[i]);
+      mx.set_sound_freq(crowdRoars[i], 44100);
+    }
+}
+  
+function addCrowdConstant() {
+  if (!stadium) {
+    crowdConstants = [];
+    // Set Sound Positions for crashes and constant sound at all bleacher positions
+    for (var j = 0; j < numOfBleachers; j++) {
+        // define all crowd constants at each bleacher position
+        crowdConstants[j] = mx.add_sound("@os2022bgsxobj/sounds/crowd/crowdconstant.raw");
+        mx.set_sound_freq(crowdConstants[j], 44100);
+
+        if (racingEvent) {
+          mx.set_sound_vol(crowdConstants[j], crowdConstantBaseVol);
+        } else {
+          mx.set_sound_vol(crowdConstants[j], crowdConstantBaseVol / 4);
+        } 
+
+        mx.set_sound_loop(crowdConstants[j], 1);
+        mx.set_sound_pos(crowdConstants[j], bleacherSoundPositions[j][0], bleacherSoundPositions[j][1], bleacherSoundPositions[j][2]);
+        mx.start_sound(crowdConstants[j]);
+    }
+    return;
+  }
+
+  crowdConstants = mx.add_sound("@os2022bgsxobj/sounds/crowd/constant.raw");
+  mx.set_sound_freq(crowdConstants, 44100);
+  mx.set_sound_vol(crowdConstants, crowdConstantBaseVol);
+  mx.set_sound_loop(crowdConstants, 1);
+
+}
+
+function initializeCrowdSounds() {
+  addCheerBooSounds();
+  addRoarSounds();
+  addCrowdConstant();
+}
+
+var displayedAwards = false;
+var mostConsistentRider;
+function riderAwards() {
+  // If it's not a main event, don't display awards
+  if (!mainEvent) return;
+
+  if (everyRiderFinished && !displayedAwards) {
+    
+    calculatePositionsGained();
+    mostConsistentRider = getRiderConsistency();
+
+    var msg;
+    var extraSpace = false;
+    
+    // Initial Header
+    printHeader("\x1b[33m", "Awards:", 11, extraSpace);
+    mx.message("Note: Hard Charger / Anchor do not account for cuts.");
+    mx.message("");
+    msg = "Nobody";
+    extraSpace = true;
+    
+    // Holeshot
+    printHeader("\x1b[36m", "Holeshot Award:", 21, extraSpace);
+
+    var riderName = mx.get_rider_name(holeshotRiderSlot);
+    if (riderName) msg = riderName.toString();
+    
+    mx.message(msg);
+    mx.message("");
+    msg = "Nobody";
+
+    // Hard Charger Award
+    printHeader("\x1b[32m", "Hard Charger Award:", 27, extraSpace)
+
+    var positionsGained = 0;
+    if (riderPositionsGained[0]){
+      positionsGained = riderPositionsGained[0][0];
+      riderName = mx.get_rider_name(riderPositionsGained[0][1]);
+      if (positionsGained != 0) msg = "\x1b[32m+" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
+    }
+    
+    mx.message(msg);
+    mx.message("");
+    msg = "Nobody";
+
+    // Anchor Award
+    printHeader("\x1b[31m", "Anchor Award:", 19, extraSpace);
+
+    if (riderPositionsGained[riderPositionsGained.length - 1][0] != riderPositionsGained[0][0]) {
+      positionsGained = riderPositionsGained[riderPositionsGained.length - 1][0];
+      riderName = mx.get_rider_name(riderPositionsGained[riderPositionsGained.length - 1][1]);
+      if (positionsGained != 0) msg = "\x1b[31m" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
+    }
+    
+    mx.message(msg);
+    mx.message("");
+    msg = "Nobody";
+
+    // On the Clock Award
+    printHeader("\x1b[34m", "On The Clock Award:", 26, extraSpace);
+    
+    var fastestRider = getFastestLap();
+    if (fastestRider[0] != undefinedTime) {
+      riderName = mx.get_rider_name(fastestRider[1]);
+      msg = "\x1b[34m" + timeToString(fastestRider[0]) + '\x1b[0m - ' + riderName.toString();
+    }
+    mx.message(msg);
+    mx.message("");
+    msg = "Nobody";
+
+    // Consistency Award
+    printHeader("\x1b[35m", "Consistency Award:", 25, extraSpace);
+
+    var stdDeviation = mostConsistentRider[0].toFixed(3);
+    riderName = mx.get_rider_name(mostConsistentRider[1]);
+    if (mostConsistentRider) msg = "\x1b[35mStd. Dev: " + stdDeviation.toString() + "\x1b[0m - " + riderName.toString();
+    mx.message(msg);
+
+    displayedAwards = true;
+  }
+}
+
+function printHeader(color, header, dashLength, space) {
+  var dashes = "";
+  for (var i = 0; i < dashLength; i++) {
+    dashes += "-";
+  }
+  mx.message(color + dashes);
+  mx.message(color + header);
+  mx.message(color + dashes);
+  if (space) mx.message("");
+}
+
+// zero indexed, 0 is 1st, 1 is 2nd, etc.
+var riderPositionsAfterL1 = [];
+var riderFinishPositions = [];
+var riderPositionsGained;
+
+// calculate stats
+function calculatePositionsGained () {
+  if (riderPositionsAfterL1.length != riderFinishPositions.length) {
+    mx.message("Error with array lengths of rider positions!");
+    return;
+  };
+
+  var numNullArrs = 0;
+  // reset the rider positions gained
+  riderPositionsGained = [];
+  for (var i = 0; i < riderPositionsAfterL1.length; i++) {
+    if (riderPositionsAfterL1[i] && riderFinishPositions[i]) {
+      riderPositionsGained.push([]);
+      // first store the number of positions gained
+      riderPositionsGained[i - numNullArrs][0] = riderPositionsAfterL1[i][0] - riderFinishPositions[i][0];
+      // then their slot number associated
+      riderPositionsGained[i - numNullArrs][1] = riderPositionsAfterL1[i][1];
+    } else {
+      numNullArrs++;
+    }
+  }
+
+  // sort in descending order by largest num of positions gained.
+  riderPositionsGained.sort(function (a, b) {
+    if (a[0] < b[0]) {
+      return 1;
+    }
+
+    if (a[0] == b[0]) {
+      // If the two riders gained or lost the same number of positions but the finish position of A rider was worse then B rider, then A rider gained 'less' positions
+      if (riderFinishPositions[a[1]] > riderFinishPositions[b[1]]) {
+        return 1;
+      }
+    }
+    return -1;
+  });
+}
+
+function getFastestLap() {
+  // copy bestPlayerLaptimes into temp array
+  var bestPlayerLapsSrtd = bestPlayerLaptimes.slice();
+  // srt array and return
+  bestPlayerLapsSrtd.sort(function (a, b){return a[0] - b[0];});
+  return bestPlayerLapsSrtd[0];
+}
+
+function getRiderConsistency() {
+  // TODO: calculate the std deviation for each rider
+  var avgLaps = [];
+  var stdDeviations = [];
+
+  for (var slot = 0; slot < allPlayerLaptimes.length; slot++) {
+    var sum = 0;
+    avgLaps[slot] = undefined;
+    stdDeviations[slot] = undefined;
+    if (allPlayerLaptimes[slot].length > 0) {
+      // calculate average laptime for each player
+      for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
+        sum += allPlayerLaptimes[slot][j];
+      }
+      avgLaps[slot] = sum / allPlayerLaptimes[slot].length;
+
+      // std deviation = sqrt((lap - avglap)^2 for all laps / num of laps)
+      sum = 0;
+      for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
+        sum += Math.pow(allPlayerLaptimes[slot][j] - avgLaps[slot], 2);
+      }
+
+      var variance = sum / allPlayerLaptimes[slot].length;
+      var stdDeviationiation = Math.sqrt(variance);
+      stdDeviations[slot] = [stdDeviationiation, slot];
+    }
+  }
+
+  // sort by array by each rider's standard deviation
+  stdDeviations.sort(function (a, b){return a[0] - b[0];})
+  
+  // filter out zeros and undefined.
+  for (var i = 0; i < stdDeviations.length; i++) {
+    if (!stdDeviations[i] || stdDeviations[i][0] <= 0) {
+      stdDeviations.splice(i,1);
+      i--;
+    }
+ }
+  
+  // returns an array with the consistency and slot associated
+  return stdDeviations[0];
+}
+
+function resetCurrentTimingGates() {
+  var timingGate, slot;
+  for (var i = 0; i < globalRunningOrder.length; i++) {
+    slot = globalRunningOrder[i].slot;
+    timingGate = globalRunningOrder[i].position;
+    if (timingGate != currentTimingGates[slot]){
+      // for demos going back in time, reset their down check gate
+      if (timingGate < currentTimingGates[slot]) {
+        currentTimingGates[slot] = timingGate;
+        riderDownCheckGates[slot] = 0;
+        soundDelay = 0;
+      }
+      currentTimingGates[slot] = timingGate;
+    }
+  }
+}
+
+function checkPosChange(slot, position) {
+  if (slotPositionHolder[position] != slot) {
+    ResetSlotPositionHolder(); 
+    return true;
+  }
+  return false;
+}
+
+function ResetSlotPositionHolder() {
+  for (var i = 0; i < globalRunningOrder.length; i++) {
+    slotPositionHolder[i] = globalRunningOrder[i].slot;
+  }
+}
+
+function setUpCheerBooSlots() {
+  if (!racingEvent) return;
+
+  for (var i = 0; i < globalRunningOrder.length; i++) {
+    var slot = globalRunningOrder[i].slot;
+    var riderName = mx.get_rider_name(slot).toLowerCase();
+    for (var i = 0; i < booRiderNames.length; i++) {
+      if (riderName.includes(booRiderNames[i])) {
+        slotsToBoo[slotsToBoo.length] = slot;
+        break;
+      }
+    }
+    for (var i = 0; i < cheerRiderNames.length; i++) {
+      if (riderName.includes(cheerRiderNames[i])) {
+        slotsToCheer[slotsToCheer.length] = slot;
+        break;
+      }
+    }
+  }
+}
+
+function updateRunningOrderScreen() {
+  var r = globalRunningOrder;
+  var slot, timingGate;
+  if (globalRunningOrder.length > 1) {
+    for (i = 0; i < r.length; i++) {
+      slot = r[i].slot;
+      timingGate = r[i].position;
+      if (timingGate != currentTimingGates[slot]){
+        if (checkPosChange(slot, i) || timingGate == 1) {
+          updateScreen();
+        }
+      }
+    }
+  }
+  else if (r[0].position == 1 && r[0].position != currentTimingGates[slot]) {
+    updateScreen();
+  }
+}
+
+function seed(s) {
+  var mask = 0xffffffff;
+  var m_w  = (123456789 + s) & mask;
+  var m_z  = (987654321 - s) & mask;
+
+  return function() {
+    m_z = (36969 * (m_z & 65535) + (m_z >>> 16)) & mask;
+    m_w = (18000 * (m_w & 65535) + (m_w >>> 16)) & mask;
+
+    var result = ((m_z << 16) + (m_w & 65535)) >>> 0;
+    result /= 4294967296;
+    return result;
+  }
+}
+
+// Updates Cam Position
+function updateCamPosition() {
+  // gets and stores the camera location into the p and r array variables
+  mx.get_camera_location(p, r);
+}
+
+function updateSoundPositions() {
+  mx.set_sound_pos(crowdConstants, p[0], p[1], p[2]);
+    
+  // Sets each sound at the camera postition and will be called to play later
+  for (var i = 0; i < numOfCrashVariants; i++) {
+    mx.set_sound_pos(crashSounds[i], p[0], p[1], p[2]);
+  }
+  for (var i = 0; i < crowdRoars.length; i++) {
+    mx.set_sound_pos(crowdRoars[i], p[0], p[1], p[2]);
+  }
+  for (var i = 0; i < numOfCheerVariants; i++) {
+      mx.set_sound_pos(allCheerSounds[i], p[0], p[1], p[2]);
+  }
+  for (var i = 0; i < numOfBooVariants; i++) {
+    mx.set_sound_pos(allBooSounds[i], p[0], p[1], p[2]);
+  }
+}
+
+function determineMainEvent() {
+  var time = globalFinishTime / 60;
+  var laps = globalFinishLaps;
+  if ((time == 15 || time == 20) && laps == 1) {
+    mainEvent = true;
+    racingEvent = true;
+  }
+  else if ((time == 6 || time == 5) && laps == 1) {
+    racingEvent = true;
+  }
+}
+
+// min and max included 
+function randomIntFromInterval(min, max) {return Math.floor(Math.random() * (max - min + 1) + min);}
+
+/*
+###############################
+      BALE COORDINATES
+###############################
+*/
+const baleUpStartIndex = 6;
+const baleCoordsUp = [
+  [266.018646, -5.000000, 438.696808, -0.684825],
+  [284.193237, -5.000000, 420.691467, -0.947597],
+  [274.541595, -5.000000, 429.045013, -0.758380],
+  [251.907822, -5.000000, 460.145142, -0.402116],
+  [258.229523, -5.000000, 448.969452, -0.614020],
+  [247.455322, -5.000000, 475.834930, -0.112428],
+  [309.863434, -5.000000, 407.824677, -1.251727],
+  [324.396606, -5.000000, 405.088043, -1.480141],
+  [249.374390, -5.000000, 499.992462, 0.270154],
+  [319.340118, -5.000000, 345.775848, -0.415814],
+  [247.342438, -5.000000, 488.139465, 0.099668],
+  [337.289398, -5.000000, 390.421936, 1.176001],
+  [328.540283, -5.000000, 385.229401, 0.910669],
+  [321.428436, -5.000000, 377.609650, 0.588003],
+  [317.138855, -5.000000, 367.675690, 0.276909],
+  [316.517975, -5.000000, 356.387115, -0.083836],
+  [296.786530, -5.000000, 412.985748, -1.083203]
+];
+var balesToPushUp = [];
+const numOfBalesToPushUp = baleCoordsUp.length;
+
+const baleDownStartIndex = 24;
+const baleCoordsDown = [
+  [361.818756, 0.000000, 368.099213, -0.692641],
+  [346.484894, 0.000000, 387.481903, -0.692641],
+  [255.023163, 0.000000, 501.121552, -0.700494],
+  [269.041138, 0.000000, 484.039978, -0.700494],
+  [276.136200, 0.000000, 475.378845, -0.700494],
+  [312.056152, 0.000000, 430.399048, -0.692641],
+  [319.359924, 0.000000, 421.059967, -0.692641],
+  [327.525818, 0.000000, 410.849426, -0.692641],
+  [354.567291, 0.000000, 377.358459, -0.692641],
+  [262.296143, 0.000000, 492.341492, -0.700494]
+];
+var balesToPushDown = [];
+const numOfBalesToPushDown = baleCoordsDown.length;
+
+initializeBalesToPushArrays();
+
+function initializeBalesToPushArrays() {
+    // balesToPush output: [bale index, x,y,z,a]
+    for (var i = 0; i < numOfBalesToPushUp; i++)
+      balesToPushUp.push([i + baleUpStartIndex, baleCoordsUp[i]]);
+    for (var i = 0; i < numOfBalesToPushDown; i++)
+      balesToPushDown.push([i + baleDownStartIndex, baleCoordsDown[i]]);
+}
+  
+/*
+###############################
+      MOVE BALES FUNCTION
+###############################
+*/
+
+const delayForBales = 25;
+var doneMovingBales = false;
+const timeToMoveBales = 2.5;
+const unitsToMoveBales = Math.abs(balesToPushUp[0][1][1]);
+// speed of the movement of the bales in ft/sec
+const speedOfBales = unitsToMoveBales/timeToMoveBales;
+var gotDelay = false;
+var movedOutside = false;
+var moveBalesDelay = undefinedTime;
+function moveBales() {
+  var seconds = mx.seconds;
+  var index,x,y,z,a,t;
+  if (gateDropTime > 0 && !gotDelay) { 
+    moveBalesDelay = delayForBales + gateDropTime;
+    gotDelay = true;
+  }
+  if ((moveBalesDelay - 1) <= seconds <= (moveBalesDelay + timeToMoveBales + 1) || seconds <= 1) {
+    if (seconds > moveBalesDelay) {
+      if (seconds >= moveBalesDelay + timeToMoveBales)
+        t = timeToMoveBales;
+      else
+        t = (seconds - moveBalesDelay);
+    }
+    else
+      t = 0;
+    // moves statues up y axis
+    for (var i = 0; i < numOfBalesToPushUp; i++) {
+      index = balesToPushUp[i][0];
+      x = balesToPushUp[i][1][0];
+      y = balesToPushUp[i][1][1] + (speedOfBales * t);
+      z = balesToPushUp[i][1][2];
+      a = balesToPushUp[i][1][3];
+      mx.move_statue(index, x, y, z, a);
+    }
+    // move statues down y axis
+    for (var i = 0; i < numOfBalesToPushDown; i++) {
+      index = balesToPushDown[i][0];
+      x = balesToPushDown[i][1][0];
+      y = balesToPushDown[i][1][1] - (speedOfBales * t);
+      z = balesToPushDown[i][1][2];
+      a = balesToPushDown[i][1][3];
+      mx.move_statue(index, x, y, z, a);
+    }
+  }
+}
+
+var doneBeginningWork = false;
+function frameHandler(seconds) {
+  globalRunningOrder = mx.get_running_order();
+  if (!doneBeginningWork) {
+    try {
+        resetCurrentTimingGates();
+    }
+    catch (e) {
+        mx.message("First Reset Timing Gates Error: " + e);
+    }
+    try {
+        ResetSlotPositionHolder();
+    }
+    catch (e) {
+        mx.message("First Reset Slot Positions Error: " + e);
+    }
+    try {
+        setUpCheerBooSlots();
+    }
+    catch (e) {
+        mx.message("Set up Cheer and Boo Slots Error: " + e);
+    }
+    doneBeginningWork = true;
+  }
+
+  try {
+    updateCamPosition();
+  }
+  catch (e) {
+    mx.message("Update Cam Position Error: " + e);
+  }
+  
+  if (stadium) updateSoundPositions();
+  try {
+    gateSound();
+  }
+  catch (e) {
+    mx.message("Gate Sound Error: " + e);
+  }
+
+  try {
+    determineHoleshot();
+  }
+  catch (e) {
+    mx.message("Holeshot Error: " + e);
+  }
+  
+  try {
+    updateRiderFinishFlags();
+  }
+  catch (e) {
+    mx.message("Update Rider Finish Flags Error: " + e);
+  }
+  
+  if (racingEvent) {
+    try {
+        isRiderDown();
+    }
+    catch (e) {
+        mx.message("Rider Down Error: " + e);
+    }
+
+    try {
+      dynamicMechanicAndFans();
+    }
+    catch (e) {
+      mx.message("Mechanic And Fans Error: " + e);
+    }
+    try {
+        battlesFunction();
+    }
+    catch (e) {
+        mx.message("Battles Error: " + e);
+    }
+    
+    try {
+        updateRunningOrderScreen();
+    }
+    catch (e) {
+        mx.message("Update Running Order Screen Error: " + e);
+    }
+    try {
+        doPyro();
+    }
+    catch (e) {
+        mx.message("Pyro Error: " + e);
+    }
+    
+    try {
+        riderAwards();
+    }
+    catch (e) {
+        mx.message("Awards Error: " + e);
+    }
+  }
+  try {
+	  displayLaptimes();
+  }
+  catch (e) {
+	mx.message("Laptimes Error: " + e);
+  }
+  try {
+    moveBales();
+  }
+  catch (e) {
+    mx.message("Move Bales Error: " + e);
+  }
+  try {
+    timeOrLapsRemaining();
+  }
+  catch (e) {
+    mx.message("Time Or Laps Remaining Error: " + e);
+  }
+  try {
+    flaggersFrameHandler(seconds);
+  }
+  catch (e) {
+    mx.message("Flaggers Error: " + e);
+  }
+  try {
+    resetCurrentTimingGates();
+  }
+  catch (e) {
+    mx.message("Reset Timing Gates Error: " + e);
+  }
+  frameHandlerPrev(seconds);
+}
+
+var frameHandlerPrev = mx.frame_handler;
+mx.frame_handler = frameHandler;
+
