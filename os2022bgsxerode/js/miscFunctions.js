@@ -35,14 +35,14 @@ function setUpCheerBooSlots() {
   for (var i = 0; i < globalRunningOrder.length; i++) {
     var slot = globalRunningOrder[i].slot;
     var riderName = mx.get_rider_name(slot).toLowerCase();
-    for (var i = 0; i < booRiderNames.length; i++) {
-      if (riderName.includes(booRiderNames[i])) {
+    for (var j = 0; j < booRiderNames.length; j++) {
+      if (riderName.includes(booRiderNames[j])) {
         slotsToBoo[slotsToBoo.length] = slot;
         break;
       }
     }
-    for (var i = 0; i < cheerRiderNames.length; i++) {
-      if (riderName.includes(cheerRiderNames[i])) {
+    for (var j = 0; j < cheerRiderNames.length; j++) {
+      if (riderName.includes(cheerRiderNames[j])) {
         slotsToCheer[slotsToCheer.length] = slot;
         break;
       }
@@ -50,9 +50,15 @@ function setUpCheerBooSlots() {
   }
 }
 
+var resetScreen = false;
 function updateRunningOrderScreen() {
   var r = globalRunningOrder;
   var slot, timingGate;
+  // reset screen on start
+  if (!resetScreen) {
+    updateScreen();
+    resetScreen = true;
+  }
   if (globalRunningOrder.length > 1) {
     for (i = 0; i < r.length; i++) {
       slot = r[i].slot;

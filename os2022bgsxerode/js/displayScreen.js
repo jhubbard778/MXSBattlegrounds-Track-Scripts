@@ -213,7 +213,6 @@ function updateScreen() {
     showText("Top Best Laps\nPos Time      Rider Name\n" + a.join("\n"));
   }
   else {
-    var timingGate;
     if (globalRunningOrder.length < towerMaxRidersShowing)
       numOfPeopleOnTower = globalRunningOrder.length;
 
@@ -221,9 +220,10 @@ function updateScreen() {
       numOfPeopleOnTower = towerMaxRidersShowing;
       
     for (var i = 0; i < numOfPeopleOnTower; i++){
-      timingGate = globalRunningOrder[i].position;
-      if (timingGate > 0){
-        riderName = getCondensedName(mx.get_rider_name(globalRunningOrder[i].slot));
+      var timingGate = globalRunningOrder[i].position;
+      var slot = globalRunningOrder.slot;
+      if (timingGate > 0) {
+        riderName = getCondensedName(mx.get_rider_name(slot));
         riderNum = mx.get_rider_number(slot);
         a.push((i + 1).toString() + ')   ' + '#' + riderNum + ' ' + riderName);
       }

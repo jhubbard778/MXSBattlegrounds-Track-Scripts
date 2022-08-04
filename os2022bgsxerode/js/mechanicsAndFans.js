@@ -12,20 +12,8 @@ const lapToActivateMechanics = 1;
 // If you want songs enabled on the speakers
 const songsEnabled = false;
   
-/* This is for boos/cheers on the track, if you want that.
-Array is written as [element1, element 2]; where each element =
-[timing gate,[soundPosX, soundPosY, soundPosZ]]*/
-const gatesAndPosCheerOrBoo = [
-  [16,bleacherSoundPositions[0]],
-  [15,bleacherSoundPositions[1]],
-  [18,bleacherSoundPositions[2]],
-  [19,bleacherSoundPositions[3]],
-  [30,bleacherSoundPositions[4]],
-  [42,bleacherSoundPositions[5]],
-  [41,bleacherSoundPositions[6]],
-  [40,bleacherSoundPositions[7]],
-  [31,bleacherSoundPositions[8]],
-];
+/* This is for boos/cheers on the track, list them in the same order of where the bleacher sound positions are*/
+const gatesToCheerOrBoo = [15,16,18,19,30,31,40,41,42];
 
 var crowdConstants;
 var crowdRoars = [];
@@ -171,17 +159,17 @@ var slotsToBoo = [];
 // ADD POSITIONS FOR MECHANICS X Y Z
 // How this works is every slot number will be signed a unique mechanic position
 const mechanicPositions = [
-    [0, 0, 0], [1, 0, 1], 
-    [265, 6, 436], [265, 6, 436], 
-    [4, 0, 4], [5, 0, 5], 
-    [6, 0, 6], [7, 0, 7], 
-    [8, 0, 8], [9, 0, 9], 
-    [10, 0, 10], [11, 0, 11], 
-    [12, 0, 12], [13, 0, 13], 
-    [14, 0, 14], [15, 0, 15], 
-    [16, 0, 16], [17, 0, 17], 
-    [18, 0, 18], [19, 0, 19], 
-    [20, 0, 20], [21, 0, 21]
+  [0, 0, 0], [1, 0, 1], 
+  [265, 6, 436], [265, 6, 436], 
+  [4, 0, 4], [5, 0, 5], 
+  [6, 0, 6], [7, 0, 7], 
+  [8, 0, 8], [9, 0, 9], 
+  [10, 0, 10], [11, 0, 11], 
+  [12, 0, 12], [13, 0, 13], 
+  [14, 0, 14], [15, 0, 15], 
+  [16, 0, 16], [17, 0, 17], 
+  [18, 0, 18], [19, 0, 19], 
+  [20, 0, 20], [21, 0, 21]
 ];
 const numOfMechanicPositions = mechanicPositions.length;
 
@@ -373,10 +361,10 @@ function dynamicMechanicAndFans() {
       */
   
       if (timingGate != currentTimingGates[slot] && (seconds >= soundDelay)) {
-          // Runs a loop every time someone hits a gate that's in the gatesAndPosCheerOrBoo array
-          for (var x = 0; x < gatesAndPosCheerOrBoo.length; x++) {
+          // Runs a loop every time someone hits a gate that's in the gatesToCheerOrBoo array
+          for (var x = 0; x < gatesToCheerOrBoo.length; x++) {
             // every lap, and first sound only plays when you hit the first timing gate in the slot
-            if ((timingGate - (gatesAndPosCheerOrBoo[x][0] + 1)) % normalLapLength == 0 && timingGate >= gatesAndPosCheerOrBoo[x][0] + 1) {
+            if ((timingGate - (gatesToCheerOrBoo[x] + 1)) % normalLapLength == 0 && timingGate >= gatesToCheerOrBoo[x] + 1) {
                 // make's name comparison, sends in running order, index, and the array
                 makeNameComparison(slot, x, seconds);
                 break;
@@ -448,18 +436,18 @@ function initializeMechanicIdentifiers() {
         if (i <= numOfMechanicPositions) {
 
             if (slot % 4 == 0) {
-                mechanicNumberIdentifiers[slot] = 3;
-                continue;
+              mechanicNumberIdentifiers[slot] = 3;
+              continue;
             }
 
             if (slot % 3 == 0) {
-                mechanicNumberIdentifiers[slot] = 2;
-                continue;
+              mechanicNumberIdentifiers[slot] = 2;
+              continue;
             }
 
             if (slot % 2 == 0) {
-                mechanicNumberIdentifiers[slot] = 1;
-                continue;
+              mechanicNumberIdentifiers[slot] = 1;
+              continue;
             }
             mechanicNumberIdentifiers[slot] = 0;
         }

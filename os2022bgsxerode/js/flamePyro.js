@@ -25,8 +25,8 @@ const startFlameCoords = [
 ];
 
 const holeshotCoords = [
-  [315.363922, 8.000000, 283.171173],
-  [323.246948, 8.000000, 291.764801]
+  [315.363922, 7.250000, 283.171173],
+  [323.246948, 7.250000, 291.764801]
 ];
 
 const finishFlameCoords = [
@@ -91,39 +91,27 @@ for (var i = startFlameLoopIndices.start - 1; i < startFlameLoopIndices.end; i++
 ###################################
 */
 function hideAllFlames() {
-  hideStartFlames();
-  hideHoleshotFlames();
-  hideFinishFlames(); 
+  toggleStartFlames(0);
+  toggleHoleshotFlames(0);
+  toggleFinishFlames(0); 
 }
 
-function hideStartFlames() {
-  for (var i = startShootFlameIndices.start - 1; i < startShootFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
-  startFlamesHidden = true;
-}
-
-function hideHoleshotFlames() {
-  for (var i = holeshotFlameIndices.start - 1; i < holeshotFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
-  holeshotFlamesHidden = true;
-}
-
-function hideFinishFlames() {
-  for (var i = finishFlameIndices.start - 1; i < finishFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
-  finishFlamesHidden = true;
-}
-
-function showStartFlames() {
-  for (var i = startShootFlameIndices.start - 1; i < startShootFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+function toggleStartFlames(value) {
+  for (var i = startShootFlameIndices.start - 1; i < startShootFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, value);
   startFlamesHidden = false;
+  if (value == 0) startFlamesHidden = true;
 }
 
-function showHoleshotFlames() {
-  for (var i = holeshotFlameIndices.start - 1; i < holeshotFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+function toggleHoleshotFlames(value) {
+  for (var i = holeshotFlameIndices.start - 1; i < holeshotFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, value);
   holeshotFlamesHidden = false;
+  if (value == 0) holeshotFlamesHidden = true;
 }
 
-function showFinishFlames() {
-  for (var i = finishFlameIndices.start - 1; i < finishFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+function toggleFinishFlames(value) {
+  for (var i = finishFlameIndices.start - 1; i < finishFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, value);
   finishFlamesHidden = false;
+  if (value == 0) finishFlamesHidden = true;
 }
 
 // The Function that actually does all the work
@@ -137,11 +125,11 @@ function doPyro() {
 function doStartPyro() {
   if (triggerStartShootFlames) {
     // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - timeStartedStartFlame < 0) hideStartFlames();
+    if (mx.seconds - timeStartedStartFlame < 0) toggleStartFlames(0);
   
     if (mx.seconds - secondsSinceStartShootUpdate < startShootFramesDelay / 128) return;
 
-    if (startFlamesHidden) showStartFlames();
+    if (startFlamesHidden) toggleStartFlames(1);
 
     secondsSinceStartShootUpdate = mx.seconds;
 
@@ -152,7 +140,7 @@ function doStartPyro() {
       currentStartShootFrame++;
     } else {
       triggerStartShootFlames = false;
-      hideStartFlames();
+      toggleStartFlames(0);
     }
   }
 }
@@ -160,13 +148,14 @@ function doStartPyro() {
 function doHoleshotPyro() {
   if (triggerHoleshotFlames) {
     // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - timeStartedHoleshotFlame < 0) hideHoleshotFlames();
+    if (mx.seconds - timeStartedHoleshotFlame < 0) toggleHoleshotFlames(0);
 
     if (mx.seconds - secondsSinceHoleshotUpdate < holeshotFramesDelay / 128) return;
 
-    if (holeshotFlamesHidden) showHoleshotFlames();
+    if (holeshotFlamesHidden) toggleHoleshotFlames(1);
 
     secondsSinceHoleshotUpdate = mx.seconds;
+    
     if (currentHoleshotFrame <= maxFramesPyro) {
       mx.begin_custom_frame(holeshotFlamesTexture);
       mx.paste_custom_frame(holeshotFlamesTexture, currentHoleshotFrame, 0, 0, 0, 0, 1, 1);
@@ -175,7 +164,7 @@ function doHoleshotPyro() {
     }
     else {
       triggerHoleshotFlames = false;
-      hideHoleshotFlames();
+      toggleHoleshotFlames(0);
     }  
   }
 }
@@ -183,11 +172,11 @@ function doHoleshotPyro() {
 function doFinishPyro() {
   if (triggerFinishFlames) {
     // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - timeStartedFinishFlame < 0) hideFinishFlames();
+    if (mx.seconds - timeStartedFinishFlame < 0) toggleFinishFlames(0);
 
     if (mx.seconds - secondsSinceFinishUpdate < finishFramesDelay / 128) return;
 
-    if (finishFlamesHidden) showFinishFlames();
+    if (finishFlamesHidden) toggleFinishFlames(1);
 
     secondsSinceFinishUpdate = mx.seconds;
 
@@ -201,7 +190,7 @@ function doFinishPyro() {
       currentFinishFrame++;
     } else {
       triggerFinishFlames = false;
-      hideFinishFlames();
+      toggleFinishFlames(0);
     }   
   }
 }

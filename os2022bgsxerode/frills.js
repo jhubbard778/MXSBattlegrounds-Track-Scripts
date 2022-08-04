@@ -34,15 +34,15 @@ const stadium = false;
 
 // Coordinates of each bleacher
 const bleacherSoundPositions = [
-  [401.438477, 0.000000, 89.981873],
   [501.216370, 0.000000, 89.343277],
+  [401.438477, 0.000000, 89.981873],
   [175.382095, 0.000000, 177.147705],
   [96.677391, 0.000000, 251.701660],
   [665.066406, 0.000000, 282.699982],
-  [237.951218, 0.000000, 584.044800],
-  [413.560547, 0.000000, 594.283997],
+  [663.629700, 0.000000, 424.943176],
   [564.827332, 0.000000, 593.606628],
-  [663.629700, 0.000000, 424.943176]
+  [413.560547, 0.000000, 594.283997],
+  [237.951218, 0.000000, 584.044800]
 ];
 const numOfBleachers = bleacherSoundPositions.length;
 
@@ -297,7 +297,6 @@ function updateScreen() {
     showText("Top Best Laps\nPos Time      Rider Name\n" + a.join("\n"));
   }
   else {
-    var timingGate;
     if (globalRunningOrder.length < towerMaxRidersShowing)
       numOfPeopleOnTower = globalRunningOrder.length;
 
@@ -305,9 +304,10 @@ function updateScreen() {
       numOfPeopleOnTower = towerMaxRidersShowing;
       
     for (var i = 0; i < numOfPeopleOnTower; i++){
-      timingGate = globalRunningOrder[i].position;
-      if (timingGate > 0){
-        riderName = getCondensedName(mx.get_rider_name(globalRunningOrder[i].slot));
+      var timingGate = globalRunningOrder[i].position;
+      var slot = globalRunningOrder.slot;
+      if (timingGate > 0) {
+        riderName = getCondensedName(mx.get_rider_name(slot));
         riderNum = mx.get_rider_number(slot);
         a.push((i + 1).toString() + ')   ' + '#' + riderNum + ' ' + riderName);
       }
@@ -4710,8 +4710,8 @@ const startFlameCoords = [
 ];
 
 const holeshotCoords = [
-  [315.363922, 8.000000, 283.171173],
-  [323.246948, 8.000000, 291.764801]
+  [315.363922, 7.250000, 283.171173],
+  [323.246948, 7.250000, 291.764801]
 ];
 
 const finishFlameCoords = [
@@ -4776,39 +4776,27 @@ for (var i = startFlameLoopIndices.start - 1; i < startFlameLoopIndices.end; i++
 ###################################
 */
 function hideAllFlames() {
-  hideStartFlames();
-  hideHoleshotFlames();
-  hideFinishFlames(); 
+  toggleStartFlames(0);
+  toggleHoleshotFlames(0);
+  toggleFinishFlames(0); 
 }
 
-function hideStartFlames() {
-  for (var i = startShootFlameIndices.start - 1; i < startShootFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
-  startFlamesHidden = true;
-}
-
-function hideHoleshotFlames() {
-  for (var i = holeshotFlameIndices.start - 1; i < holeshotFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
-  holeshotFlamesHidden = true;
-}
-
-function hideFinishFlames() {
-  for (var i = finishFlameIndices.start - 1; i < finishFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
-  finishFlamesHidden = true;
-}
-
-function showStartFlames() {
-  for (var i = startShootFlameIndices.start - 1; i < startShootFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+function toggleStartFlames(value) {
+  for (var i = startShootFlameIndices.start - 1; i < startShootFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, value);
   startFlamesHidden = false;
+  if (value == 0) startFlamesHidden = true;
 }
 
-function showHoleshotFlames() {
-  for (var i = holeshotFlameIndices.start - 1; i < holeshotFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+function toggleHoleshotFlames(value) {
+  for (var i = holeshotFlameIndices.start - 1; i < holeshotFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, value);
   holeshotFlamesHidden = false;
+  if (value == 0) holeshotFlamesHidden = true;
 }
 
-function showFinishFlames() {
-  for (var i = finishFlameIndices.start - 1; i < finishFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
+function toggleFinishFlames(value) {
+  for (var i = finishFlameIndices.start - 1; i < finishFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, value);
   finishFlamesHidden = false;
+  if (value == 0) finishFlamesHidden = true;
 }
 
 // The Function that actually does all the work
@@ -4822,11 +4810,11 @@ function doPyro() {
 function doStartPyro() {
   if (triggerStartShootFlames) {
     // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - timeStartedStartFlame < 0) hideStartFlames();
+    if (mx.seconds - timeStartedStartFlame < 0) toggleStartFlames(0);
   
     if (mx.seconds - secondsSinceStartShootUpdate < startShootFramesDelay / 128) return;
 
-    if (startFlamesHidden) showStartFlames();
+    if (startFlamesHidden) toggleStartFlames(1);
 
     secondsSinceStartShootUpdate = mx.seconds;
 
@@ -4837,7 +4825,7 @@ function doStartPyro() {
       currentStartShootFrame++;
     } else {
       triggerStartShootFlames = false;
-      hideStartFlames();
+      toggleStartFlames(0);
     }
   }
 }
@@ -4845,13 +4833,14 @@ function doStartPyro() {
 function doHoleshotPyro() {
   if (triggerHoleshotFlames) {
     // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - timeStartedHoleshotFlame < 0) hideHoleshotFlames();
+    if (mx.seconds - timeStartedHoleshotFlame < 0) toggleHoleshotFlames(0);
 
     if (mx.seconds - secondsSinceHoleshotUpdate < holeshotFramesDelay / 128) return;
 
-    if (holeshotFlamesHidden) showHoleshotFlames();
+    if (holeshotFlamesHidden) toggleHoleshotFlames(1);
 
     secondsSinceHoleshotUpdate = mx.seconds;
+    
     if (currentHoleshotFrame <= maxFramesPyro) {
       mx.begin_custom_frame(holeshotFlamesTexture);
       mx.paste_custom_frame(holeshotFlamesTexture, currentHoleshotFrame, 0, 0, 0, 0, 1, 1);
@@ -4860,7 +4849,7 @@ function doHoleshotPyro() {
     }
     else {
       triggerHoleshotFlames = false;
-      hideHoleshotFlames();
+      toggleHoleshotFlames(0);
     }  
   }
 }
@@ -4868,11 +4857,11 @@ function doHoleshotPyro() {
 function doFinishPyro() {
   if (triggerFinishFlames) {
     // if we go backwards in the demo and we are before the trigger of the flames we want to hide them
-    if (mx.seconds - timeStartedFinishFlame < 0) hideFinishFlames();
+    if (mx.seconds - timeStartedFinishFlame < 0) toggleFinishFlames(0);
 
     if (mx.seconds - secondsSinceFinishUpdate < finishFramesDelay / 128) return;
 
-    if (finishFlamesHidden) showFinishFlames();
+    if (finishFlamesHidden) toggleFinishFlames(1);
 
     secondsSinceFinishUpdate = mx.seconds;
 
@@ -4886,7 +4875,7 @@ function doFinishPyro() {
       currentFinishFrame++;
     } else {
       triggerFinishFlames = false;
-      hideFinishFlames();
+      toggleFinishFlames(0);
     }   
   }
 }
@@ -5516,7 +5505,6 @@ var displayedInvalidLaps = false;
 function displayLaptimes() {
 	var riderName;
 	var r, slot, timingGate;
-	var laptimeToString;
 
   r = globalRunningOrder;
 
@@ -5589,7 +5577,6 @@ function displayLaptimes() {
   
         if (newPB) {
           bestPlayerLaptimes[slot][0] = laptime[0];
-	  	  laptimeToString = timeToString(laptime[0]);
         
 	  	  // update screen
 	  	  if (!racingEvent) {
@@ -5600,7 +5587,7 @@ function displayLaptimes() {
             }
             // Display person ran best lap of the session
             if (isFastestLap(laptime[0])) {
-              mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + laptimeToString);
+              mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + timeToString(laptime[0]));
             }
           }
         }
@@ -5702,20 +5689,8 @@ const lapToActivateMechanics = 1;
 // If you want songs enabled on the speakers
 const songsEnabled = false;
   
-/* This is for boos/cheers on the track, if you want that.
-Array is written as [element1, element 2]; where each element =
-[timing gate,[soundPosX, soundPosY, soundPosZ]]*/
-const gatesAndPosCheerOrBoo = [
-  [16,bleacherSoundPositions[0]],
-  [15,bleacherSoundPositions[1]],
-  [18,bleacherSoundPositions[2]],
-  [19,bleacherSoundPositions[3]],
-  [30,bleacherSoundPositions[4]],
-  [42,bleacherSoundPositions[5]],
-  [41,bleacherSoundPositions[6]],
-  [40,bleacherSoundPositions[7]],
-  [31,bleacherSoundPositions[8]],
-];
+/* This is for boos/cheers on the track, list them in the same order of where the bleacher sound positions are*/
+const gatesToCheerOrBoo = [15,16,18,19,30,31,40,41,42];
 
 var crowdConstants;
 var crowdRoars = [];
@@ -5861,17 +5836,17 @@ var slotsToBoo = [];
 // ADD POSITIONS FOR MECHANICS X Y Z
 // How this works is every slot number will be signed a unique mechanic position
 const mechanicPositions = [
-    [0, 0, 0], [1, 0, 1], 
-    [265, 6, 436], [265, 6, 436], 
-    [4, 0, 4], [5, 0, 5], 
-    [6, 0, 6], [7, 0, 7], 
-    [8, 0, 8], [9, 0, 9], 
-    [10, 0, 10], [11, 0, 11], 
-    [12, 0, 12], [13, 0, 13], 
-    [14, 0, 14], [15, 0, 15], 
-    [16, 0, 16], [17, 0, 17], 
-    [18, 0, 18], [19, 0, 19], 
-    [20, 0, 20], [21, 0, 21]
+  [0, 0, 0], [1, 0, 1], 
+  [265, 6, 436], [265, 6, 436], 
+  [4, 0, 4], [5, 0, 5], 
+  [6, 0, 6], [7, 0, 7], 
+  [8, 0, 8], [9, 0, 9], 
+  [10, 0, 10], [11, 0, 11], 
+  [12, 0, 12], [13, 0, 13], 
+  [14, 0, 14], [15, 0, 15], 
+  [16, 0, 16], [17, 0, 17], 
+  [18, 0, 18], [19, 0, 19], 
+  [20, 0, 20], [21, 0, 21]
 ];
 const numOfMechanicPositions = mechanicPositions.length;
 
@@ -6063,10 +6038,10 @@ function dynamicMechanicAndFans() {
       */
   
       if (timingGate != currentTimingGates[slot] && (seconds >= soundDelay)) {
-          // Runs a loop every time someone hits a gate that's in the gatesAndPosCheerOrBoo array
-          for (var x = 0; x < gatesAndPosCheerOrBoo.length; x++) {
+          // Runs a loop every time someone hits a gate that's in the gatesToCheerOrBoo array
+          for (var x = 0; x < gatesToCheerOrBoo.length; x++) {
             // every lap, and first sound only plays when you hit the first timing gate in the slot
-            if ((timingGate - (gatesAndPosCheerOrBoo[x][0] + 1)) % normalLapLength == 0 && timingGate >= gatesAndPosCheerOrBoo[x][0] + 1) {
+            if ((timingGate - (gatesToCheerOrBoo[x] + 1)) % normalLapLength == 0 && timingGate >= gatesToCheerOrBoo[x] + 1) {
                 // make's name comparison, sends in running order, index, and the array
                 makeNameComparison(slot, x, seconds);
                 break;
@@ -6138,18 +6113,18 @@ function initializeMechanicIdentifiers() {
         if (i <= numOfMechanicPositions) {
 
             if (slot % 4 == 0) {
-                mechanicNumberIdentifiers[slot] = 3;
-                continue;
+              mechanicNumberIdentifiers[slot] = 3;
+              continue;
             }
 
             if (slot % 3 == 0) {
-                mechanicNumberIdentifiers[slot] = 2;
-                continue;
+              mechanicNumberIdentifiers[slot] = 2;
+              continue;
             }
 
             if (slot % 2 == 0) {
-                mechanicNumberIdentifiers[slot] = 1;
-                continue;
+              mechanicNumberIdentifiers[slot] = 1;
+              continue;
             }
             mechanicNumberIdentifiers[slot] = 0;
         }
@@ -6511,14 +6486,14 @@ function setUpCheerBooSlots() {
   for (var i = 0; i < globalRunningOrder.length; i++) {
     var slot = globalRunningOrder[i].slot;
     var riderName = mx.get_rider_name(slot).toLowerCase();
-    for (var i = 0; i < booRiderNames.length; i++) {
-      if (riderName.includes(booRiderNames[i])) {
+    for (var j = 0; j < booRiderNames.length; j++) {
+      if (riderName.includes(booRiderNames[j])) {
         slotsToBoo[slotsToBoo.length] = slot;
         break;
       }
     }
-    for (var i = 0; i < cheerRiderNames.length; i++) {
-      if (riderName.includes(cheerRiderNames[i])) {
+    for (var j = 0; j < cheerRiderNames.length; j++) {
+      if (riderName.includes(cheerRiderNames[j])) {
         slotsToCheer[slotsToCheer.length] = slot;
         break;
       }
@@ -6526,9 +6501,15 @@ function setUpCheerBooSlots() {
   }
 }
 
+var resetScreen = false;
 function updateRunningOrderScreen() {
   var r = globalRunningOrder;
   var slot, timingGate;
+  // reset screen on start
+  if (!resetScreen) {
+    updateScreen();
+    resetScreen = true;
+  }
   if (globalRunningOrder.length > 1) {
     for (i = 0; i < r.length; i++) {
       slot = r[i].slot;

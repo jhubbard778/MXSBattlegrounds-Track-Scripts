@@ -15,7 +15,6 @@ var displayedInvalidLaps = false;
 function displayLaptimes() {
 	var riderName;
 	var r, slot, timingGate;
-	var laptimeToString;
 
   r = globalRunningOrder;
 
@@ -88,7 +87,6 @@ function displayLaptimes() {
   
         if (newPB) {
           bestPlayerLaptimes[slot][0] = laptime[0];
-	  	  laptimeToString = timeToString(laptime[0]);
         
 	  	  // update screen
 	  	  if (!racingEvent) {
@@ -99,7 +97,7 @@ function displayLaptimes() {
             }
             // Display person ran best lap of the session
             if (isFastestLap(laptime[0])) {
-              mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + laptimeToString);
+              mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + timeToString(laptime[0]));
             }
           }
         }
