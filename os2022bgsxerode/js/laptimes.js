@@ -97,7 +97,7 @@ function displayLaptimes() {
             }
             // Display person ran best lap of the session
             if (isFastestLap(laptime[0])) {
-              mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + timeToString(laptime[0]));
+              mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + timeToString(laptime[0], true));
             }
           }
         }
@@ -141,13 +141,13 @@ function displayInvalidLaptimes() {
     var riderName = mx.get_rider_name(slot);
 
     // Add the first invalid lap to the output
-    output = riderName + " - (\x1b[31m" + timeToString(invalidLaptimes[slot][0]);
+    output = riderName + " - (\x1b[31m" + timeToString(invalidLaptimes[slot][0], true);
 
     // Add out any other invalid laps to the output
     for (var i = 1; i < riderInvalidLapsArrLen; i++) {
       // if we are at a lap that's 1.5 seconds slower than the faster than the slowest lap or it's slower than their best counted, exit loop
       if (invalidLaptimes[slot][i] > invalidLaptimes[slot][0] + 1.5 || invalidLaptimes[slot][i] > bestRiderLap) break;
-      output += "\x1b[0m, \x1b[31m" + timeToString(invalidLaptimes[slot][i]);
+      output += "\x1b[0m, \x1b[31m" + timeToString(invalidLaptimes[slot][i], true);
     }
 
     // Finish the output by closing parenthesis and send the message in chat

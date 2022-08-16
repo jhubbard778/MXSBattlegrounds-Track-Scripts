@@ -20,14 +20,13 @@ function frameHandler(seconds) {
     isRiderDown();
     dynamicMechanicAndFans();
     battlesFunction();
-    updateRunningOrderScreen();
     doPyro();
     riderAwards();
+    updateScreen();
   }
 
 	displayLaptimes();
   moveBales();
-  timeOrLapsRemaining();
   flaggersFrameHandler(seconds);
   resetCurrentTimingGates();
   frameHandlerPrev(seconds);

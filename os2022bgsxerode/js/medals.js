@@ -62,7 +62,7 @@ function riderAwards() {
     var fastestRider = getFastestLap();
     if (fastestRider[0] != undefinedTime) {
       riderName = mx.get_rider_name(fastestRider[1]);
-      msg = "\x1b[34m" + timeToString(fastestRider[0]) + '\x1b[0m - ' + riderName.toString();
+      msg = "\x1b[34m" + timeToString(fastestRider[0], true) + '\x1b[0m - ' + riderName.toString();
     }
     mx.message(msg);
     mx.message("");

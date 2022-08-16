@@ -29,6 +29,23 @@ function ResetSlotPositionHolder() {
   }
 }
 
+function checkTopFivePositionChange() {
+  var change = false;
+  var ppl = 5;
+  if (globalRunningOrder.length < ppl) {
+    ppl = globalRunningOrder.length;
+  }
+  for (var i = 0; i < ppl; i++) {
+    var slot = globalRunningOrder[i].slot;
+    var gate = globalRunningOrder[i].position;
+    if (checkPosChange(slot, i) || (gate <= 1 && gate != currentTimingGates[slot])) {
+      change = true;
+      break;
+    }
+  }
+  return change;
+}
+
 function setUpCheerBooSlots() {
   if (!racingEvent) return;
 
@@ -47,31 +64,6 @@ function setUpCheerBooSlots() {
         break;
       }
     }
-  }
-}
-
-var resetScreen = false;
-function updateRunningOrderScreen() {
-  var r = globalRunningOrder;
-  var slot, timingGate;
-  // reset screen on start
-  if (!resetScreen) {
-    updateScreen();
-    resetScreen = true;
-  }
-  if (globalRunningOrder.length > 1) {
-    for (i = 0; i < r.length; i++) {
-      slot = r[i].slot;
-      timingGate = r[i].position;
-      if (timingGate != currentTimingGates[slot]){
-        if (checkPosChange(slot, i) || timingGate == 1) {
-          updateScreen();
-        }
-      }
-    }
-  }
-  else if (r[0].position == 1 && r[0].position != currentTimingGates[slot]) {
-    updateScreen();
   }
 }
 

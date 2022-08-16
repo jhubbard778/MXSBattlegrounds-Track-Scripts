@@ -5,6 +5,119 @@
 ################################################################################
 */
 
+/*
+ Colors
+ ######
+ red: honda
+ orange: ktm
+ yellow: suzuki
+ green: kawi
+ blue: yamaha
+ white: husqvarna
+ cyan: tm
+ crimson: gasgas
+*/
+var teamAvatars = {
+  privateerRed: {page: 1, row: 0, col: 0, color: "red"},
+  privateerOrange: {page: 1, row: 0, col: 0, color: "orange"},
+  privateerYellow: {page: 1, row: 0, col: 0, color: "yellow"},
+  privateerBlue: {page: 1, row: 0, col: 0, color: "green"},
+  privateerGreen: {page: 1, row: 0, col: 0, color: "blue"},
+  privateerWhite: {page: 1, row: 0, col: 0, color: "white"},
+  phils: {page: 1, row: 0, col: 1, color: "orange"},
+  default: {page: 1, row: 0, col: 0}
+}
+
+var riderAvatars = [
+  { avatar: teamAvatars.privateerOrange, re: /\bjack.*\bhaley\b/i },
+  { avatar: teamAvatars.privateerWhite, re: /\bjer.*\bsmith\b/i },
+  { avatar: teamAvatars.privateerWhite, re: /\balexis.*\bleclair\b/i },
+  { avatar: teamAvatars.privateerGreen, re: /\bjer.*\bseabolt\b/i },
+  { avatar: teamAvatars.privateerGreen, re: /\batom.*\bholm\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bjeremy.*\bcohenour\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\brace.*\bkarlin\b/i },
+  { avatar: teamAvatars.privateerOrange, re: /\bcolt.*\bmitchell\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bmatias.*\bjanice\b/i },
+  { avatar: teamAvatars.privateerYellow, re: /\bwalt.*\bgebhardt\b/i },
+  { avatar: teamAvatars.privateerOrange, re: /\bwilliam.*laurent\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bdominic.*\btibberino\b/i },
+  { avatar: teamAvatars.privateerOrange, re: /\bjeremy.*\bshipley\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bzach.*\bprokop\b/i },
+  { avatar: teamAvatars.privateerOrange, re: /\bjames.*\barmstrong\b/i },
+  { avatar: teamAvatars.privateerGreen, re: /\bspencer.*\bturley\b/i },
+  { avatar: teamAvatars.privateerWhite, re: /\bashe.*\bdeering\b/i },
+  { avatar: teamAvatars.privateerOrange, re: /\breid.*\byoung\b/i },
+  { avatar: teamAvatars.privateerWhite, re: /\bdade.*\bhoneywell\b/i },
+  { avatar: teamAvatars.privateerGreen, re: /\btysen.*\bfresquez\b/i },
+  { avatar: teamAvatars.privateerGreen, re: /\bhunter.*\broot\b/i },
+  { avatar: teamAvatars.privateerYellow, re: /\bcraig.*\brichards\b/i },
+  { avatar: teamAvatars.privateerWhite, re: /\bcraig.*\bleake\b/i },
+  { avatar: teamAvatars.privateerGreen, re: /\bandrew.*\bmassart\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bsean.*\bklein\b/i },
+  { avatar: teamAvatars.privateerWhite, re: /\bchase.*\bblakely\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bneal.*\bwells\b/i },
+  { avatar: teamAvatars.phils, re: /\bjakob.*\bhubbard\b/i },
+  { avatar: teamAvatars.privateerWhite, re: /\balanas.*\bsaulys\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bhunter.*\bpoarch\b/i },
+  { avatar: teamAvatars.privateerOrange, re: /\bdevin.*\bryan\b/i },
+  { avatar: teamAvatars.privateerOrange, re: /\bdevin.*\bdavis\b/i },
+  { avatar: teamAvatars.phils, re: /\bbraden.*\bcarter\b/i },
+  { avatar: teamAvatars.privateerWhite, re: /\bclint.*\bmartin\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bwill.*\bwhiteley\b/i },	
+  { avatar: teamAvatars.privateerRed, re: /\bisaiah.*\bdickerson\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bedward.*\bmora\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bcolby.*\begeland\b/i },
+  { avatar: teamAvatars.privateerOrange, re: /\blogan.*\bleitzel\b/i },
+  { avatar: teamAvatars.phils, re: /\btyler.*\blang\b/i },
+  { avatar: teamAvatars.privateerGreen, re: /\bphil.*\bbull\b/i },
+  { avatar: teamAvatars.privateerOrange, re: /\bnoah.*\bbaker\b/i },
+  { avatar: teamAvatars.privateerOrange, re: /\bdaniel.*\bmills\b/i },
+  { avatar: teamAvatars.privateerYellow, re: /\bdyland.*\copeland\b/i },
+  { avatar: teamAvatars.privateerWhite, re: /\bclement.*\blana\b/i },
+  { avatar: teamAvatars.privateerRed, re: /\bjosh.*\bwilliams\b/i },
+  { avatar: teamAvatars.phils, re: /\bbryce.*\bwhealon\b/i },
+       
+  /* catch all - this should be last */
+  { avatar: teamAvatars.default, re: /.*/ },
+];
+
+var brandRegExps = [
+  { re: /^crf?[0-9]+/, color: "red" },
+  { re: /^fc[0-9]+/, color: "white" },
+  { re: /^kx[0-9]+/, color: "green" },
+  { re: /^[0-9]+sx/, color: "orange" },
+  { re: /^rmz?[0-9]+/, color: "yellow" },
+  { re: /^yz[0-9]+/, color: "blue" },
+  { re: /./, color: "none" },
+];
+
+function getBrandColor(model) {
+  var i;
+
+  for (i = 0; i < brandRegExps.length - 1; i++)
+    if (model.match(brandRegExps[i].re))
+      break;
+
+  return brandRegExps[i].color;
+}
+
+var avatarMap = [];
+function getAvatar(slot, name) {
+  var i;
+
+  if (slot in avatarMap)
+    return avatarMap[slot];
+
+  for (i = 0; i < riderAvatars.length; i++)
+    if (name.match(riderAvatars[i].re)) {
+      avatarMap[slot] = riderAvatars[i].avatar;
+      return avatarMap[slot];
+    }
+
+  return null;
+}
+
+
 function makeCellMap(font, characters, key) {
 	var i, map;
 
@@ -14,8 +127,7 @@ function makeCellMap(font, characters, key) {
 	key = characters.indexOf(key);
 
   // for 128 characters set up map for all indexes needed equal to the key
-  // i = 33
-  // map[!] = *
+  // map["!"] = *
 	for (i = 0; i < 128; i++)
     map[String.fromCharCode(i)] = key;
 
@@ -31,121 +143,147 @@ function makeCellMap(font, characters, key) {
 }
 
 function getCellCoords(font, character) {
-    // if character is not in the font map we created, return
+  // if character is not in the font map we created, return
 	if (!(character in font.map)) {
-        mx.message("Not in map " + character);
-    }
-    /* return the coords in our font variable
-    ex. font.coords[font.map[character]];
-    character = ','
-    font.coords[font.map[,]];
-    font.map[,] = 11;
-    font.coords[11] = [360, 0, 40] */
+    mx.message("Not in map " + character);
+  }
+  /* return the coords in our font variable
+  character = ','
+  font.coords[font.map[,]];
+  font.map[,] = 11;
+  font.coords[11] = [360, 0, 40] */
 	return font.coords[font.map[character]];
 }
 
-function drawText(font, x, y, currentScreen) {
-  var i, cellCoords, sx, sy, dx, dy, width, height;
+function drawText(font, startX, startY, textToDraw, draw) {
+  var i, cellCoords, sourceX, sourceY, destinationX, destinationY, width, height;
 
   // starting x and y values set to dx and dy
-	dx = x;
-	dy = y;
+	destinationX = startX;
+	destinationY = startY;
 
-  // go through the whole screen 
-	for (i = 0; i < currentScreen.length; i++) {
-    //if character equals newline
-		if (currentScreen[i] == "\n") {
-      // reset the dx to the beginning
-			dx = x;
-      // new y value = old y value + (64 / 512 * 1)
-			dy += font.line_height / font.height * font.yscale;
+  // go through the whole sentence
+	for (i = 0; i < textToDraw.length; i++) {
+		if (textToDraw[i] == "\n") {
+      // reset the destination x to the beginning
+			destinationX = startX;
+			destinationY += font.line_height / font.height * font.yscale;
 			continue;
 		}
 
-    // if character equals a space
-		if (currentScreen[i] == " ") {
-      // get cell coords of a comma
+		if (textToDraw[i] == " ") {
 			cellCoords = getCellCoords(font, ","); /* comma about as wide as space */
-      // cellCoords = [360, 0, 40]
-      // new x value = old x value + (40 / 1024 * 1)
-			dx += cellCoords[2] / font.width * font.xscale;
+			destinationX += cellCoords[2] / font.width * font.xscale;
 			continue;
 		}
 
-    // get cell coordinates of current character of font
-		cellCoords = getCellCoords(font, currentScreen[i]);
-      /* source x is first value / (font width * font xscale + xoffset)
-      ex char = '"', cell coords = [24, 0, 32]
-      sx = (24 / 1024 * 1 + 0) = 0.0234375
-      sy = (0 / 512 * 1 + 0) = 0
-      width = (32 / 1024 * 1) = 0.03125
-      height = (64 / 512 * 1) = 0.125 */
-		sx = cellCoords[0] / font.width * font.xscale + font.xoffset;
-		sy = cellCoords[1] / font.height * font.yscale + font.yoffset;
+    // get cell coordinates of current character from font
+		cellCoords = getCellCoords(font, textToDraw[i]);
+    //mx.message("character: " + textToDraw[i] + " | coords: [" + cellCoords[0].toString() + ", " + cellCoords[1].toString() + ", " + cellCoords[2].toString() + "]");
+    sourceX = cellCoords[0] / font.width * font.xscale + font.xoffset;
+		sourceY = cellCoords[1] / font.height * font.yscale + font.yoffset;
 		width = cellCoords[2] / font.width * font.xscale;
 		height = font.line_height / font.height * font.yscale;
-		mx.paste_custom_frame(font.tid, 0, sx, sy, dx, dy, width, height);
-      /* add to dx so new character doesn't overlap
-      dx += 0.03125 - (8 / (1024 * 1)) => 0.03125 - 0.0078125 => 0.0234375
-      dx += 0.0234375 */
-		dx += width - (font.overlap / (font.width * font.xscale));
+    if (draw) {
+      mx.paste_custom_frame(font.tid, 1, sourceX, sourceY, destinationX, destinationY, width, height);
+    }
+    // new X destination
+    destinationX += width - font.overlap / font.width * font.xscale;
 	}
+
+  return destinationX - startX;
 }
 
-var screenTextureID = mx.read_texture("@os2022bgsxobj/statue/other/timingtower/scoringtower.seq");
+function drawScreenText(f, x, y, s, c) {
+  if (!c) {
+    drawText(f, x, y, s, true);
+    return;
+  }
+  var w;
+  w = drawText(f, x, y, s, false);
+  drawText(f, x - w * 0.5, y, s, true);
+}
 
-var screenFont = {
-tid: screenTextureID,
-xoffset: 0,
-yoffset: 0,
-xscale: 1,
-yscale: 1,
-overlap: 8,
-width: 512,
-height: 512,
-line_height: 64,
-coords: [ [ 0, 0, 24 ], [ 24, 0, 32 ], [ 56, 0, 48 ], [ 104, 0, 40 ],
-[ 144, 0, 56 ], [ 200, 0, 48 ], [ 248, 0, 16 ], [ 264, 0, 32 ],
-[ 296, 0, 32 ], [ 328, 0, 32 ], [ 360, 0, 40 ], [ 400, 0, 24 ],
-[ 424, 0, 32 ], [ 456, 0, 24 ], [ 480, 0, 32 ], [ 512, 0, 40 ],
-[ 552, 0, 40 ], [ 592, 0, 48 ], [ 640, 0, 48 ], [ 688, 0, 48 ],
-[ 736, 0, 40 ], [ 776, 0, 40 ], [ 816, 0, 40 ], [ 856, 0, 40 ],
-[ 896, 0, 40 ], [ 936, 0, 24 ], [ 960, 0, 32 ], [ 0, 64, 40 ],
-[ 40, 64, 40 ], [ 80, 64, 40 ], [ 120, 64, 32 ], [ 152, 64, 56 ],
-[ 208, 64, 48 ], [ 256, 64, 48 ], [ 304, 64, 48 ], [ 352, 64, 48 ],
-[ 400, 64, 48 ], [ 448, 64, 48 ], [ 496, 64, 48 ], [ 544, 64, 48 ],
-[ 592, 64, 32 ], [ 624, 64, 40 ], [ 664, 64, 48 ], [ 712, 64, 40 ],
-[ 752, 64, 56 ], [ 808, 64, 48 ], [ 856, 64, 48 ], [ 904, 64, 48 ],
-[ 952, 64, 48 ], [ 0, 128, 48 ], [ 48, 128, 48 ], [ 96, 128, 48 ],
-[ 144, 128, 48 ], [ 192, 128, 48 ], [ 240, 128, 64 ], [ 304, 128, 56 ],
-[ 360, 128, 48 ], [ 408, 128, 48 ], [ 456, 128, 40 ], [ 496, 128, 24 ],
-[ 520, 128, 40 ], [ 560, 128, 40 ], [ 600, 128, 40 ], [ 640, 128, 24 ],
-[ 664, 128, 40 ], [ 704, 128, 48 ], [ 752, 128, 40 ], [ 792, 128, 48 ],
-[ 840, 128, 40 ], [ 880, 128, 40 ], [ 920, 128, 48 ], [ 968, 128, 40 ],
-[ 0, 192, 32 ], [ 32, 192, 32 ], [ 64, 192, 48 ], [ 112, 192, 32 ],
-[ 144, 192, 56 ], [ 200, 192, 40 ], [ 240, 192, 40 ], [ 280, 192, 48 ],
-[ 328, 192, 48 ], [ 376, 192, 40 ], [ 416, 192, 40 ], [ 456, 192, 32 ],
-[ 488, 192, 40 ], [ 528, 192, 40 ], [ 568, 192, 56 ], [ 624, 192, 48 ],
-[ 672, 192, 48 ], [ 720, 192, 40 ], [ 760, 192, 40 ], [ 800, 192, 16 ],
-[ 816, 192, 40 ], [ 856, 192, 40 ] ]
+var screenTextureID = mx.read_texture("@os2022bgsxobj/statue/other/timingtower/timingtower.seq");
+
+var numbersFont = {
+  tid: screenTextureID,
+  xoffset: 0,
+  yoffset: 0,
+  xscale: 555 / 2048,
+  yscale: 410 / 1024,
+  width: 2048,
+  height: 2048,
+  line_height: 283,
+  overlap: 0,
+  coords: [ [ 0, 0, 223 ], [ 223, 0, 142], [ 365, 0, 217 ], [ 582, 0, 201 ],
+  [ 783, 0, 221 ], [ 1004, 0, 207 ], [ 1211, 0, 198], [ 1409, 0, 218 ],
+  [ 1627, 0, 204 ], [ 1831, 0, 202 ], [ 0, 283, 99 ], [ 99, 283, 90 ], 
+  [ 189, 283, 154 ], [ 343, 283, 132 ], [ 475, 283, 159 ], [ 634, 283, 175 ], 
+  [ 809, 283, 187 ], [ 996, 283, 204 ], [ 1200, 283, 172 ], [ 1372, 283, 132 ], 
+  [ 1504, 283, 148 ], [ 1652, 283, 75 ], [ 1727, 283, 73 ], [ 1800, 283, 144 ], 
+  [ 0, 566, 154 ], [ 154, 566, 135 ], [ 289, 566, 140 ], [ 429, 566, 105 ], 
+  [ 534, 566, 117 ], [ 651, 566, 168 ], [ 819, 566, 143 ], [ 962, 566, 133 ], 
+  [ 1095, 566, 95 ]]
 };
 
-makeCellMap(screenFont, 
- "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
- "*");
+makeCellMap(numbersFont, "0123456789:.FLCHQMEahilnpsufygevt", ".");
 
-var currentScreen = "";
+var textFont = {
+  tid: screenTextureID,
+  xoffset: 0,
+  yoffset: 0.5,
+  xscale: 520 / 2048,
+  yscale: 475 / 1024,
+  width: 2048,
+  height: 2048,
+  line_height: 196,
+  overlap: -2,
+  coords: [ [ 0, 0, 120 ], [ 120, 0, 108 ], [ 228, 0, 108 ], [ 336, 0, 112 ],
+  [ 448, 0, 111 ], [ 559, 0, 76 ], [ 635, 0, 109 ], [ 744, 0, 108 ],
+  [ 852, 0, 56 ], [ 908, 0, 64 ], [ 972, 0, 108 ], [ 1080, 0, 46 ],
+  [ 1126, 0, 164 ], [ 1290, 0, 107 ], [ 1397, 0, 114 ], [ 1511, 0, 111 ],
+  [ 1622, 0, 112 ], [ 1734, 0, 79 ], [ 1813, 0, 98 ], [ 0, 196, 88 ],
+  [ 88, 196, 98 ], [ 186, 196, 103 ], [ 289, 196, 149 ],[ 438, 196, 103 ],
+  [ 541, 196, 101 ], [ 642, 196, 91 ], [ 733, 196, 127 ], [ 860, 196, 118 ],
+  [ 978, 196, 135 ], [ 1113, 196, 130 ], [ 1243, 196, 122 ], [ 1365, 196, 103 ],
+  [ 1468, 196, 138 ], [ 1606, 196, 126 ], [ 1732, 196, 54 ], [ 1786, 196, 106 ],
+  [ 1892, 196, 130 ], [ 0, 392, 118 ], [ 118, 392, 157 ], [ 275, 392, 131 ],
+  [ 406, 392, 144 ], [ 550, 392, 120 ], [ 670, 392, 137 ], [ 807, 392, 127 ],
+  [ 934, 392, 112 ], [ 1046, 392, 115 ], [ 1161, 392, 119 ], [ 1280, 392, 117 ],
+  [ 1397, 392, 164 ], [ 1561, 392, 123 ], [ 1684, 392, 116 ], [ 1800, 392, 114 ],
+  [ 1914, 392, 61 ], [ 0, 588, 152 ], [ 152, 588, 118 ], [ 270, 588, 117 ],
+  [ 387, 588, 161 ], [ 548, 588, 82 ], [ 630, 588, 129 ], [ 759, 588, 80 ],
+  [ 839, 588, 77 ], [ 916, 588, 74 ], [ 990, 588, 80 ], [ 1070, 588, 122 ],
+  [ 1192, 588, 116 ], [ 1308, 588, 97 ], [ 1405, 588, 66 ], [ 1471, 588, 72 ],
+  [ 1543, 588, 102 ], [ 1645, 588, 65 ], [ 1710, 588, 85 ], [ 1795, 588, 65 ],
+  [ 1860, 588, 100 ], [ 0, 784, 80 ], [ 80, 784, 116 ], [ 196, 784, 111 ], 
+  [ 307, 784, 90 ], [ 397, 784, 97 ], [ 494, 784, 73 ], [ 567, 784, 70 ], 
+  [ 637, 784, 115 ], [ 752, 784, 62 ], [ 814, 784, 117 ], [ 931, 784, 88 ], 
+  [ 1019, 784, 112 ], [ 1131, 784, 112 ], [ 1243, 784, 115 ], [ 1358, 784, 113 ], 
+  [ 1471, 784, 111 ], [ 1582, 784, 115 ], [ 1697, 784, 113 ], [ 1810, 784, 111 ] ]
+};
+  
+makeCellMap(textFont, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-=+_[]\\|:;\"'<>/?,.~`0123456789",
+"*");
 
-function showText(screen) {
-	if (screen == currentScreen)
-		return
-	currentScreen = screen;
-	mx.begin_custom_frame(screenTextureID);
-  // mx.paste_custom_frame(texture_id, frame_number, src_x, src_y, dst_x, dst_y, width, height)
-	mx.paste_custom_frame(screenTextureID, 0, 0, .5, 0.75, 0, 1.0, 0.5);
-	mx.paste_custom_frame(screenTextureID, 0, 0, .5, 0.75, .5, 1.0, 0.5);
-	drawText(screenFont, 0, 0, screen);
-	mx.end_custom_frame(screenTextureID);
+var colors = {
+	width: 245,
+	height: 75,
+  XValues: [23, 279, 536, 779],
+  YStart: 611,
+  YDifference: 79,
+	coords: {
+		red: [256, 156],
+		orange: [12, 230],
+		yellow: [256, 82],
+		green: [256, 9],
+		blue: [12, 82],
+		white: [12, 9],
+		cyan: [256, 230],
+		crimson: [12, 156],
+		get default() {return this.white;}
+	}
 }
 
 function getCondensedName(name) {
@@ -153,8 +291,8 @@ function getCondensedName(name) {
   name = name.replace(/\|.*/gm, "");
   // trim beginning and ending white spaces
   name = name.replace(/^\s+|\s+$/gm,"");
-  // remove any non-alphabetical characters and spaces
-  name = name.replace(/[^A-Za-z ]+/gm, "");
+  // remove any non-alphabetical characters and spaces except for apostrophes
+  name = name.replace(/[^A-Za-z &^\']+/gm, "");
   // trim any final spaces off
   name = name.replace(/\s+$/gm, "");
   
@@ -164,73 +302,162 @@ function getCondensedName(name) {
 
   nameArray = name.split(" ");
   if (nameArray.length > 1) {
-
     var lastNameEntry = nameArray[nameArray.length - 1];
-    while (lastNameEntry == "Jr" || lastNameEntry == "Sr") {
+    while (lastNameEntry.toLowerCase().match(/(jr\W|jr$)/) || lastNameEntry.toLowerCase().match(/(sr\W|sr$)/)) {
         nameArray.pop();
         lastNameEntry = nameArray[nameArray.length - 1];
         if (nameArray.length == 1) {
-            return nameArray[0];
+          if (nameArray[0].length > 10) {
+            nameArray[0] = nameArray[0].substring(0, 10) + ".";
+          }
+          return nameArray[0].toUpperCase();
         }
     }
-    return nameArray[nameArray.length - 1];
+    if (nameArray[nameArray.length - 1].length > 10) {
+      nameArray[nameArray.length - 1] = nameArray[nameArray.length - 1].substring(0, 10) + ".";
+    }
+    return nameArray[nameArray.length - 1].toUpperCase();
   }
-  return name;
+  if (name.length > 10) {
+    name = name.substring(0, 10) + ".";
+  }
+  return name.toUpperCase();
 }
 
 var towerMaxRidersShowing = 5;
+var lastScreenUpdate = 0;
+var prevHead;
 function updateScreen() {
-	// gets column numbers in array based on column n
-	// used for getting laptimes
-	var a = [];
-  var riderName, riderNum, numOfPeopleOnTower;
+  var riderName, numOfPeopleOnTower;
+  var r = globalRunningOrder;
+  // Update Qualifying Times
   if (!racingEvent) {
 
     // copy bestPlayerLaptimes into the sorted array
     var bestPlayerLapsArrSrtd = bestPlayerLaptimes.slice();
     // sort the array
-    bestPlayerLapsArrSrtd.sort(function (a, b){return a[0] - b[0];});
+    bestPlayerLapsArrSrtd.sort(function (a, b) {return a[0] - b[0];});
 
-    if (globalRunningOrder.length < towerMaxRidersShowing)
-      numOfPeopleOnTower = globalRunningOrder.length;
-    else
-      numOfPeopleOnTower = towerMaxRidersShowing;
-
-    for (var i = 0; i < numOfPeopleOnTower; i++){
+    numOfPeopleOnTower = towerMaxRidersShowing
+    if (r.length < towerMaxRidersShowing) {
+      numOfPeopleOnTower = r.length;
+    }
+      
+    
+    mx.begin_custom_frame(screenTextureID);
+    mx.paste_custom_frame(screenTextureID, 0, 0, 0, 0, 0, 1, 1);
+    drawHead(548 / 1024, "Qualifying", true);
+    var startY = (630 / 1024);
+    var colorY = (colors.YStart / 1024);
+    for (var i = 0; i < numOfPeopleOnTower; i++) {
       // times are stored in the first column of every row
       var time = bestPlayerLapsArrSrtd[i][0];
 
       // if no lap, don't display
-      if (time != undefinedTime){
+      if (time != undefinedTime) {
         // slots are stored in the second column of every row
         var slot = bestPlayerLapsArrSrtd[i][1];
-        // gets last name
-        riderName = getCondensedName(mx.get_rider_name(slot));
-        riderNum = mx.get_rider_number(slot);
-        a.push((i + 1).toString() + ')   ' + timeToString(time) + ' - #' + riderNum  + ' ' + riderName);
+        var riderNum = mx.get_rider_number(slot);
+        var text = timeToString(time, true) + " | " + riderNum.toString();
+        drawBody(startY, text, true);
+        colorWork(slot, colorY);
       }
+      startY += (79 / 1024);
+      colorY += (colors.YDifference / 1024);
     }
-    showText("Top Best Laps\nPos Time      Rider Name\n" + a.join("\n"));
-  }
-  else {
-    if (globalRunningOrder.length < towerMaxRidersShowing)
-      numOfPeopleOnTower = globalRunningOrder.length;
-
-    else
-      numOfPeopleOnTower = towerMaxRidersShowing;
-      
-    for (var i = 0; i < numOfPeopleOnTower; i++){
-      var timingGate = globalRunningOrder[i].position;
-      var slot = globalRunningOrder.slot;
-      if (timingGate > 0) {
-        riderName = getCondensedName(mx.get_rider_name(slot));
-        riderNum = mx.get_rider_number(slot);
-        a.push((i + 1).toString() + ')   ' + '#' + riderNum + ' ' + riderName);
-      }
-    }
-
-    showText("Running Order\nPos Rider  Name\n" + a.join("\n"));
+    mx.end_custom_frame(screenTextureID);
+    return;
   }
 
+  var seconds = mx.seconds;
+  if (seconds < lastScreenUpdate) lastScreenUpdate = seconds - 1/8;
+  if (seconds - lastScreenUpdate < 1 / 8) return;
+
+  var center = true;
+  var head = timeOrLapsRemaining();
+  if (!gateDropped || seconds == 0) {
+    head = "Main Event";
+    if (!mainEvent) {
+      if (globalFinishTime / 60 == 6) head = "Heat";
+      else head = "LCQ"
+    }
+  }
+
+  // If there's no need to update the screen then return
+  if (prevHead == head && !checkTopFivePositionChange()) return;
+
+  prevHead = head;
+  lastScreenUpdate = seconds;
+  
+  numOfPeopleOnTower = towerMaxRidersShowing;
+  if (r.length < towerMaxRidersShowing) {
+    numOfPeopleOnTower = r.length;
+  }
+
+  mx.begin_custom_frame(screenTextureID);
+  // Paste the original texture
+  mx.paste_custom_frame(screenTextureID, 0, 0, 0, 0, 0, 1, 1);
+  // Draw the head text
+  drawHead(548 / 1024, head, center);
+  // Update the screen based on the running order
+  var startY = (625 / 1024);
+  var colorY = (colors.YStart / 1024);
+  for (var i = 0; i < numOfPeopleOnTower; i++) {
+    var timingGate = r[i].position;
+    var slot = r[i].slot;
+    if (timingGate > 0) {
+      riderName = getCondensedName(mx.get_rider_name(slot));
+      // Draw body and color
+      drawBody(startY, riderName, true);
+      colorWork(slot, colorY);
+    }
+    startY += (79 / 1024);
+    colorY += (colors.YDifference / 1024);
+  }
+  mx.end_custom_frame(screenTextureID);
+
+}
+
+function drawBody(y, t, c) {
+  var coords = [82, 329, 596, 840];
+  if (c) coords = [169, 427, 675.5, 917];
+  drawScreenText(textFont, coords[0] / 1024, y, t, c);
+  drawScreenText(textFont, coords[1] / 1024, y, t, c);
+  drawScreenText(textFont, coords[2] / 1024, y, t, c);
+  drawScreenText(textFont, coords[3] / 1024, y, t, c);
+}
+
+function drawHead(y, t, c) {
+  // Northwest coordinates on board in px of where text should be placed
+  var coords = [30, 286, 543, 786];
+  if (c) coords = [143, 399, 649, 892];
+  drawScreenText(numbersFont, coords[0] / 1024, y, t, c);
+  drawScreenText(numbersFont, coords[1] / 1024, y, t, c);
+  drawScreenText(numbersFont, coords[2] / 1024, y, t, c);
+  drawScreenText(numbersFont, coords[3] / 1024, y, t, c);
+}
+
+function colorWork(slot, destinationY) {
+  var t = {};
+
+  t.color = getBrandColor(mx.get_bike_model(slot));
+  t.name = mx.get_rider_name(slot).replace(/\|.*/, "").toUpperCase();
+  t.avatar = getAvatar(slot, t.name);
+
+  if ("color" in t.avatar)
+    t.color = t.avatar.color;
+
+  var colorCoords = colors.coords[t.color];
+
+  var sourceX = colorCoords[0] / 1024;
+  var sourceY = colorCoords[1] / 1024;
+  var width = colors.width / 1024;
+  var height = colors.height / 1024;
+  
+  // draw colors
+  mx.paste_custom_frame(screenTextureID, 2, sourceX, sourceY, colors.XValues[0] / 1024, destinationY, width, height);
+  mx.paste_custom_frame(screenTextureID, 2, sourceX, sourceY, colors.XValues[1] / 1024, destinationY, width, height);
+  mx.paste_custom_frame(screenTextureID, 2, sourceX, sourceY, colors.XValues[2] / 1024, destinationY, width, height);
+  mx.paste_custom_frame(screenTextureID, 2, sourceX, sourceY, colors.XValues[3] / 1024, destinationY, width, height);
 }
 

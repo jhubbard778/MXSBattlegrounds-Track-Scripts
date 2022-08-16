@@ -73,11 +73,11 @@ function timeOrLapsRemaining() {
            return lapsRemainingString(l);
     }
   
-    return timeToString(t);
+    return timeToString(t, false);
 }
   
 function lapsRemaining() {
-    final_lap = lapsBeforeTime(globalFinishTime) + 1 + globalFinishLaps;
+    var final_lap = lapsBeforeTime(globalFinishTime) + 1 + globalFinishLaps;
     return final_lap - mx.index_to_lap(globalRunningOrder[0].position);
 }
   
@@ -133,11 +133,16 @@ function indexReachedBefore(index, seconds) {
     return false;
 }
 
-function breakTime(t) {
+function breakTime(t, full) {
    var min, sec, ms;
 
    ms = Math.floor(t * 1000.0);
    sec = Math.floor(ms / 1000);
+   
+   if (!full) {
+    sec = Math.ceil(t);
+   }
+
    min = Math.floor(sec / 60);
 
    ms -= sec * 1000;
@@ -161,14 +166,16 @@ function leftFillString(s, pad, n) {
 }
 
 // converts raw seconds to formatted time
-function timeToString(t) {
+function timeToString(t, full) {
    var s;
 
-   t = breakTime(t);
+   t = breakTime(t, full);
 
    s = leftFillString(t.min.toString(), " ", 0) + ":";
-   s += leftFillString(t.sec.toString(), "0", 2) + ".";
-   s += leftFillString(t.ms.toString(), "0", 3);
+   s += leftFillString(t.sec.toString(), "0", 2);
+   if (full) {
+    s += "." + leftFillString(t.ms.toString(), "0", 3);
+   }
 
    return s;
 }

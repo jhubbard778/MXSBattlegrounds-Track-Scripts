@@ -137,7 +137,8 @@ const booRiderNames = [
   "larry reyes jr",
   "jr reyes",
   "tyler lang",
-  "rasmus balzer"
+  "rasmus balzer",
+  "tyler more"
 ];
 
 const cheerRiderNames = [
@@ -150,7 +151,8 @@ const cheerRiderNames = [
   "tanner rogers",
   "colton hansen",
   "maxime vanderbeek",
-  "brandon larsen"
+  "brandon larsen",
+  "tyler more"
 ];
 
 var slotsToCheer = [];

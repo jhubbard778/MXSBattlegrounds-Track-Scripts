@@ -1,11 +1,10 @@
-var startedFlameSound = false;
 /*
 ################################################################################
 ## Gate Sounds
 ##
 ################################################################################
 */
-var gateDropTime;
+var gateDropTime = -1;
 var gateSoundPositions = [
     [149, 0, 517],
     [166, 0, 534],
@@ -23,7 +22,7 @@ for (var i = 0; i < gateSoundPositions.length; i++) {
 }
 
 function gateSound() {
-  if (!gateDropped) {
+  if (!gateDropped && gateDropTime < 0) {
     gateDropTime = mx.get_gate_drop_time();
   }
 
@@ -37,12 +36,14 @@ function gateSound() {
       triggerAllFlameSounds();
     }
   }
+
+  if (gateDropped && mx.seconds < gateDropTime) {
+    gateDropped = false;
+  }
   
-  if (mainEvent && ((gateDropped && mx.seconds < gateDropTime) || (!gateDropped && !startedFlameSound && mx.seconds > 0))) {
+  if (mainEvent && !gateDropped && mx.seconds > 0) {
     triggerStartFlameSound("notdropped");
     hideAllFlames();
-    gateDropped = false;
-    startedFlameSound = true;
   }
 }
 
