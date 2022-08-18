@@ -288,12 +288,22 @@ function triggerAllFlameSounds() {
 function triggerCrowdRoar(volume) {
   var randNumber;
   if (!stadium) {
+    // Stop all sounds
+    for (var i = 0; i < numOfBleachers; i++) {
+      for (var j = 0; j < numOfRoarVariants; j++) {
+        mx.stop_sound(crowdRoars[i][j]);
+      }
+    }
     for (var i = 0; i < numOfBleachers; i++) {
       randNumber = randomIntFromInterval(0, (numOfRoarVariants - 1));
       mx.set_sound_vol(crowdRoars[i][randNumber], volume);
       mx.start_sound(crowdRoars[i][randNumber]);
     }
   } else {
+    // stop sounds
+    for (var i = 0; i < numOfBleachers; i++) {
+      mx.stop_sound(crowdRoars[i]);
+    }
     randNumber = randomIntFromInterval(0, numOfBleachers - 1);
     mx.set_sound_vol(crowdRoars[randNumber], volume);
     mx.start_sound(crowdRoars[randNumber]);

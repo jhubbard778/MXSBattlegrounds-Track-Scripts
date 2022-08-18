@@ -5,6 +5,7 @@ get, sort, and display laptimes function
 */
 var bestPlayerLaptimes = [];
 var allPlayerLaptimes = [];
+var currentPlayerLaps = [];
 var invalidLaptimes = [];
 var invalidLapNumbers = [];
 var gotRunningOrder = false;
@@ -13,7 +14,6 @@ var debugLaps = true;
 var displayedInvalidLaps = false;
 
 function displayLaptimes() {
-	var riderName;
 	var r, slot, timingGate;
 
   r = globalRunningOrder;
@@ -26,6 +26,7 @@ function displayLaptimes() {
       allPlayerLaptimes[r[i].slot] = [undefinedTime];
       invalidLaptimes[r[i].slot] = [];
       invalidLapNumbers[r[i].slot] = [];
+      currentPlayerLaps[r[i].slot] = 0;
 		}
 		// update screen on start
 		if (!racingEvent) {
@@ -39,70 +40,85 @@ function displayLaptimes() {
 	  // initialize rider names array
 	  slot = r[i].slot;
 	  timingGate = r[i].position;
-  
-	  if ((timingGate - firstLapLength) % normalLapLength == 0 && (timingGate > 0) && 
-      (timingGate != firstLapLength) && (timingGate != currentTimingGates[slot])) {
 
-        riderName = mx.get_rider_name(slot);  
-
-        // Laptime will be an array that stores the laptime and if the laptime is good or not
-        var laptime = getLaptime(slot, timingGate);
-
-        // For time trial catching
-        if (r.length > allPlayerLaptimes.length) {
-          for (i = allPlayerLaptimes.length - 1; i < r.length; i++) {
-            bestPlayerLaptimes[i] = [undefinedTime, slot];
-            allPlayerLaptimes[i] = [undefinedTime];
-            invalidLaptimes[i] = [];
-            invalidLapNumbers[i] = [];
-          }
+    var lapNumber = mx.index_to_lap(timingGate);
+    
+    // If going back in a demo and lap number is less than the set lap number, reset their best lap
+    if (lapNumber < currentPlayerLaps[slot]) {
+      currentPlayerLaps[slot] = lapNumber;
+      if (allPlayerLaptimes[slot].length == 1) {
+        allPlayerLaptimes[slot] = [undefinedTime];
+        bestPlayerLaptimes[slot][0] = undefinedTime;
+        updateScreen();
+        continue;
+      }
+      
+      
+      allPlayerLaptimes[slot].pop();
+      var laps = allPlayerLaptimes[slot].slice();
+      var prevBest = laps.sort(function(a, b) {return a - b;});
+      var index = 0;
+      var validLap = false;
+      for (var i = 0; !validLap; i++) {
+        if (i == allPlayerLaptimes[slot].length) {
+          prevBest[0] = undefinedTime;
+          index = 0;
+          break;
         }
 
-        // Have to add 1 since laps are 1 based-indexed, this is the lap number the rider is on
-        var lapNumber = ((timingGate - firstLapLength) / normalLapLength) + 1;  
-        // Lap 2 is the first lap that counts, so take the lap number and subtract 2 to get the index
-        allPlayerLaptimes[slot][lapNumber - 2] = laptime[0];
-        
-        var newPB = false;  
-	    // if 2nd lap, replace pb of 0
-	    if (timingGate == (firstLapLength + normalLapLength)) {
-            newPB = true;
+        var allPlayerLapIndex = allPlayerLaptimes[slot].indexOf(prevBest[i]);
+        var invalidLapIndex = invalidLapNumbers[slot].indexOf(allPlayerLapIndex + 1);
+
+        if (invalidLapIndex === -1) {
+          validLap = true;
+          index = i;
         }
-	    // not 2nd lap, check to see if lap is faster
-	    else if (bestPlayerLaptimes[slot][0] > laptime[0]) {
-            newPB = true;
-        }
-  
-        // If the rider missed a timing gate and it's there best, don't count the lap as a pb
-        if (laptime[1] == false) {
-          if (newPB) newPB = false;
-          // If this rider has already had this invalid lap number and laptime added, return and don't add
-          if (invalidLapNumbers[slot].indexOf(lapNumber) > -1) return;
-  
-          // These two arrays have the same length
-          var len = invalidLaptimes[slot].length;
-          invalidLaptimes[slot][len] = laptime[0];
-          invalidLapNumbers[slot][len] = lapNumber;
-        }
-  
-        if (newPB) {
-          bestPlayerLaptimes[slot][0] = laptime[0];
-        
-	  	  // update screen
-	  	  if (!racingEvent) {
-            updateScreen();
-            // For time trial catching
-            if (riderName == "") {
-              riderName = "Ghost Rider";
-            }
-            // Display person ran best lap of the session
-            if (isFastestLap(laptime[0])) {
-              mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + timeToString(laptime[0], true));
-            }
-          }
-        }
-	  }
+      }
+
+      if (prevBest[index] != bestPlayerLaptimes[slot][0]) {
+        bestPlayerLaptimes[slot][0] = prevBest[index];
+        updateScreen();
+      }
     }
+
+    // new lap
+	  if (lapNumber > currentPlayerLaps[slot]) {
+
+      if (timingGate == firstLapLength) {
+        currentPlayerLaps[slot] = lapNumber;
+        continue;
+      }
+
+      // For time trial catching
+      if (r.length > allPlayerLaptimes.length) {
+        for (i = allPlayerLaptimes.length - 1; i < r.length; i++) {
+          bestPlayerLaptimes[i] = [undefinedTime, slot];
+          allPlayerLaptimes[i] = [undefinedTime, false];
+          invalidLaptimes[i] = [];
+          invalidLapNumbers[i] = [];
+        }
+      }
+
+      // client tabbed out during someone crossing the finish line catch up all previous laps then process the current lap
+      var difference = lapNumber - currentPlayerLaps[slot] - 1;
+      if (difference > 0) {
+        catchUpLaps(slot, difference);
+      }
+
+      var laptime = getLaptime(slot, timingGate);
+      
+      currentPlayerLaps[slot] = lapNumber;
+      //mx.message("currentPlayerLaps[" + mx.get_rider_name(slot) + "]: " + lapNumber.toString());
+      laptimeProcessing(laptime, lapNumber, slot);
+      
+	  }
+
+    // client tabbed out during and other players did laptimes when client was tabbed out
+    var difference = lapNumber - currentPlayerLaps[slot];
+    if (difference > 0) {
+      catchUpLaps(slot, difference);
+    }
+  }
 
   // display invalid laps if everyone finished
   if (!racingEvent && everyRiderFinished && !displayedInvalidLaps) {
@@ -169,6 +185,7 @@ function isFastestLap(laptime) {
   return false;
 }
 
+// Calculates the lap time and returns an array with the laptime and a boolean that will determine if the lap was valid or not
 function getLaptime(slot, currentGate) {
   var endGate = currentGate - 1;
   var startGate = endGate - normalLapLength;
@@ -185,3 +202,70 @@ function getLaptime(slot, currentGate) {
   return [finishLapTime - startLapTime, isLapGood];
 }
 
+// Catches up laptimes for when someone was either tabbed out or joined the server mid-session
+function catchUpLaps(slot, difference) {
+
+  for (var i = 0; i < difference; i++) {
+    if (currentPlayerLaps[slot] == 0) continue;
+    var startGate = mx.lap_to_index(i + currentPlayerLaps[slot]);
+    var endGate = startGate + normalLapLength;
+    
+    var isLapGood = true;
+    for (var j = startGate + 1; j < endGate; j++) {
+      if (mx.get_timing(slot, j) < 0) {
+        isLapGood = false;
+        break;
+      }
+    }
+    
+    var startLapTime = mx.get_timing(slot, startGate);
+    var finishLapTime = mx.get_timing(slot, endGate);
+    var laptime = [finishLapTime - startLapTime, isLapGood];
+
+    laptimeProcessing(laptime, (i + currentPlayerLaps[slot] + 1), slot);
+
+  }
+
+  currentPlayerLaps[slot] += difference;
+}
+
+function laptimeProcessing(laptime, lapNumber, slot) {
+
+  // Lap 2 is the first lap that counts, so take the lap number and subtract 2 to get the index
+  allPlayerLaptimes[slot][lapNumber - 2] = laptime[0];
+  
+  var newPB = false;
+	// check to see if lap is faster
+	if (bestPlayerLaptimes[slot][0] > laptime[0]) {
+    newPB = true;
+  }
+
+  // If the rider missed a timing gate and it's there best, don't count the lap as a pb
+  if (laptime[1] == false) {
+
+    if (newPB) newPB = false;
+    // If this rider has already had this invalid lap number and laptime added, return and don't add
+    if (invalidLapNumbers[slot].indexOf(lapNumber - 1) > -1) return;
+    // These two arrays have the same length
+    invalidLaptimes[slot].push(laptime[0]);
+    invalidLapNumbers[slot].push(lapNumber - 1);
+  }
+
+  if (newPB) {
+    bestPlayerLaptimes[slot][0] = laptime[0];
+  
+    var riderName = mx.get_rider_name(slot); 
+	  // update screen
+	  if (!racingEvent) {
+      updateScreen();
+      // For time trial catching
+      if (riderName == "") {
+        riderName = "Ghost Rider";
+      }
+      // Display person ran best lap of the session
+      if (isFastestLap(laptime[0])) {
+        mx.message("\x1b[32m" + riderName + '\x1b[0m runs fastest lap of the session: \x1b[32m' + timeToString(laptime[0], true));
+      }
+    }
+  }
+}
