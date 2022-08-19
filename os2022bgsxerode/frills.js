@@ -371,7 +371,7 @@ function getCondensedName(name) {
     return "Unknown Rider";
   }
 
-  nameArray = name.split(" ");
+  var nameArray = name.split(" ");
   if (nameArray.length > 1) {
     var lastNameEntry = nameArray[nameArray.length - 1];
     while (lastNameEntry.toLowerCase().match(/(jr\W|jr$)/) || lastNameEntry.toLowerCase().match(/(sr\W|sr$)/)) {
