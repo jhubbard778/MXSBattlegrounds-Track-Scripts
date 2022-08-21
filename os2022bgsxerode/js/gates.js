@@ -26,10 +26,10 @@ function gateSound() {
     gateDropTime = mx.get_gate_drop_time();
   }
 
-  if (gateDropTime > 0 && !gateDropped) {
+  if (gateDropTime > 0 && !gateDropped && mx.seconds >= gateDropTime) {
     for (var i = 0; i < gateSounds.length; i++) 
       mx.start_sound(gateSounds[i]);
-      
+    
     gateDropped = true;
 
     if (mainEvent) {
@@ -39,6 +39,7 @@ function gateSound() {
 
   if (gateDropped && mx.seconds < gateDropTime) {
     gateDropped = false;
+    hiddenFlames = false;
   }
   
   if (mainEvent && !gateDropped && mx.seconds > 0) {

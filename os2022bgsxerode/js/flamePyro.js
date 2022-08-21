@@ -248,12 +248,16 @@ function triggerStartFlameSound(status) {
     }
     // hide start loop pyro
     for (var i = startFlameLoopIndices.start - 1; i < startFlameLoopIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
+    // Show start shoot pyro
+    for (var i = startShootFlameIndices.start - 1; i < startShootFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
   }
-  else {
+  else if (status == "notdropped") {
+    // hide start shoot pyro
+    for (var i = startShootFlameIndices.start - 1; i < startShootFlameIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 0);
     // show start loop pyro
     for (var i = startFlameLoopIndices.start - 1; i < startFlameLoopIndices.end; i++) mx.color_billboard(i, 1, 1, 1, 1);
   
-    if (!startFlameSoundAdded){
+    if (!startFlameSoundAdded) {
         startFlameSound = [];
         for (var i = 0; i < startFlameCoords.length; i++) {
           startFlameSound[i] = mx.add_sound("@os2022bgsxobj/sounds/pyro/startflameburst.raw");
@@ -263,7 +267,7 @@ function triggerStartFlameSound(status) {
           startFlameSoundAdded = true;
         }
     }
-    if (!setStartFlameLoop){
+    if (!setStartFlameLoop) {
         for (var i = 0; i < startFlameSound.length; i++) {
           mx.stop_sound(startFlameSound[i]);
           mx.set_sound_loop(startFlameSound[i], 1);
@@ -273,7 +277,6 @@ function triggerStartFlameSound(status) {
         setStartFlameLoop = true;
     }
   }
-  return;
 }
 
 function triggerFireworkSounds() {
