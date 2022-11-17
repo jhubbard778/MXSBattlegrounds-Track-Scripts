@@ -6,13 +6,13 @@
 */
 var gateDropTime = -1;
 var gateSoundPositions = [
-    [149, 0, 517],
-    [166, 0, 534],
-    [183, 0, 551]
-  ];
+  [149, 0, 517],
+  [166, 0, 534],
+  [183, 0, 551]
+];
   
-  var gateSounds = [];
-  var gateDropped = false;
+var gateSounds = [];
+var gateDropped = false;
   
 for (var i = 0; i < gateSoundPositions.length; i++) {
     gateSounds[i] = mx.add_sound("@os2022bgsxobj/sounds/gate/gatedrop.raw");

@@ -89,6 +89,7 @@ function updateRiderFinishFlags() {
       }
       // if first is the only rider and they haven't finished (going back in demos)
       else if (everyRiderFinished) {
+        displayedAwards = false;
         ridersFinishedArr[r[0].slot] = false;
         everyRiderFinished = false;
         setSecondsAtFirstFinish = false;

@@ -102,52 +102,67 @@ if (racingEvent && race_event_crowd != undefined) {
  crimson: gasgas
 */
 var teamAvatars = {
-  privateerRed: {page: 1, row: 0, col: 0, color: "red"},
-  privateerOrange: {page: 1, row: 0, col: 0, color: "orange"},
-  privateerYellow: {page: 1, row: 0, col: 0, color: "yellow"},
-  privateerBlue: {page: 1, row: 0, col: 0, color: "green"},
-  privateerGreen: {page: 1, row: 0, col: 0, color: "blue"},
-  privateerWhite: {page: 1, row: 0, col: 0, color: "white"},
-  phils: {page: 1, row: 0, col: 0, color: "crimson"},
-  dbd: {page: 1, row: 0, col: 0, color: "orange"},
-  jdr: {page: 1, row: 0, col: 0, color: "yellow"},
-  aspect: {page: 1, row: 0, col: 0, color: "blue"},
-  mv: {page: 1, row: 0, col: 0, color: "red"},
-  swap: {page: 1, row: 0, col: 0, color: "orange"},
-  covenant: {page: 1, row: 0, col: 0, color: "orange"},
-  wildside: {page: 1, row: 0, col: 0, color: "orange"},
-  bpc: {page: 1, row: 0, col: 0, color: "crimson"},
-  panini: {page: 1, row: 0, col: 0, color: "blue"},
-  galaxy: {page: 1, row: 0, col: 0, color: "green"},
-  yogi: {page: 1, row: 0, col: 0, color: "green"},
-  default: {page: 1, row: 0, col: 0}
-}
+	active: {color: "blue"},
+	aektivco: {color: "blue"},
+	bootshouse: {color: "yellow"},
+	btosports: {color: "yellow"},
+	defenders: {color: "white"},
+	galaxy: {color: "orange"},
+	impact: {color: "crimson"},
+	makani: {color: "green"},
+	panicrev: {color: "white"},
+	philsxugrc: {color: "crimson"},
+	scr: {color: "crimson"},
+	sdworks: {color: "red"},
+	tsczproduction: {color: "white"},
+	vurbmoto: {color: "yellow"},
+	yogidesigns: {color: "orange"},
+	default: {}
+};
 
 var riderAvatars = [
-  { avatar: teamAvatars.jdr, re: /\bjack.*\bhaley\b/i },
-  { avatar: teamAvatars.privateerWhite, re: /\bjer.*\bsmith\b/i },
-  { avatar: teamAvatars.panini, re: /\balexis.*\bleclair\b/i },
-  { avatar: teamAvatars.panini, re: /\bjer.*\bseabolt\b/i },
-  { avatar: teamAvatars.panini, re: /\bpayson.*\bjohnson\b/i },
-  { avatar: teamAvatars.aspect, re: /\batom.*\bholm\b/i },
-  { avatar: teamAvatars.mv, re: /\bjeremy.*\bcohenour\b/i },
-  { avatar: teamAvatars.mv, re: /\brace.*\bkarlin\b/i },
-  { avatar: teamAvatars.panini, re: /\bmatias.*\bjanice\b/i },
-  { avatar: teamAvatars.privateerRed, re: /\bsean.*\bklein\b/i },
-  { avatar: teamAvatars.bpc, re: /\bchase.*\bblakely\b/i },
-  { avatar: teamAvatars.aspect, re: /\bneal.*\bwells\b/i },
-  { avatar: teamAvatars.phils, re: /\bjakob.*\bhubbard\b/i },
-  { avatar: teamAvatars.privateerOrange, re: /\bdevin.*\bdavis\b/i },
-  { avatar: teamAvatars.phils, re: /\bbraden.*\bcarter\b/i },
-  { avatar: teamAvatars.galaxy, re: /\bclint.*\bmartin\b/i },
-  { avatar: teamAvatars.panini, re: /\bcolby.*\begeland\b/i },
-  { avatar: teamAvatars.yogi, re: /\blogan.*\bleitzel\b/i },
-  { avatar: teamAvatars.phils, re: /\btyler.*\blang\b/i },
-  { avatar: teamAvatars.jdr, re: /\bdaniel.*\bmills\b/i },
-  { avatar: teamAvatars.phils, re: /\bbryce.*\bwhealon\b/i },
-       
-  /* catch all - this should be last */
-  { avatar: teamAvatars.default, re: /.*/ },
+	{avatar: teamAvatars.active, re: /\bjace.*\bwilliams\b/i},
+	{avatar: teamAvatars.active, re: /\bjonathan.*\bhernandez\b/i},
+	{avatar: teamAvatars.active, re: /\bchase.*\bodom\b/i},
+	{avatar: teamAvatars.active, re: /\bchristopher.*\bharris\b/i},
+	{avatar: teamAvatars.active, re: /\bjack.*\bgatland\b/i},
+	{avatar: teamAvatars.active, re: /\bjohannes.*\bbreindal\b/i},
+	{avatar: teamAvatars.active, re: /\bwill.*\bknau\b/i},
+	{avatar: teamAvatars.aektivco, re: /\bdanner.*\bbarton\b/i},
+	{avatar: teamAvatars.bootshouse, re: /\bbrandon.*\bnigrin\b/i},
+	{avatar: teamAvatars.bootshouse, re: /\bchristopher.*\bmcpherson\b/i},
+	{avatar: teamAvatars.bootshouse, re: /\bemmanuel.*\bcepeda\b/i},
+	{avatar: teamAvatars.btosports, re: /\bilan.*\bcigarro\b/i},
+	{avatar: teamAvatars.defenders, re: /\bnicolas.*\bmarchini\b/i},
+	{avatar: teamAvatars.defenders, re: /\bpablo.*\bvial\b/i},
+	{avatar: teamAvatars.defenders, re: /\bemil.*\bhoule\b/i},
+	{avatar: teamAvatars.defenders, re: /\baurelien.*\bbaillif\b/i},
+	{avatar: teamAvatars.defenders, re: /\bberre.*\bbrands\b/i},
+	{avatar: teamAvatars.galaxy, re: /\blogan.*\bheagney\b/i},
+	{avatar: teamAvatars.impact, re: /\bcorentin.*\bjulian\b/i},
+	{avatar: teamAvatars.impact, re: /\btyler.*\bmore\b/i},
+	{avatar: teamAvatars.impact, re: /\bmaxime.*\bvanderbeek\b/i},
+	{avatar: teamAvatars.makani, re: /\bchance.*\bsetser\b/i},
+	{avatar: teamAvatars.panicrev, re: /\bhugo.*\bdelzenne\b/i},
+	{avatar: teamAvatars.philsxugrc, re: /\bbraden.*\bcarter\b/i},
+	{avatar: teamAvatars.philsxugrc, re: /\bmaximus.*\bvohland\b/i},
+	{avatar: teamAvatars.philsxugrc, re: /\bgatlin.*\bmorrow\b/i},
+	{avatar: teamAvatars.philsxugrc, re: /\bjakob.*\bhubbard\b/i},
+	{avatar: teamAvatars.philsxugrc, re: /\berin.*\brockafellow\b/i},
+	{avatar: teamAvatars.philsxugrc, re: /\bcaleb.*\bhall\b/i},
+	{avatar: teamAvatars.scr, re: /\bjacob.*\bcumbridge\b/i},
+	{avatar: teamAvatars.sdworks, re: /\bdavid.*\bsalas\b/i},
+	{avatar: teamAvatars.tsczproduction, re: /\btheo.*\bsieciechowicz\b/i},
+	{avatar: teamAvatars.tsczproduction, re: /\blois.*\bgorin\b/i},
+	{avatar: teamAvatars.tsczproduction, re: /\bnoa.*\bhouque\b/i},
+	{avatar: teamAvatars.tsczproduction, re: /\bantoine.*\bmouqueron\b/i},
+	{avatar: teamAvatars.vurbmoto, re: /\bzach.*\bfischer\b/i},
+	{avatar: teamAvatars.yogidesigns, re: /\baustin.*\bbear\b/i},
+	{avatar: teamAvatars.yogidesigns, re: /\bluke.*\bsullivan\b/i},
+	{avatar: teamAvatars.yogidesigns, re: /\btrent.*\badams\b/i},
+	
+	/* catch all - this should be last */
+	{avatar: teamAvatars.default, re: /.*/}
 ];
 
 var brandRegExps = [
@@ -805,6 +820,7 @@ function updateRiderFinishFlags() {
       }
       // if first is the only rider and they haven't finished (going back in demos)
       else if (everyRiderFinished) {
+        displayedAwards = false;
         ridersFinishedArr[r[0].slot] = false;
         everyRiderFinished = false;
         setSecondsAtFirstFinish = false;
@@ -838,8 +854,8 @@ var whiteFlagIndex = greenFlagIndex + 1;
 var checkedFlagIndex = whiteFlagIndex + 1;
 var firstYellowFlagIndex;
 
-var starterStartPos = [ 312.8, 385.2 ];
-var starterEndPos = [ 284.7, 357.5 ];
+var starterStartPos = [312.8, 385.2];
+var starterEndPos = [284.7, 357.5];
 var starterFeetPerSecond = 10.0;
 var starterRunVector = [ 0, 0 ];
 var starterRunDistance;
@@ -5484,13 +5500,13 @@ function startRoar(volume) {
 */
 var gateDropTime = -1;
 var gateSoundPositions = [
-    [149, 0, 517],
-    [166, 0, 534],
-    [183, 0, 551]
-  ];
+  [149, 0, 517],
+  [166, 0, 534],
+  [183, 0, 551]
+];
   
-  var gateSounds = [];
-  var gateDropped = false;
+var gateSounds = [];
+var gateDropped = false;
   
 for (var i = 0; i < gateSoundPositions.length; i++) {
     gateSounds[i] = mx.add_sound("@os2022bgsxobj/sounds/gate/gatedrop.raw");
@@ -5590,28 +5606,28 @@ function makeNameComparisonFinish(slot) {
   
 var playFinishSoundAndFlame = false;
 function lapsRemainingString(l) {
-    if (l == 0) {
-        if (racingEvent) {
-            if (!playFinishSoundAndFlame) {
-                if (mainEvent) {
-                    triggerAllFlameSounds();
-                    triggerFireworkSounds();
-                    makeNameComparisonFinish(globalRunningOrder[0].slot);
-                }
-                // someone wins a heat or lcq
-                else triggerCrowdRoar(0.4);
-                playFinishSoundAndFlame = true;
-            }
-        }
-        return "Finish";
-    }
-    if (l == 1) {
-        if (mainEvent && playFinishSoundAndFlame) {
-            playFinishSoundAndFlame = false;
-        }
-        return "Final Lap";
-    }
-    return l.toFixed(0) + " Laps"
+  if (l == 0) {
+      if (racingEvent) {
+          if (!playFinishSoundAndFlame) {
+              if (mainEvent) {
+                  triggerAllFlameSounds();
+                  triggerFireworkSounds();
+                  makeNameComparisonFinish(globalRunningOrder[0].slot);
+              }
+              // someone wins a heat or lcq
+              else triggerCrowdRoar(0.4);
+              playFinishSoundAndFlame = true;
+          }
+      }
+      return "Finish";
+  }
+  if (l == 1) {
+      if (mainEvent && playFinishSoundAndFlame) {
+          playFinishSoundAndFlame = false;
+      }
+      return "Final Lap";
+  }
+  return l.toFixed(0) + " Laps"
 }
 
 function timeOrLapsRemaining() {
@@ -5821,7 +5837,6 @@ function displayLaptimes() {
 
     // new lap
 	  if (lapNumber > currentPlayerLaps[slot]) {
-
       if (timingGate == firstLapLength) {
         currentPlayerLaps[slot] = lapNumber;
         continue;
@@ -5831,7 +5846,7 @@ function displayLaptimes() {
       if (r.length > allPlayerLaptimes.length) {
         for (i = allPlayerLaptimes.length - 1; i < r.length; i++) {
           bestPlayerLaptimes[i] = [undefinedTime, slot];
-          allPlayerLaptimes[i] = [undefinedTime, false];
+          allPlayerLaptimes[i] = [undefinedTime];
           invalidLaptimes[i] = [];
           invalidLapNumbers[i] = [];
         }
@@ -5971,7 +5986,6 @@ function laptimeProcessing(laptime, lapNumber, slot) {
 
   // Lap 2 is the first lap that counts, so take the lap number and subtract 2 to get the index
   allPlayerLaptimes[slot][lapNumber - 2] = laptime[0];
-  
   var newPB = false;
 	// check to see if lap is faster
 	if (bestPlayerLaptimes[slot][0] > laptime[0]) {
@@ -5980,7 +5994,6 @@ function laptimeProcessing(laptime, lapNumber, slot) {
 
   // If the rider missed a timing gate and it's there best, don't count the lap as a pb
   if (laptime[1] == false) {
-
     if (newPB) newPB = false;
     // If this rider has already had this invalid lap number and laptime added, return and don't add
     if (invalidLapNumbers[slot].indexOf(lapNumber - 1) > -1) return;
@@ -5990,12 +6003,16 @@ function laptimeProcessing(laptime, lapNumber, slot) {
   }
 
   if (newPB) {
+
     bestPlayerLaptimes[slot][0] = laptime[0];
-  
     var riderName = mx.get_rider_name(slot); 
 	  // update screen
 	  if (!racingEvent) {
-      updateScreen();
+      try {
+        updateScreen();
+      } catch (e) {
+        mx.message("error updating screen:" + e);
+      }
       // For time trial catching
       if (riderName == "") {
         riderName = "Ghost Rider";
@@ -6601,12 +6618,15 @@ var mostConsistentRider;
 function riderAwards() {
   // If it's not a main event, don't display awards
   if (!mainEvent) return;
-
+  
   if (everyRiderFinished && !displayedAwards) {
-    
     calculatePositionsGained();
-    mostConsistentRider = getRiderConsistency();
-
+    try {
+      mostConsistentRider = getRiderConsistency();
+    } catch (e) {
+      mx.message("consistency calculation error: " + e);
+    }
+  
     var msg;
     var extraSpace = false;
     
@@ -6617,26 +6637,31 @@ function riderAwards() {
     msg = "Nobody";
     extraSpace = true;
     
-    // Holeshot
-    printHeader("\x1b[36m", "Holeshot Award:", 21, extraSpace);
-
-    var riderName = mx.get_rider_name(holeshotRiderSlot);
-    if (riderName) msg = riderName.toString();
+    try {
+      // Holeshot
+      printHeader("\x1b[36m", "Holeshot Award:", 21, extraSpace);
+      
+      var riderName = mx.get_rider_name(holeshotRiderSlot);
+      if (riderName) msg = riderName.toString();
+      mx.message(msg);
+      mx.message("");
+    } catch (e) {
+      mx.message("holeshot error");
+    }
     
-    mx.message(msg);
-    mx.message("");
     msg = "Nobody";
-
-    // Hard Charger Award
-    printHeader("\x1b[32m", "Hard Charger Award:", 27, extraSpace)
+      // Hard Charger Award
+      printHeader("\x1b[32m", "Hard Charger Award:", 27, extraSpace)
 
     var positionsGained = 0;
     if (riderPositionsGained[0]){
       positionsGained = riderPositionsGained[0][0];
       riderName = mx.get_rider_name(riderPositionsGained[0][1]);
-      if (positionsGained != 0) msg = "\x1b[32m+" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
+      if (positionsGained != 0) {
+        msg = "\x1b[32m+" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
+      } 
     }
-    
+
     mx.message(msg);
     mx.message("");
     msg = "Nobody";
@@ -6647,7 +6672,9 @@ function riderAwards() {
     if (riderPositionsGained[riderPositionsGained.length - 1][0] != riderPositionsGained[0][0]) {
       positionsGained = riderPositionsGained[riderPositionsGained.length - 1][0];
       riderName = mx.get_rider_name(riderPositionsGained[riderPositionsGained.length - 1][1]);
-      if (positionsGained != 0) msg = "\x1b[31m" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
+      if (positionsGained != 0) {
+        msg = "\x1b[31m" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
+      } 
     }
     
     mx.message(msg);
@@ -6662,18 +6689,23 @@ function riderAwards() {
       riderName = mx.get_rider_name(fastestRider[1]);
       msg = "\x1b[34m" + timeToString(fastestRider[0], true) + '\x1b[0m - ' + riderName.toString();
     }
+   
     mx.message(msg);
     mx.message("");
     msg = "Nobody";
 
-    // Consistency Award
-    printHeader("\x1b[35m", "Consistency Award:", 25, extraSpace);
-
-    var stdDeviation = mostConsistentRider[0].toFixed(3);
-    riderName = mx.get_rider_name(mostConsistentRider[1]);
-    if (mostConsistentRider) msg = "\x1b[35mStd. Dev: " + stdDeviation.toString() + "\x1b[0m - " + riderName.toString();
-    mx.message(msg);
-
+    try {
+      // Consistency Award
+      printHeader("\x1b[35m", "Consistency Award:", 25, extraSpace);
+      if (mostConsistentRider) {
+        var stdDeviation = mostConsistentRider[0].toFixed(3);
+        riderName = mx.get_rider_name(mostConsistentRider[1]);
+        msg = "\x1b[35mStd. Dev: " + stdDeviation.toString() + "\x1b[0m - " + riderName.toString();
+      }
+      mx.message(msg);
+    } catch (e) {
+      mx.message("consistency error: " + e);
+    }
     displayedAwards = true;
   }
 }
@@ -6745,42 +6777,71 @@ function getRiderConsistency() {
   var avgLaps = [];
   var stdDeviations = [];
 
-  for (var slot = 0; slot < allPlayerLaptimes.length; slot++) {
+  // get the player slots
+  var playerSlots = [];
+  for (var i = 0; i < globalRunningOrder.length; i++) {
+    playerSlots.push(globalRunningOrder[i].slot);
+  }
+
+  // go through player slots
+  for (var i = 0; i < playerSlots.length; i++) {
+    var slot = playerSlots[i];
     var sum = 0;
     avgLaps[slot] = undefined;
     stdDeviations[slot] = undefined;
-    if (allPlayerLaptimes[slot].length > 0) {
+    
+    var lapsCounted = 0;
+    if (allPlayerLaptimes[slot].length > 0) {      
+      var playersInvalidLaps = invalidLaptimes[slot];  
       // calculate average laptime for each player
       for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
-        sum += allPlayerLaptimes[slot][j];
+        // if the laptime is valid
+        var index = playersInvalidLaps.indexOf(allPlayerLaptimes[slot][j]);
+        if (index === -1) {
+          sum += allPlayerLaptimes[slot][j];
+          lapsCounted++;
+        }
       }
-      avgLaps[slot] = sum / allPlayerLaptimes[slot].length;
+      avgLaps[slot] = sum / lapsCounted;
 
       // std deviation = sqrt((lap - avglap)^2 for all laps / num of laps)
       sum = 0;
       for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
+        // if the laptime is invalid
+        var index = playersInvalidLaps.indexOf(allPlayerLaptimes[slot][j]);
+        if (index !== -1) {
+          // remove from the player invalid laps
+          playersInvalidLaps.splice(index, 1);
+          continue;
+        }
         sum += Math.pow(allPlayerLaptimes[slot][j] - avgLaps[slot], 2);
       }
 
-      var variance = sum / allPlayerLaptimes[slot].length;
-      var stdDeviationiation = Math.sqrt(variance);
-      stdDeviations[slot] = [stdDeviationiation, slot];
+      var variance = sum / lapsCounted;
+      var deviation = Math.sqrt(variance);
+      if (deviation > 0) {
+        stdDeviations[slot] = [deviation, slot];
+      }
     }
   }
 
   // sort by array by each rider's standard deviation
   stdDeviations.sort(function (a, b){return a[0] - b[0];})
   
-  // filter out zeros and undefined.
-  for (var i = 0; i < stdDeviations.length; i++) {
-    if (!stdDeviations[i] || stdDeviations[i][0] <= 0) {
-      stdDeviations.splice(i,1);
-      i--;
+  // filter out undefined.
+  for (var i = 0; i < playerSlots.length; i++) {
+    var slot = playerSlots[i];
+    if (!stdDeviations[slot]) {
+      stdDeviations.splice(slot,1);
     }
- }
+  }
+
+  if (stdDeviations.length > 0) {
+    // returns an array with the consistency and slot associated
+    return stdDeviations[0];
+  }
   
-  // returns an array with the consistency and slot associated
-  return stdDeviations[0];
+  return undefined
 }
 
 function resetCurrentTimingGates() {
@@ -6931,6 +6992,7 @@ const baleCoordsUp = [
   [316.517975, -5.000000, 356.387115, -0.083836],
   [296.786530, -5.000000, 412.985748, -1.083203]
 ];
+
 var balesToPushUp = [];
 const numOfBalesToPushUp = baleCoordsUp.length;
 
@@ -7029,7 +7091,8 @@ function frameHandler(seconds) {
   gateSound();
   determineHoleshot();
   updateRiderFinishFlags();
-  
+  displayLaptimes();
+
   if (racingEvent) {
     isRiderDown();
     dynamicMechanicAndFans();
@@ -7039,10 +7102,10 @@ function frameHandler(seconds) {
     updateScreen();
   }
 
-	displayLaptimes();
   moveBales();
   flaggersFrameHandler(seconds);
   resetCurrentTimingGates();
+
   frameHandlerPrev(seconds);
 }
 

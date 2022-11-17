@@ -3,12 +3,15 @@ var mostConsistentRider;
 function riderAwards() {
   // If it's not a main event, don't display awards
   if (!mainEvent) return;
-
+  
   if (everyRiderFinished && !displayedAwards) {
-    
     calculatePositionsGained();
-    mostConsistentRider = getRiderConsistency();
-
+    try {
+      mostConsistentRider = getRiderConsistency();
+    } catch (e) {
+      mx.message("consistency calculation error: " + e);
+    }
+  
     var msg;
     var extraSpace = false;
     
@@ -19,26 +22,31 @@ function riderAwards() {
     msg = "Nobody";
     extraSpace = true;
     
-    // Holeshot
-    printHeader("\x1b[36m", "Holeshot Award:", 21, extraSpace);
-
-    var riderName = mx.get_rider_name(holeshotRiderSlot);
-    if (riderName) msg = riderName.toString();
+    try {
+      // Holeshot
+      printHeader("\x1b[36m", "Holeshot Award:", 21, extraSpace);
+      
+      var riderName = mx.get_rider_name(holeshotRiderSlot);
+      if (riderName) msg = riderName.toString();
+      mx.message(msg);
+      mx.message("");
+    } catch (e) {
+      mx.message("holeshot error");
+    }
     
-    mx.message(msg);
-    mx.message("");
     msg = "Nobody";
-
-    // Hard Charger Award
-    printHeader("\x1b[32m", "Hard Charger Award:", 27, extraSpace)
+      // Hard Charger Award
+      printHeader("\x1b[32m", "Hard Charger Award:", 27, extraSpace)
 
     var positionsGained = 0;
     if (riderPositionsGained[0]){
       positionsGained = riderPositionsGained[0][0];
       riderName = mx.get_rider_name(riderPositionsGained[0][1]);
-      if (positionsGained != 0) msg = "\x1b[32m+" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
+      if (positionsGained != 0) {
+        msg = "\x1b[32m+" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
+      } 
     }
-    
+
     mx.message(msg);
     mx.message("");
     msg = "Nobody";
@@ -49,7 +57,9 @@ function riderAwards() {
     if (riderPositionsGained[riderPositionsGained.length - 1][0] != riderPositionsGained[0][0]) {
       positionsGained = riderPositionsGained[riderPositionsGained.length - 1][0];
       riderName = mx.get_rider_name(riderPositionsGained[riderPositionsGained.length - 1][1]);
-      if (positionsGained != 0) msg = "\x1b[31m" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
+      if (positionsGained != 0) {
+        msg = "\x1b[31m" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
+      } 
     }
     
     mx.message(msg);
@@ -64,18 +74,23 @@ function riderAwards() {
       riderName = mx.get_rider_name(fastestRider[1]);
       msg = "\x1b[34m" + timeToString(fastestRider[0], true) + '\x1b[0m - ' + riderName.toString();
     }
+   
     mx.message(msg);
     mx.message("");
     msg = "Nobody";
 
-    // Consistency Award
-    printHeader("\x1b[35m", "Consistency Award:", 25, extraSpace);
-
-    var stdDeviation = mostConsistentRider[0].toFixed(3);
-    riderName = mx.get_rider_name(mostConsistentRider[1]);
-    if (mostConsistentRider) msg = "\x1b[35mStd. Dev: " + stdDeviation.toString() + "\x1b[0m - " + riderName.toString();
-    mx.message(msg);
-
+    try {
+      // Consistency Award
+      printHeader("\x1b[35m", "Consistency Award:", 25, extraSpace);
+      if (mostConsistentRider) {
+        var stdDeviation = mostConsistentRider[0].toFixed(3);
+        riderName = mx.get_rider_name(mostConsistentRider[1]);
+        msg = "\x1b[35mStd. Dev: " + stdDeviation.toString() + "\x1b[0m - " + riderName.toString();
+      }
+      mx.message(msg);
+    } catch (e) {
+      mx.message("consistency error: " + e);
+    }
     displayedAwards = true;
   }
 }
@@ -147,41 +162,70 @@ function getRiderConsistency() {
   var avgLaps = [];
   var stdDeviations = [];
 
-  for (var slot = 0; slot < allPlayerLaptimes.length; slot++) {
+  // get the player slots
+  var playerSlots = [];
+  for (var i = 0; i < globalRunningOrder.length; i++) {
+    playerSlots.push(globalRunningOrder[i].slot);
+  }
+
+  // go through player slots
+  for (var i = 0; i < playerSlots.length; i++) {
+    var slot = playerSlots[i];
     var sum = 0;
     avgLaps[slot] = undefined;
     stdDeviations[slot] = undefined;
-    if (allPlayerLaptimes[slot].length > 0) {
+    
+    var lapsCounted = 0;
+    if (allPlayerLaptimes[slot].length > 0) {      
+      var playersInvalidLaps = invalidLaptimes[slot];  
       // calculate average laptime for each player
       for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
-        sum += allPlayerLaptimes[slot][j];
+        // if the laptime is valid
+        var index = playersInvalidLaps.indexOf(allPlayerLaptimes[slot][j]);
+        if (index === -1) {
+          sum += allPlayerLaptimes[slot][j];
+          lapsCounted++;
+        }
       }
-      avgLaps[slot] = sum / allPlayerLaptimes[slot].length;
+      avgLaps[slot] = sum / lapsCounted;
 
       // std deviation = sqrt((lap - avglap)^2 for all laps / num of laps)
       sum = 0;
       for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
+        // if the laptime is invalid
+        var index = playersInvalidLaps.indexOf(allPlayerLaptimes[slot][j]);
+        if (index !== -1) {
+          // remove from the player invalid laps
+          playersInvalidLaps.splice(index, 1);
+          continue;
+        }
         sum += Math.pow(allPlayerLaptimes[slot][j] - avgLaps[slot], 2);
       }
 
-      var variance = sum / allPlayerLaptimes[slot].length;
-      var stdDeviationiation = Math.sqrt(variance);
-      stdDeviations[slot] = [stdDeviationiation, slot];
+      var variance = sum / lapsCounted;
+      var deviation = Math.sqrt(variance);
+      if (deviation > 0) {
+        stdDeviations[slot] = [deviation, slot];
+      }
     }
   }
 
   // sort by array by each rider's standard deviation
   stdDeviations.sort(function (a, b){return a[0] - b[0];})
   
-  // filter out zeros and undefined.
-  for (var i = 0; i < stdDeviations.length; i++) {
-    if (!stdDeviations[i] || stdDeviations[i][0] <= 0) {
-      stdDeviations.splice(i,1);
-      i--;
+  // filter out undefined.
+  for (var i = 0; i < playerSlots.length; i++) {
+    var slot = playerSlots[i];
+    if (!stdDeviations[slot]) {
+      stdDeviations.splice(slot,1);
     }
- }
+  }
+
+  if (stdDeviations.length > 0) {
+    // returns an array with the consistency and slot associated
+    return stdDeviations[0];
+  }
   
-  // returns an array with the consistency and slot associated
-  return stdDeviations[0];
+  return undefined
 }
 
