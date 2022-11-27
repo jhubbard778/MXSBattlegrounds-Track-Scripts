@@ -11,8 +11,8 @@ var whiteFlagIndex = greenFlagIndex + 1;
 var checkedFlagIndex = whiteFlagIndex + 1;
 var firstYellowFlagIndex;
 
-var starterStartPos = [312.8, 385.2];
-var starterEndPos = [284.7, 357.5];
+var starterStartPos = [ 312.8, 385.2 ];
+var starterEndPos = [ 284.7, 357.5 ];
 var starterFeetPerSecond = 10.0;
 var starterRunVector = [ 0, 0 ];
 var starterRunDistance;

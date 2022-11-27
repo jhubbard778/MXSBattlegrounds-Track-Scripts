@@ -756,7 +756,7 @@ function updateRiderFinishFlags() {
     
     // stores rider positions after lap 1
     if (timingGate == firstLapLength && timingGate != currentTimingGates[slot]) {
-      riderPositionsAfterL1[slot] = [(i + 1), slot];
+      riderPositionsAfterL1[slot] = (i + 1);
     } 
       
 
@@ -789,10 +789,9 @@ function updateRiderFinishFlags() {
         }
 
         if (timingGate != currentTimingGates[slot]) {
-
           // if rider hit the finish timing gate, set the position they finished and a flag that they have finished
           if ((timingGate - firstLapLength) % normalLapLength == 0 || globalFinishLaps == 0) {
-            riderFinishPositions[slot] = [(i + 1), slot];
+            riderFinishPositions[slot] = (i + 1);
             ridersFinishedArr[slot] = true;
           }
 
@@ -804,7 +803,7 @@ function updateRiderFinishFlags() {
           // if they have hit a new timing gate and have finished it means we've incorrectly assumed they've given up, so reset
           else if (ridersFinishedArr[slot]) {
             ridersFinishedArr[slot] = false;
-            timesUntilGiveUpArr[slot] = undefined;
+            timesUntilGiveUpArr[slot] = mx.seconds + timeToGiveUp;
             if (everyRiderFinished && displayedAwards) {
               everyRiderFinished = false;
               displayedAwards = false;
@@ -814,7 +813,7 @@ function updateRiderFinishFlags() {
 
         // if current in game time is greater than the riders time to give up, set flag that they have finished
         else if (mx.seconds > timesUntilGiveUpArr[slot] && ridersFinishedArr[slot] == 0) {
-          riderFinishPositions[slot] = [(i + 1), slot];
+          riderFinishPositions[slot] = (i + 1);
           ridersFinishedArr[slot] = true;
         }
       }
@@ -827,13 +826,11 @@ function updateRiderFinishFlags() {
       }
     }
   }
-
-  // check every flag is set to true, if it is we can now display awards if it's a main, or display invalid laps if it's not a racing event
   if (!everyRiderFinished) {
     everyRiderFinished = true;
-    displayedInvalidLaps = false;
-    for (var i = 0; i < ridersFinishedArr.length; i++) {
-      if (ridersFinishedArr[i] == false) {
+    for (var i = 0; i < r.length; i++) {
+      slot = r[i].slot;
+      if (ridersFinishedArr[slot] == false) {
         everyRiderFinished = false;
         break;
       }
@@ -5267,7 +5264,7 @@ dynamic crowd for position changes/battles
 // will cheer if there is a battle, in this case they will cheer if there is a battle
 // within the top 3
 var numOfPeopleToCheer = 3;
-const timingGateToStartBattles = 14;
+const timingGateToStartBattles = 16;
 var startedBattleFunction = false;
 
 // Index 0 is gap between 1st and 2nd, Index 1 is gap between 2nd and 3rd, etc.
@@ -6620,6 +6617,7 @@ function riderAwards() {
   if (!mainEvent) return;
   
   if (everyRiderFinished && !displayedAwards) {
+    displayedAwards = true;
     calculatePositionsGained();
     try {
       mostConsistentRider = getRiderConsistency();
@@ -6706,7 +6704,6 @@ function riderAwards() {
     } catch (e) {
       mx.message("consistency error: " + e);
     }
-    displayedAwards = true;
   }
 }
 
@@ -6728,21 +6725,18 @@ var riderPositionsGained;
 
 // calculate stats
 function calculatePositionsGained () {
-  if (riderPositionsAfterL1.length != riderFinishPositions.length) {
-    mx.message("Error with array lengths of rider positions!");
-    return;
-  };
-
+  var r = globalRunningOrder;
   var numNullArrs = 0;
   // reset the rider positions gained
   riderPositionsGained = [];
-  for (var i = 0; i < riderPositionsAfterL1.length; i++) {
-    if (riderPositionsAfterL1[i] && riderFinishPositions[i]) {
+  for (var i = 0; i < r.length; i++) {
+    var slot = r[i].slot;
+    if (riderPositionsAfterL1[slot] && riderFinishPositions[slot]) {
       riderPositionsGained.push([]);
       // first store the number of positions gained
-      riderPositionsGained[i - numNullArrs][0] = riderPositionsAfterL1[i][0] - riderFinishPositions[i][0];
+      riderPositionsGained[i - numNullArrs][0] = riderPositionsAfterL1[slot] - riderFinishPositions[slot];
       // then their slot number associated
-      riderPositionsGained[i - numNullArrs][1] = riderPositionsAfterL1[i][1];
+      riderPositionsGained[i - numNullArrs][1] = slot;
     } else {
       numNullArrs++;
     }
@@ -6773,25 +6767,20 @@ function getFastestLap() {
 }
 
 function getRiderConsistency() {
-  // TODO: calculate the std deviation for each rider
   var avgLaps = [];
   var stdDeviations = [];
 
-  // get the player slots
-  var playerSlots = [];
-  for (var i = 0; i < globalRunningOrder.length; i++) {
-    playerSlots.push(globalRunningOrder[i].slot);
-  }
+  var r = globalRunningOrder;
 
   // go through player slots
-  for (var i = 0; i < playerSlots.length; i++) {
-    var slot = playerSlots[i];
+  for (var i = 0; i < r.length; i++) {
+    var slot = r[i].slot;
     var sum = 0;
     avgLaps[slot] = undefined;
     stdDeviations[slot] = undefined;
     
     var lapsCounted = 0;
-    if (allPlayerLaptimes[slot].length > 0) {      
+    if (allPlayerLaptimes[slot].length > 0) {
       var playersInvalidLaps = invalidLaptimes[slot];  
       // calculate average laptime for each player
       for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
@@ -6803,7 +6792,6 @@ function getRiderConsistency() {
         }
       }
       avgLaps[slot] = sum / lapsCounted;
-
       // std deviation = sqrt((lap - avglap)^2 for all laps / num of laps)
       sum = 0;
       for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
@@ -6829,8 +6817,8 @@ function getRiderConsistency() {
   stdDeviations.sort(function (a, b){return a[0] - b[0];})
   
   // filter out undefined.
-  for (var i = 0; i < playerSlots.length; i++) {
-    var slot = playerSlots[i];
+  for (var i = 0; i < r.length; i++) {
+    var slot = r[i].slot;
     if (!stdDeviations[slot]) {
       stdDeviations.splice(slot,1);
     }
@@ -7098,7 +7086,11 @@ function frameHandler(seconds) {
     dynamicMechanicAndFans();
     battlesFunction();
     doPyro();
-    riderAwards();
+    try {
+      riderAwards();
+    } catch (e) {
+      mx.message("rider awards error: " + e);
+    }
     updateScreen();
   }
 

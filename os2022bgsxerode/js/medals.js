@@ -3,15 +3,12 @@ var mostConsistentRider;
 function riderAwards() {
   // If it's not a main event, don't display awards
   if (!mainEvent) return;
-  
+
   if (everyRiderFinished && !displayedAwards) {
+    displayedAwards = true;
     calculatePositionsGained();
-    try {
-      mostConsistentRider = getRiderConsistency();
-    } catch (e) {
-      mx.message("consistency calculation error: " + e);
-    }
-  
+    mostConsistentRider = getRiderConsistency();
+
     var msg;
     var extraSpace = false;
     
@@ -22,31 +19,26 @@ function riderAwards() {
     msg = "Nobody";
     extraSpace = true;
     
-    try {
-      // Holeshot
-      printHeader("\x1b[36m", "Holeshot Award:", 21, extraSpace);
-      
-      var riderName = mx.get_rider_name(holeshotRiderSlot);
-      if (riderName) msg = riderName.toString();
-      mx.message(msg);
-      mx.message("");
-    } catch (e) {
-      mx.message("holeshot error");
-    }
+    // Holeshot
+    printHeader("\x1b[36m", "Holeshot Award:", 21, extraSpace);
+
+    var riderName = mx.get_rider_name(holeshotRiderSlot);
+    if (riderName) msg = riderName.toString();
     
+    mx.message(msg);
+    mx.message("");
     msg = "Nobody";
-      // Hard Charger Award
-      printHeader("\x1b[32m", "Hard Charger Award:", 27, extraSpace)
+
+    // Hard Charger Award
+    printHeader("\x1b[32m", "Hard Charger Award:", 27, extraSpace)
 
     var positionsGained = 0;
     if (riderPositionsGained[0]){
       positionsGained = riderPositionsGained[0][0];
       riderName = mx.get_rider_name(riderPositionsGained[0][1]);
-      if (positionsGained != 0) {
-        msg = "\x1b[32m+" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
-      } 
+      if (positionsGained != 0) msg = "\x1b[32m+" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
     }
-
+    
     mx.message(msg);
     mx.message("");
     msg = "Nobody";
@@ -57,9 +49,7 @@ function riderAwards() {
     if (riderPositionsGained[riderPositionsGained.length - 1][0] != riderPositionsGained[0][0]) {
       positionsGained = riderPositionsGained[riderPositionsGained.length - 1][0];
       riderName = mx.get_rider_name(riderPositionsGained[riderPositionsGained.length - 1][1]);
-      if (positionsGained != 0) {
-        msg = "\x1b[31m" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
-      } 
+      if (positionsGained != 0) msg = "\x1b[31m" + positionsGained.toString() + ' Positions\x1b[0m - ' + riderName.toString();
     }
     
     mx.message(msg);
@@ -74,24 +64,17 @@ function riderAwards() {
       riderName = mx.get_rider_name(fastestRider[1]);
       msg = "\x1b[34m" + timeToString(fastestRider[0], true) + '\x1b[0m - ' + riderName.toString();
     }
-   
     mx.message(msg);
     mx.message("");
     msg = "Nobody";
 
-    try {
-      // Consistency Award
-      printHeader("\x1b[35m", "Consistency Award:", 25, extraSpace);
-      if (mostConsistentRider) {
-        var stdDeviation = mostConsistentRider[0].toFixed(3);
-        riderName = mx.get_rider_name(mostConsistentRider[1]);
-        msg = "\x1b[35mStd. Dev: " + stdDeviation.toString() + "\x1b[0m - " + riderName.toString();
-      }
-      mx.message(msg);
-    } catch (e) {
-      mx.message("consistency error: " + e);
-    }
-    displayedAwards = true;
+    // Consistency Award
+    printHeader("\x1b[35m", "Consistency Award:", 25, extraSpace);
+
+    var stdDeviation = mostConsistentRider[0].toFixed(3);
+    riderName = mx.get_rider_name(mostConsistentRider[1]);
+    if (mostConsistentRider) msg = "\x1b[35mStd. Dev: " + stdDeviation.toString() + "\x1b[0m - " + riderName.toString();
+    mx.message(msg);
   }
 }
 
@@ -113,21 +96,18 @@ var riderPositionsGained;
 
 // calculate stats
 function calculatePositionsGained () {
-  if (riderPositionsAfterL1.length != riderFinishPositions.length) {
-    mx.message("Error with array lengths of rider positions!");
-    return;
-  };
-
+  var r = globalRunningOrder;
   var numNullArrs = 0;
   // reset the rider positions gained
   riderPositionsGained = [];
-  for (var i = 0; i < riderPositionsAfterL1.length; i++) {
-    if (riderPositionsAfterL1[i] && riderFinishPositions[i]) {
+  for (var i = 0; i < r.length; i++) {
+    var slot = r[i].slot;
+    if (riderPositionsAfterL1[slot] && riderFinishPositions[slot]) {
       riderPositionsGained.push([]);
       // first store the number of positions gained
-      riderPositionsGained[i - numNullArrs][0] = riderPositionsAfterL1[i][0] - riderFinishPositions[i][0];
+      riderPositionsGained[i - numNullArrs][0] = riderPositionsAfterL1[slot] - riderFinishPositions[slot];
       // then their slot number associated
-      riderPositionsGained[i - numNullArrs][1] = riderPositionsAfterL1[i][1];
+      riderPositionsGained[i - numNullArrs][1] = slot;
     } else {
       numNullArrs++;
     }
@@ -158,25 +138,20 @@ function getFastestLap() {
 }
 
 function getRiderConsistency() {
-  // TODO: calculate the std deviation for each rider
   var avgLaps = [];
   var stdDeviations = [];
 
-  // get the player slots
-  var playerSlots = [];
-  for (var i = 0; i < globalRunningOrder.length; i++) {
-    playerSlots.push(globalRunningOrder[i].slot);
-  }
+  var r = globalRunningOrder;
 
   // go through player slots
-  for (var i = 0; i < playerSlots.length; i++) {
-    var slot = playerSlots[i];
+  for (var i = 0; i < r.length; i++) {
+    var slot = r[i].slot;
     var sum = 0;
     avgLaps[slot] = undefined;
     stdDeviations[slot] = undefined;
     
     var lapsCounted = 0;
-    if (allPlayerLaptimes[slot].length > 0) {      
+    if (allPlayerLaptimes[slot].length > 0) {
       var playersInvalidLaps = invalidLaptimes[slot];  
       // calculate average laptime for each player
       for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
@@ -188,7 +163,6 @@ function getRiderConsistency() {
         }
       }
       avgLaps[slot] = sum / lapsCounted;
-
       // std deviation = sqrt((lap - avglap)^2 for all laps / num of laps)
       sum = 0;
       for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
@@ -214,8 +188,8 @@ function getRiderConsistency() {
   stdDeviations.sort(function (a, b){return a[0] - b[0];})
   
   // filter out undefined.
-  for (var i = 0; i < playerSlots.length; i++) {
-    var slot = playerSlots[i];
+  for (var i = 0; i < r.length; i++) {
+    var slot = r[i].slot;
     if (!stdDeviations[slot]) {
       stdDeviations.splice(slot,1);
     }
@@ -228,4 +202,3 @@ function getRiderConsistency() {
   
   return undefined
 }
-

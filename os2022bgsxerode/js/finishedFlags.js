@@ -25,7 +25,7 @@ function updateRiderFinishFlags() {
     
     // stores rider positions after lap 1
     if (timingGate == firstLapLength && timingGate != currentTimingGates[slot]) {
-      riderPositionsAfterL1[slot] = [(i + 1), slot];
+      riderPositionsAfterL1[slot] = (i + 1);
     } 
       
 
@@ -58,10 +58,9 @@ function updateRiderFinishFlags() {
         }
 
         if (timingGate != currentTimingGates[slot]) {
-
           // if rider hit the finish timing gate, set the position they finished and a flag that they have finished
           if ((timingGate - firstLapLength) % normalLapLength == 0 || globalFinishLaps == 0) {
-            riderFinishPositions[slot] = [(i + 1), slot];
+            riderFinishPositions[slot] = (i + 1);
             ridersFinishedArr[slot] = true;
           }
 
@@ -73,7 +72,7 @@ function updateRiderFinishFlags() {
           // if they have hit a new timing gate and have finished it means we've incorrectly assumed they've given up, so reset
           else if (ridersFinishedArr[slot]) {
             ridersFinishedArr[slot] = false;
-            timesUntilGiveUpArr[slot] = undefined;
+            timesUntilGiveUpArr[slot] = mx.seconds + timeToGiveUp;
             if (everyRiderFinished && displayedAwards) {
               everyRiderFinished = false;
               displayedAwards = false;
@@ -83,7 +82,7 @@ function updateRiderFinishFlags() {
 
         // if current in game time is greater than the riders time to give up, set flag that they have finished
         else if (mx.seconds > timesUntilGiveUpArr[slot] && ridersFinishedArr[slot] == 0) {
-          riderFinishPositions[slot] = [(i + 1), slot];
+          riderFinishPositions[slot] = (i + 1);
           ridersFinishedArr[slot] = true;
         }
       }
@@ -96,13 +95,11 @@ function updateRiderFinishFlags() {
       }
     }
   }
-
-  // check every flag is set to true, if it is we can now display awards if it's a main, or display invalid laps if it's not a racing event
   if (!everyRiderFinished) {
     everyRiderFinished = true;
-    displayedInvalidLaps = false;
-    for (var i = 0; i < ridersFinishedArr.length; i++) {
-      if (ridersFinishedArr[i] == false) {
+    for (var i = 0; i < r.length; i++) {
+      slot = r[i].slot;
+      if (ridersFinishedArr[slot] == false) {
         everyRiderFinished = false;
         break;
       }
