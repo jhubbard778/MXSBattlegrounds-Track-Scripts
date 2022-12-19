@@ -140,7 +140,6 @@ function getFastestLap() {
 function getRiderConsistency() {
   var avgLaps = [];
   var stdDeviations = [];
-
   var r = globalRunningOrder;
 
   // go through player slots
@@ -150,33 +149,22 @@ function getRiderConsistency() {
     avgLaps[slot] = undefined;
     stdDeviations[slot] = undefined;
     
-    var lapsCounted = 0;
     if (allPlayerLaptimes[slot].length > 0) {
-      var playersInvalidLaps = invalidLaptimes[slot];  
+      const numLaps = allPlayerLaptimes[slot].length;
       // calculate average laptime for each player
-      for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
+      for (var j = 0; j < numLaps; j++) {
         // if the laptime is valid
-        var index = playersInvalidLaps.indexOf(allPlayerLaptimes[slot][j]);
-        if (index === -1) {
-          sum += allPlayerLaptimes[slot][j];
-          lapsCounted++;
-        }
+        sum += allPlayerLaptimes[slot][j];
       }
-      avgLaps[slot] = sum / lapsCounted;
+      avgLaps[slot] = sum / numLaps;
+
       // std deviation = sqrt((lap - avglap)^2 for all laps / num of laps)
       sum = 0;
-      for (var j = 0; j < allPlayerLaptimes[slot].length; j++) {
-        // if the laptime is invalid
-        var index = playersInvalidLaps.indexOf(allPlayerLaptimes[slot][j]);
-        if (index !== -1) {
-          // remove from the player invalid laps
-          playersInvalidLaps.splice(index, 1);
-          continue;
-        }
+      for (var j = 0; j < numLaps; j++) {
         sum += Math.pow(allPlayerLaptimes[slot][j] - avgLaps[slot], 2);
       }
 
-      var variance = sum / lapsCounted;
+      var variance = sum / numLaps;
       var deviation = Math.sqrt(variance);
       if (deviation > 0) {
         stdDeviations[slot] = [deviation, slot];
@@ -184,9 +172,6 @@ function getRiderConsistency() {
     }
   }
 
-  // sort by array by each rider's standard deviation
-  stdDeviations.sort(function (a, b){return a[0] - b[0];})
-  
   // filter out undefined.
   for (var i = 0; i < r.length; i++) {
     var slot = r[i].slot;
@@ -194,6 +179,9 @@ function getRiderConsistency() {
       stdDeviations.splice(slot,1);
     }
   }
+
+  // sort by array by each rider's standard deviation
+  stdDeviations.sort(function (a, b){return a[0] - b[0];})
 
   if (stdDeviations.length > 0) {
     // returns an array with the consistency and slot associated
